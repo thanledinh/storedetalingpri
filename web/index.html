@@ -178,6 +178,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .brand{width:auto;max-width:min(320px,70%);max-height:46px;margin:22px auto 6px}
 .leg-head h2,.finish h2{font-family:var(--serif);font-weight:600;font-size:clamp(40px,8.4vw,76px);line-height:1.02;letter-spacing:-.012em;margin-top:12px}
 .leg-head h2 em,.finish h2 em{font-weight:500}
+.z-head{font-family:"Montserrat",var(--sans)}
+.z-head .milestone b{font-family:inherit;font-weight:700;font-size:18px}
+.leg-head.z-head h2{font-family:inherit;font-weight:800;font-size:clamp(38px,9vw,68px);letter-spacing:.02em;text-transform:uppercase}
+.z-head h2 span{color:#eece23}
 .leg-sub{color:var(--ink-2);margin-top:14px;font-size:15px}
 .leg-sub b{color:var(--gold-hi);font-weight:500;white-space:nowrap}
 
@@ -360,10 +364,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
   <section class="board" id="ppf" data-stop="PPF Zappa" aria-label="Bảng giá PPF Zappa">
     <div class="scroller" tabindex="-1"><div class="inner">
-      <header class="leg-head">
+      <header class="leg-head z-head">
         <p class="milestone">Chặng <b>I</b></p>
         <img class="brand" src="assets/logo-zappa.png" alt="Zappa Paint Protection Film">
-        <h2>PPF <em class="shimmer">Zappa</em></h2>
+        <h2>PPF <span>Zappa</span></h2>
         <p class="leg-sub">Phim bảo vệ sơn TPU · <b>áp dụng từ tháng 8 · 2026</b></p>
       </header>
       <div class="wrap">
