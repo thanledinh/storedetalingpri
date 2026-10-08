@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#07080a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07080a;
@@ -224,6 +224,24 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .p-row strong small{font-size:.48em;font-weight:500;color:var(--gold);margin-left:3px}
 .p-row strong.mid small{color:var(--muted)}
 .unit{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px;letter-spacing:0}
+
+/* thẻ PPF Zappa — theo mẫu thương hiệu (Montserrat, vàng Zappa) */
+.zcard{--zy:#eece23;font-family:"Montserrat",var(--sans);background:#000;border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:16px 18px 20px}
+.zcard::before{display:none}
+@media (hover:hover){.zcard:hover{border-color:rgba(238,206,35,.6)}}
+.z-plate{border-radius:12px;overflow:hidden;background:#ccc}
+.z-plate img{width:100%;height:auto}
+.z-kicker{margin:18px 2px 0;color:var(--zy);font-weight:600;font-size:13px;letter-spacing:.02em;text-transform:uppercase}
+.zcard .z-name{font-family:inherit;font-weight:800;font-size:clamp(28px,7vw,34px);line-height:1.1;color:var(--zy);margin:2px 2px 12px}
+.z-specs div{display:flex;align-items:center;gap:14px;padding:7px 2px;font-size:13.5px;font-weight:500;text-transform:uppercase;color:#fff}
+.z-specs dt,.z-specs dd{white-space:nowrap}
+.z-line{flex:1;min-width:14px;height:1px;background:rgba(255,255,255,.5)}
+.z-price{margin-top:14px;padding:14px 2px 0;border-top:2px solid #c8c8c8}
+.z-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.z-lbl{color:var(--zy);font-weight:600;font-size:13px;text-transform:uppercase}
+.z-row s{color:rgba(255,255,255,.6);font-weight:600;font-size:15px;text-decoration-thickness:1.5px;font-variant-numeric:tabular-nums}
+.z-off{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:5px;background:var(--zy);color:#000;font-weight:800;font-size:12px;vertical-align:1px}
+.z-big{font-weight:800;font-size:clamp(32px,8.6vw,40px);line-height:1.1;color:var(--zy);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 
 .notes{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin:26px auto 0;max-width:900px;color:var(--muted);font-size:13px;text-align:center}
 .notes li::before{content:"✦";color:var(--gold);font-size:9px;margin-right:8px;vertical-align:2px}
@@ -463,13 +481,13 @@ const ein = t => t * t * t;
    DỮ LIỆU BẢNG GIÁ — sửa giá tại đây
    ══════════════════════════════════════════ */
 const DATA = {
-  ppf: [ // PPF Zappa — giá theo cây
-    { name: '1368',     img: 'ppf-1368.png',    mil: 7.5,  warranty: 5,  list:  9600000, sale:  8160000, off: 15 },
-    { name: '1378',     img: 'ppf-1378.png',    mil: 8.5,  warranty: 5,  list: 12800000, sale: 10880000, off: 15 },
-    { name: '1388',     img: 'ppf-1388.png',    mil: 9.5,  warranty: 8,  list: 16800000, sale: 14280000, off: 15 },
-    { name: '1388 PRO', img: 'ppf-1388pro.png', mil: 10.5, warranty: 8,  list: 19900000, sale: 15920000, off: 20 },
-    { name: '1398',     img: 'ppf-1398.png',    mil: 12.5, warranty: 10, list: 29200000, sale: 23360000, off: 20 },
-    { name: '1398 PRO', img: 'ppf-1398pro.png', mil: 13.5, warranty: 10, list: 33900000, sale: 25425000, off: 25 },
+  ppf: [ // PPF Zappa — giá theo cây; warranty = bảo hành bong tróc, fade = bảo hành ngả màu (năm)
+    { name: '1368',     img: 'ppf-1368.jpg',    mil: 7.5,  warranty: 5,  fade: 2, list:  9600000, sale:  8160000, off: 15 },
+    { name: '1378',     img: 'ppf-1378.jpg',    mil: 8.5,  warranty: 5,  fade: 2, list: 12800000, sale: 10880000, off: 15 },
+    { name: '1388',     img: 'ppf-1388.jpg',    mil: 9.5,  warranty: 8,  fade: 2, list: 16800000, sale: 14280000, off: 15 },
+    { name: '1388 PRO', img: 'ppf-1388pro.jpg', mil: 10.5, warranty: 8,  fade: 2, list: 19900000, sale: 15920000, off: 20 },
+    { name: '1398',     img: 'ppf-1398.jpg',    mil: 12.5, warranty: 10, fade: 2, list: 29200000, sale: 23360000, off: 20 },
+    { name: '1398 PRO', img: 'ppf-1398pro.jpg', mil: 13.5, warranty: 10, fade: 2, list: 33900000, sale: 25425000, off: 25 },
   ],
   color: [ // PPF màu — giá đại lý theo cây
     { name: 'Đơn Sport',                img: 'color-sport.png', size: '1,52 × 18 m', warranty: 3, price:  8500000 },
@@ -496,21 +514,25 @@ const TOW_SPEED = 1;
 const spec = (k, v, extra = '') => `<div><dt>${k}</dt><i class="leader"></i><dd>${v}</dd>${extra}</div>`;
 const money = (n, cls = '') => `<strong class="${cls}">${vnd(n)}<small>đ</small></strong>`;
 const seal = off => off ? `<span class="seal" aria-label="Giảm ${off}%"><span>-${off}%</span></span>` : '';
+const zrow = (k, v) => `<div><dt>${k}</dt><i class="z-line"></i><dd>${v}</dd></div>`;
 const plate = (img, alt, kind) => `<div class="plate ${kind}"><img src="assets/${img}" alt="${alt}"></div>`;
 
 const R = {
   ppf: (d, i) => `
-    <article class="card rv" style="--i:${i % 3}">
-      ${seal(d.off)}
-      ${plate(d.img, 'Cuộn PPF Zappa ' + d.name, 'light')}
-      <div class="card-head"><p class="kicker">Zappa series</p><h3>${d.name.replace(/ PRO$/, ' <em>Pro</em>')}</h3></div>
-      <dl class="specs">
-        ${spec('Độ dày (± 0.3 mil)', d.mil + ' mil', `<span class="meter" style="--m:${(d.mil / 14).toFixed(3)}"><i></i></span>`)}
-        ${spec('Bảo hành bong tróc', d.warranty + ' năm')}
+    <article class="card zcard rv" style="--i:${i % 3}">
+      <div class="z-plate"><img src="assets/${d.img}" alt="Hộp PPF Zappa ${d.name}"></div>
+      <p class="z-kicker">PPF Zappa Series</p>
+      <h3 class="z-name">${d.name}</h3>
+      <dl class="z-specs">
+        ${zrow('Độ dày ± 0.3 mil', d.mil + ' mil')}
+        ${zrow('Đơn vị tính', 'Cây')}
+        ${zrow('Bảo hành bong tróc', d.warranty + ' năm')}
+        ${zrow('Bảo hành ngả màu', d.fade + ' năm')}
       </dl>
-      <div class="price">
-        <div class="p-row"><span class="p-lbl">Niêm yết</span><s>${vnd(d.list)}</s></div>
-        <div class="p-row"><span class="p-lbl">Khuyến mãi</span><span>${money(d.sale)}<span class="unit">/ cây</span></span></div>
+      <div class="z-price">
+        <p class="z-row"><span class="z-lbl">Giá niêm yết</span><s>${vnd(d.list)}</s></p>
+        <p class="z-lbl">Giá khuyến mãi <span class="z-off">-${d.off}%</span></p>
+        <p class="z-big">${vnd(d.sale)}</p>
       </div>
     </article>`,
   color: (d, i) => `
@@ -990,7 +1012,7 @@ Road.onFrame(() => {
   if (towP !== null) p = towP;
   else { const sc = boards[cur].sc, max = sc.scrollHeight - sc.clientHeight; p = cur + (cur < N && max > 0 ? sc.scrollTop / max * .92 : 0); }
   line.style.setProperty('--p', (p / N).toFixed(4));
-  const a = Math.round(p);
+  const a = towP !== null ? Math.round(p) : cur;
   if (a !== lastActive) { stops.forEach((s, j) => s.classList.toggle('on', j === a)); nowEl.textContent = boards[a].name; lastActive = a; }
 });
 
