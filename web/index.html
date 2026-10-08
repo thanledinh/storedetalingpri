@@ -90,13 +90,11 @@ button{font:inherit;color:inherit}
 html.shake .intro-inner{animation:shake .38s linear infinite}
 
 /* ───────────── HUD + LỘ TRÌNH ───────────── */
-.hud{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+.hud{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:flex-end;gap:12px;
   padding:10px max(16px,env(safe-area-inset-right)) 18px max(16px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));
   background:linear-gradient(rgba(7,8,10,.96) 55%,rgba(7,8,10,0));opacity:0;transform:translateY(-12px);transition:opacity .7s ease,transform .7s var(--out),background .4s;pointer-events:none}
 html.ready .hud{opacity:1;transform:none;pointer-events:auto}
 html.towing .hud{background:transparent}
-.hud-logo{background:none;border:0;cursor:pointer}
-.hud-logo img{height:24px;width:auto}
 .hud-right{display:flex;align-items:center;gap:8px}
 .speedo{display:flex;align-items:baseline;gap:5px;border:1px solid var(--line);border-radius:999px;padding:6px 13px;background:rgba(10,10,12,.66);font-size:11px;letter-spacing:.1em;color:var(--muted);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .speedo b{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--gold-hi);min-width:3ch;text-align:right;font-variant-numeric:tabular-nums lining-nums;letter-spacing:0}
@@ -342,7 +340,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 <!-- ═════════ HUD ═════════ -->
 <header class="hud">
-  <button class="hud-logo" type="button" data-go="0" aria-label="Về điểm xuất phát"><img src="assets/logo-store.png" alt="Store Detailing"></button>
   <div class="hud-right">
     <div class="speedo" aria-hidden="true"><b id="kmh">0</b>km/h</div>
     <button class="icon-btn" id="sound" type="button" aria-pressed="false" aria-label="Bật/tắt tiếng động cơ">
