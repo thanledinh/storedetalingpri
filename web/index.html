@@ -116,6 +116,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .track i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p,0) * 100%);border-radius:2px;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi))}
 .stop{position:absolute;top:0;left:calc(var(--x) * 100%);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;color:var(--muted);font-size:10px;letter-spacing:.06em;white-space:nowrap}
 .stop b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#0d0d0f;border:1px solid rgba(242,235,220,.24);font-family:var(--serif);font-weight:600;font-size:10px;color:var(--ink-2);transition:all .3s}
+.stop b svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .stop span{display:none}
 .stop.on b{background:var(--gold-hi);border-color:var(--gold-hi);color:#14100a;box-shadow:0 0 12px rgba(236,212,154,.55)}
 .stop.on{color:var(--gold-hi)}
@@ -174,12 +175,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .milestone{display:inline-flex;align-items:center;gap:14px;color:var(--gold);font-size:11px;letter-spacing:.34em;text-transform:uppercase}
 .milestone::before,.milestone::after{content:"";width:52px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
 .milestone::after{transform:scaleX(-1)}
-.milestone b{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:0;color:var(--gold-hi)}
 .brand{width:auto;max-width:min(320px,70%);max-height:46px;margin:22px auto 6px}
 .leg-head h2,.finish h2{font-family:var(--serif);font-weight:600;font-size:clamp(40px,8.4vw,76px);line-height:1.02;letter-spacing:-.012em;margin-top:12px}
 .leg-head h2 em,.finish h2 em{font-weight:500}
 .z-head{font-family:"Montserrat",var(--sans)}
-.z-head .milestone b{font-family:inherit;font-weight:700;font-size:18px}
 .leg-head.z-head h2{font-family:inherit;font-weight:800;font-size:clamp(38px,9vw,68px);letter-spacing:.02em;text-transform:uppercase}
 .z-head h2 span{color:#eece23}
 .leg-sub{color:var(--ink-2);margin-top:14px;font-size:15px}
@@ -365,10 +364,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   <section class="board" id="ppf" data-stop="PPF Zappa" aria-label="Bảng giá PPF Zappa">
     <div class="scroller" tabindex="-1"><div class="inner">
       <header class="leg-head z-head">
-        <p class="milestone">Chặng <b>I</b></p>
+        <p class="milestone">Bảo vệ sơn</p>
         <img class="brand" src="assets/logo-zappa.png" alt="Zappa Paint Protection Film">
         <h2>PPF <span>Zappa</span></h2>
-        <p class="leg-sub">Phim bảo vệ sơn TPU · <b>áp dụng từ tháng 8 · 2026</b></p>
+        <p class="leg-sub">Phim TPU · <b>áp dụng từ tháng 8 · 2026</b></p>
       </header>
       <div class="wrap">
         <div class="grid" data-render="ppf"></div>
@@ -384,7 +383,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   <section class="board" id="ppf-mau" data-stop="PPF màu" aria-label="Bảng giá PPF màu">
     <div class="scroller" tabindex="-1"><div class="inner">
       <header class="leg-head">
-        <p class="milestone">Chặng <b>II</b></p>
+        <p class="milestone">Đổi màu xe</p>
         <img class="brand" src="assets/logo-zappa.png" alt="Zappa Paint Protection Film">
         <h2>PPF <em class="shimmer">màu</em></h2>
         <p class="leg-sub">Supreme Wrapping Film · giá đại lý theo cây</p>
@@ -403,7 +402,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   <section class="board" id="cach-am" data-stop="Cách âm" aria-label="Bảng giá cách âm – tiêu âm">
     <div class="scroller" tabindex="-1"><div class="inner">
       <header class="leg-head">
-        <p class="milestone">Chặng <b>III</b></p>
+        <p class="milestone">Giảm ồn khoang xe</p>
         <img class="brand" src="assets/logo-ultimate-vibromax.png" alt="Ultimate · Vibromax">
         <h2>Cách âm <em class="shimmer">· Tiêu âm</em></h2>
         <p class="leg-sub">Ultimate · Vibromax · giá đại lý theo thùng</p>
@@ -415,7 +414,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   <section class="board" id="phu-gam" data-stop="Phủ gầm" aria-label="Bảng giá phủ gầm GB">
     <div class="scroller" tabindex="-1"><div class="inner">
       <header class="leg-head">
-        <p class="milestone">Chặng <b>IV</b></p>
+        <p class="milestone">Bảo vệ gầm xe</p>
         <img class="brand" src="assets/logo-gb.png" alt="GB Premium Car Care" style="max-height:64px">
         <h2>Phủ <em class="shimmer">gầm</em></h2>
         <p class="leg-sub">GB Premium Car Care · theo chai hoặc thùng 12 chai</p>
@@ -448,7 +447,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 <div class="pull" id="pull" aria-hidden="true"><span id="pullTxt"></span><i></i></div>
 
-<nav class="route" aria-label="Các chặng bảng giá">
+<nav class="route" aria-label="Danh mục bảng giá">
   <div class="route-now" id="routeNow">Xuất phát</div>
   <div class="route-line" id="routeLine">
     <div class="track"><i></i></div>
@@ -825,7 +824,15 @@ const Road = (() => {
 
 /* ───────── các bảng giá + xe kéo ───────── */
 const stage = $('#stage');
-const ROMAN = ['✦', 'I', 'II', 'III', 'IV', '⚑'];
+const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const STOP_ICONS = [
+  ico('<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14.5 8.5l2 2"/>'),                 // xuất phát: chìa khóa
+  ico('<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/>'),                             // PPF: khiên bảo vệ
+  ico('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'),                               // PPF màu: giọt màu
+  ico('<path d="M4 9h3l4-4v14l-4-4H4z"/><path d="M16 9l5 6M21 9l-5 6"/>'),                            // cách âm: tắt tiếng ồn
+  ico('<path d="M5 15l1.6-4.6A2 2 0 0 1 8.5 9h7a2 2 0 0 1 1.9 1.4L19 15"/><path d="M3 15h18v3H3zM6 18v2M18 18v2"/>'), // phủ gầm: gầm xe
+  ico('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),   // liên hệ
+];
 const boards = $$('.board', stage).map((el, i) => ({ el, i, sc: $('.scroller', el), name: el.dataset.stop }));
 const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
@@ -835,8 +842,8 @@ boards.forEach((b, i) => {
     ? `<div class="onward"><button class="next" type="button" data-go="1"><b>${nx.name}</b><i class="arrow">${ARROW}</i></button>
        <p class="tagline">Giải pháp bảo vệ bề mặt sơn hàng đầu thế giới<br>Zappa Paint Protection Film</p></div>`
     : nx
-    ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><span><small>Chặng tiếp theo · ${ROMAN[i + 1]}</small><b>${nx.name}</b></span><i class="arrow">${ARROW}</i></button>
-       <p class="next-hint">hoặc cuộn tiếp — xe sẽ kéo bảng sang chặng sau</p></div>`
+    ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><span><small>Tiếp theo</small><b>${nx.name}</b></span><i class="arrow">${ARROW}</i></button>
+       <p class="next-hint">hoặc cuộn tiếp — xe sẽ kéo bảng giá tiếp theo tới</p></div>`
     : `<div class="onward"><button class="next" type="button" data-go="0"><span><small>Hành trình mới</small><b>Về điểm xuất phát</b></span><i class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></i></button></div>`;
   $('.inner', b.el).insertAdjacentHTML('beforeend', html);
   b.el.insertAdjacentHTML('beforeend', `<div class="rig" aria-hidden="true"><i class="bar"></i><div class="car">${CAR_REAR}</div></div>`);
@@ -1000,7 +1007,7 @@ Road.onFrame(sp => {
 });
 const line = $('#routeLine'), nowEl = $('#routeNow');
 line.insertAdjacentHTML('beforeend', boards.map((b, i) =>
-  `<a class="stop" href="#${b.el.id}" data-go="${i}" style="--x:${i / N}"><b>${ROMAN[i]}</b><span>${b.name}</span></a>`).join(''));
+  `<a class="stop" href="#${b.el.id}" data-go="${i}" style="--x:${i / N}"><b>${STOP_ICONS[i]}</b><span>${b.name}</span></a>`).join(''));
 line.addEventListener('click', e => { if (e.target.closest('.stop')) e.preventDefault(); });
 const stops = $$('.stop', line);
 let lastActive = -2;
