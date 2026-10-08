@@ -700,7 +700,7 @@ soundBtn.addEventListener('click', () => setSound(!Engine.on));
 const Road = (() => {
   const cv = $('#road'), ctx = cv.getContext('2d', { alpha: false });
   let W = 0, H = 0, dist = 0, speed = 0, boost = 0, beam = 0, engine = false, sv = 0, last = performance.now();
-  let hz = .46, getY = () => 0, lastY = 0;
+  let hz = .46, getY = () => 0, lastY = 0, curve = 1, straight = false;
   const ZF = 70, RW = 1.45, ZN = .5;
   const streaks = Array.from({ length: 60 }, () => ({ a: Math.random() * 6.283, r: Math.random(), w: .4 + Math.random() * .9 }));
   function resize() {
@@ -717,7 +717,7 @@ const Road = (() => {
     ctx.closePath(); ctx.fill();
   }
   function draw(dt) {
-    hy = H * hz; f = H - hy; bend = Math.sin(dist * .011) * W * .09;
+    hy = H * hz; f = H - hy; bend = Math.sin(dist * .011) * W * .09 * curve;
     let g = ctx.createLinearGradient(0, 0, 0, hy);
     g.addColorStop(0, '#030304'); g.addColorStop(1, '#0d0d10');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, hy + 1);
@@ -790,6 +790,7 @@ const Road = (() => {
       dist += speed * dt;
     }
     beam += ((engine ? 1 : 0) - beam) * Math.min(1, dt * 3);
+    curve += ((straight ? 0 : 1) - curve) * Math.min(1, dt * (straight ? 9 : 1.5));
     draw(dt);
     hooks.forEach(h => h(speed, dt));
     requestAnimationFrame(tick);
@@ -799,6 +800,7 @@ const Road = (() => {
     engine(v) { engine = v; },
     boost(v) { if (!reduce) boost = Math.max(boost, v); },
     pitch(v) { hz = v; },
+    straighten(v) { straight = v; },   // nắn thẳng đường khi xe kéo bảng
     source(fn) { getY = fn; lastY = fn(); sv = 0; },
     onFrame(h) { hooks.push(h); },
   };
@@ -841,6 +843,7 @@ function resetBoard(b) {
 
 /* Bảng A ngã về trước, xe kéo đi xa; xe khác vượt lên từ phía sau kéo bảng B tới,
    tháo móc chạy tiếp, bảng B dựng đứng lại */
+const FLAT = 90;                       // bảng nằm phẳng trên mặt đường → song song với đường
 function tow(A, B) {
   const T = ms => ms * TOW_SPEED;
   const BS = 820;                      // lúc bảng B bắt đầu xuất hiện từ dưới lên
@@ -851,14 +854,14 @@ function tow(A, B) {
   let bOn = false, aOff = !A, b16 = false, unframed = false;
   if (A) { A.el.classList.add('moving', 'framed'); setV(A.el, { s: 1, tilt: '0deg', z: '0px', lead: '0px' }); A.el.inert = true; Road.boost(5); }
   B.sc.scrollTop = 0;
-  setV(B.el, { s: .84, tilt: '78deg', z: '560px', lead: '0px' });
-  root.classList.add('towing');
+  setV(B.el, { s: .84, tilt: FLAT + 'deg', z: '560px', lead: '0px' });
+  root.classList.add('towing'); Road.straighten(true);
   return new Promise(res => {
     const step = now => {
       const t = now - t0;
       if (A && !aOff) {
         const sh = eio(seg(t, 0, T(320))), tl = eio(seg(t, T(200), T(620))), go = ein(seg(t, T(560), T(1310)));
-        setV(A.el, { s: lerp(1, .84, sh).toFixed(4), tilt: lerp(0, 78, tl).toFixed(2) + 'deg', z: (-9000 * go).toFixed(1) + 'px' });
+        setV(A.el, { s: lerp(1, .84, sh).toFixed(4), tilt: lerp(0, FLAT, tl).toFixed(2) + 'deg', z: (-9000 * go).toFixed(1) + 'px' });
         const fadeA = 1 - seg(t, T(1080), T(1310));
         fade([A.bar, A.car], Math.min(seg(t, T(300), T(460)), fadeA));
         A.sc.style.opacity = fadeA.toFixed(3);
@@ -877,7 +880,7 @@ function tow(A, B) {
         setV(B.el, {
           z: lerp(560, 0, ar).toFixed(1) + 'px',
           lead: (-4200 * un).toFixed(1) + 'px',
-          tilt: lerp(78, 0, st).toFixed(2) + 'deg',
+          tilt: lerp(FLAT, 0, st).toFixed(2) + 'deg',
           s: lerp(.84, 1, eio(seg(t, T(SU + 430), T(SU + 700)))).toFixed(4),
         });
         const appear = seg(t, T(BS), T(BS + 120));
@@ -888,7 +891,7 @@ function tow(A, B) {
         if (!unframed && t >= T(SU + 430)) { unframed = true; B.el.classList.remove('framed'); }
       }
       if (t < D) { towP = A ? lerp(A.i, B.i, eio(seg(t, 0, D))) : B.i; requestAnimationFrame(step); }
-      else { resetBoard(B); setPitch(.46); towP = null; root.classList.remove('towing'); res(); }
+      else { resetBoard(B); setPitch(.46); towP = null; root.classList.remove('towing'); Road.straighten(false); res(); }
     };
     requestAnimationFrame(step);
   });
