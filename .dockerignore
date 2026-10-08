@@ -1,0 +1,5 @@
+.git
+.claude
+*.md
+*.png
+!web/**/*.png
