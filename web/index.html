@@ -41,7 +41,7 @@ button{font:inherit;color:inherit}
 #intro.lit .beam{opacity:1}
 .intro-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2.6vh,28px);padding:24px 16px;text-align:center}
 .intro-top{display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .6s ease,transform .9s var(--ease)}
-.intro-logo{height:clamp(26px,4.2vh,40px);width:auto}
+.intro-logo{height:clamp(46px,7.5vh,72px);width:auto}
 .eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
 #intro.go .intro-top{opacity:0;transform:translateY(-50px)}
 
@@ -285,7 +285,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   <div class="intro-inner">
     <div class="intro-top">
       <img class="intro-logo" src="assets/logo-store.png" alt="Store Detailing">
-      <p class="eyebrow">Bảng giá đại lý · 2026</p>
     </div>
     <div class="key-stage">
       <div class="key-tilt" id="keyTilt"><div class="key-float"><div class="key" id="key" aria-hidden="true"></div></div></div>
@@ -559,7 +558,7 @@ function keySVG() {
     <g fill="url(#kgold)">${leaves}</g>
     <circle cx="110" cy="168" r="36" fill="url(#kgold)"/>
     <circle cx="110" cy="168" r="32.5" fill="#0d0c0b"/>
-    <g transform="translate(89 147) scale(.0901)">${SD_LOGO}</g>
+    <g transform="translate(94 152) scale(.0687)">${SD_LOGO}</g>
     <text x="110" y="236" text-anchor="middle" font-size="8" letter-spacing="2.2" fill="#d9bd7c" font-weight="500">STORE DETAILING</text>
     <path d="M86 250h48" stroke="url(#kgold)" stroke-width=".8"/>
     ${btn(72, lock)}${btn(110, unlock)}${btn(148, trunk)}
