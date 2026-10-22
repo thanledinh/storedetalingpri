@@ -189,7 +189,6 @@ COL["EMIT"].objects.link(ring)
 # bảng treo tường (tự phát sáng như hộp đèn)
 one_plane("emit_board", 2.5, 1.46, (0, 2.15, -D + .015), mat_image("m_board", ASSET + "room-board.jpg", emit=1.6), COL["EMIT"])
 one_plane("emit_price", .9, 1.25, (-2.15, 2.05, -D + .015), mat_image("m_price", ASSET + "room-price.jpg", emit=1.4), COL["EMIT"])
-one_plane("emit_logo", 2.4, .77, (W / 2 - .015, 2.2, -3.4), mat_image("m_logo", ASSET + "logo-store.png", emit=2.0, alpha=True), COL["EMIT"], ry=-math.pi / 2)
 
 # ── mặt tiền ──
 fb = Builder()
