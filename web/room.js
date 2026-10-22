@@ -234,7 +234,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       if (on === active) return;
       active = on;
       if (on) { resize(); requestAnimationFrame(frame); flashLabels(); }
-      else if (focused) unfocus(true);
+      else {
+        if (focused) unfocus(true);
+        hots.forEach(b => b && b.classList.remove('show'));    // rời phòng: tắt chấm, không để lọt sang trang khác
+      }
     },
   };
 }
