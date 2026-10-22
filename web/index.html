@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#07080a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700;1,800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#07080a;
@@ -110,22 +110,16 @@ html.towing .hud{background:transparent}
   opacity:0;transform:translate(-50%,24px);transition:opacity .7s ease .15s,transform .7s var(--out) .15s;pointer-events:none}
 html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .route-now{text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;height:15px;overflow:hidden}
-.route-line{position:relative;height:22px}
+.route-line{position:relative;height:22px;margin:0 6px}
 .track{position:absolute;left:0;right:0;top:10px;height:2px;border-radius:2px;background:rgba(242,235,220,.12)}
 .track i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p,0) * 100%);border-radius:2px;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi))}
 .stop{position:absolute;top:0;left:calc(var(--x) * 100%);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;color:var(--muted);font-size:10px;letter-spacing:.06em;white-space:nowrap}
-.stop b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#0d0d0f;border:1px solid rgba(242,235,220,.24);font-family:var(--serif);font-weight:600;font-size:10px;color:var(--ink-2);transition:all .3s}
-.stop b svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stop b{width:9px;height:9px;margin-top:6px;border-radius:50%;background:#0d0d0f;border:1px solid rgba(242,235,220,.35);transition:all .3s}
+.stop::before{content:"";position:absolute;inset:-6px -5px}   /* vùng bấm rộng hơn chấm */
 .stop span{display:none}
-.stop.on b{background:var(--gold-hi);border-color:var(--gold-hi);color:#14100a;box-shadow:0 0 12px rgba(236,212,154,.55)}
-.stop.on{color:var(--gold-hi)}
+.stop.on b{width:13px;height:13px;margin-top:4px;background:var(--gold-hi);border-color:var(--gold-hi);box-shadow:0 0 12px rgba(236,212,154,.55)}
 .route-car{position:absolute;top:1px;left:calc(var(--p,0) * 100%);width:30px;height:13px;transform:translate(-50%,-62%);pointer-events:none;filter:drop-shadow(0 0 6px rgba(236,212,154,.6))}
-@media (min-width:640px){
-  .route-now{display:none}
-  .route{padding:12px 40px 10px}
-  .route-line{height:42px}
-  .stop span{display:block}
-}
+@media (min-width:640px){.route{padding:12px 34px 12px}}
 
 /* chỉ báo "kéo tiếp" */
 .pull{position:fixed;left:50%;bottom:calc(var(--route-gap) + 92px);z-index:21;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px;
@@ -178,44 +172,132 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .leg-sub{display:inline-block;margin-top:4px;padding:0 12px 16px;border-bottom:1px solid rgba(255,255,255,.22);color:#c9c7c2;font-weight:600;font-size:clamp(13px,3.7vw,20px);letter-spacing:.03em;text-transform:uppercase}
 .leg-meta{margin-top:14px;color:#e3bb5e;font-weight:700;font-size:clamp(12px,3.4vw,15px);letter-spacing:.02em;text-transform:uppercase}
 
-.grid{display:grid;gap:26px;grid-template-columns:1fr}
-@media (min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:1024px){.grid{grid-template-columns:repeat(3,1fr);gap:32px}}
+/* ═════════ TRANG KIỂU POSTER: khung viền vàng đôi, sọc vàng góc phải ═════════ */
+:root{--zy:#eed51c}
+.sheet{position:relative;container-type:inline-size;width:calc(100% - 28px);max-width:640px;margin:18px auto 0;
+  padding:clamp(34px,8vw,56px) clamp(16px,4.6vw,32px) clamp(30px,7vw,48px);border-radius:24px;border:1px solid rgba(214,180,96,.85);
+  background:radial-gradient(130% 55% at 50% 0%,#151515 0%,#060606 55%,#000 100%);
+  box-shadow:0 0 0 7px #030303,0 0 0 8px rgba(214,180,96,.5),0 40px 80px rgba(0,0,0,.6)}
+.sheet::before,.sheet::after{content:"";position:absolute;top:-44px;height:36px;width:52px;transform:skewX(-36deg);
+  background:linear-gradient(0deg,#e9cb12,rgba(233,203,18,0));pointer-events:none}
+.sheet::before{right:92px}
+.sheet::after{right:26px}
+.s-title{font-weight:800;text-transform:uppercase;color:var(--zy);text-align:center;font-size:clamp(26px,8.6cqi,46px);line-height:1.14;text-wrap:balance}
+.s-rule{position:relative;height:2px;background:var(--zy);margin:14px auto 0}
+.s-rule::after{content:"";position:absolute;left:50%;top:2px;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--zy);border-bottom:0}
+.s-notes{margin-top:24px;color:#ddd;font-style:italic;font-size:clamp(11.5px,3.4cqi,15px);line-height:1.7}
+.strike{position:relative;display:inline-block;text-decoration:none}
+.strike::after{content:"";position:absolute;left:-3%;right:-3%;top:54%;height:2px;background:var(--zy)}
 
-/* thẻ sản phẩm: 2 lớp nền (khung ngoài + viền trong) */
-:root{--zy:#eece23}
-#cach-am,#phu-gam{--zy:#e3bb5e}
-.card{position:relative;display:flex;flex-direction:column;padding:20px 22px 24px;border-radius:20px;overflow:hidden;
-  background:linear-gradient(180deg,#18181b 0%,#0b0b0d 55%,#050506 100%);border:1px solid rgba(201,164,92,.35);
-  box-shadow:0 30px 60px rgba(0,0,0,.55),0 0 0 6px rgba(201,164,92,.05),inset 0 1px 0 rgba(255,255,255,.06)}
-.card::before{content:"";position:absolute;inset:7px;border-radius:14px;border:1px solid rgba(201,164,92,.16);pointer-events:none}
-.card::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,238,200,.08) 50%,transparent 62%);transform:translateX(-120%)}
-.card.in::after{animation:sweep 1.6s var(--ease) calc(var(--i,0) * 90ms + .5s) both}
-@media (hover:hover){.card:hover::after{animation:sweep 1.1s var(--ease) both}.card:hover{border-color:rgba(236,212,154,.6)}}
+/* ── thông số kỹ thuật ── */
+.spec-table{margin-top:clamp(24px,7cqi,44px);border-radius:14px;overflow:hidden;background:#2a2a2c}
+.spec-table table{width:100%;border-collapse:collapse;table-layout:fixed}
+.spec-table th{background:var(--zy);color:#151515;font-weight:800;font-size:clamp(8.5px,2.5cqi,12.5px);line-height:1.25;text-transform:uppercase;padding:12px 3px}
+.spec-table th:first-child{width:33%;font-size:clamp(10.5px,3.2cqi,17px)}
+.spec-table td{background:#3c3c3e;color:#f1f1f1;text-align:center;font-size:clamp(11px,3.3cqi,16px);line-height:1.3;padding:18px 2px;border-top:2px solid #262628;border-left:2px solid #262628}
+.spec-table td:first-child{background:#303032;border-left:0;font-weight:600;font-size:clamp(11px,3.4cqi,17px);white-space:normal;padding:16px 6px}
+.spec-table td img{width:96%;margin:6px auto 0;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 
-.z-plate{position:relative;border-radius:12px;overflow:hidden;background:#ccc;box-shadow:0 12px 26px rgba(0,0,0,.5)}
-.z-plate img{width:100%;height:auto}
-.z-plate.fill{aspect-ratio:4/1.1;background:#c5c4c6}
-.z-plate.fill img{height:100%;object-fit:cover}
-.z-plate.dark{aspect-ratio:16/8.4;background:radial-gradient(ellipse at 50% 60%,#232326,#0e0e10 75%)}
-.z-plate.dark img{height:100%;object-fit:contain;padding:8px 14px;-webkit-mask-image:radial-gradient(ellipse 62% 66% at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 62% 66% at 50% 50%,#000 62%,transparent 100%)}
-.z-kicker{margin:20px 0 0;color:var(--zy);font-weight:600;font-size:13px;letter-spacing:.02em;text-transform:uppercase}
-.z-name{font-weight:800;font-size:clamp(28px,7vw,34px);line-height:1.15;color:var(--zy);margin:2px 0 12px;text-transform:uppercase}
-.z-name small{font-size:.42em;font-weight:600;color:#c9c7c2;margin-left:8px;vertical-align:.35em;letter-spacing:.03em}
+/* ── trang từng series ── */
+.p-box{width:100%;height:auto;margin:clamp(20px,6cqi,36px) auto 0;filter:drop-shadow(0 16px 22px rgba(0,0,0,.7))}
+.p-price{display:flex;align-items:flex-end;justify-content:space-between;gap:2cqi;margin-top:clamp(18px,5cqi,30px)}
+.p-price .strike{color:#8e8e8e;font-weight:800;font-size:min(5.6cqi,32px);margin-bottom:1.2cqi}
+.p-now{text-align:left}
+.p-off{display:inline-block;background:#e0262c;color:#fff;font-weight:800;font-size:min(3.6cqi,18px);padding:1px 6px;border-radius:5px}
+.p-now b{display:block;color:var(--zy);font-weight:800;font-size:min(8.6cqi,56px);line-height:1.05;letter-spacing:-.01em}
+.p-specs{margin-top:clamp(20px,6cqi,36px);font-size:clamp(12px,3.9cqi,17px)}
+.p-rule{border:0;height:4px;border-radius:2px;background:#e2e2e2;margin:clamp(24px,7cqi,44px) 0 4px}
+.pkg{display:grid;grid-template-columns:auto 1fr auto;align-items:end;column-gap:3cqi;margin-top:clamp(18px,6cqi,36px)}
+.pkg-k{color:#eee;font-weight:600;font-size:min(5.4cqi,30px);text-transform:uppercase;line-height:1.1;padding-bottom:.9cqi}
+.pkg i{height:1px;background:rgba(255,255,255,.75);margin-bottom:2.2cqi}
+.pkg-v{display:flex;flex-direction:column;align-items:flex-start}
+.pkg-v .strike{color:#9b9b9b;font-weight:800;font-size:min(4.4cqi,24px)}
+.pkg-v b{color:var(--zy);font-weight:800;font-size:min(7.2cqi,40px);line-height:1.05}
 
-/* thông số: giá trị căn trái chung một cột → các gạch dừng thẳng hàng */
+/* thông số dạng gạch nối: giá trị căn trái chung một cột → gạch dừng thẳng hàng */
 .z-specs{display:grid;grid-template-columns:1fr auto;column-gap:12px;font-size:13px;font-weight:500;text-transform:uppercase;color:#fff}
 .z-specs div{display:contents}
 .z-specs dt{display:flex;align-items:center;gap:10px;padding:7px 0}
 .z-specs dt::after{content:"";flex:1;min-width:14px;height:1px;background:rgba(255,255,255,.5)}
 .z-specs dd{padding:7px 0;text-align:left;white-space:nowrap}
 
-.z-price{margin-top:auto;padding-top:14px;border-top:2px solid #c8c8c8}
-.z-specs + .z-price{margin-top:14px}
-.z-lbl{color:var(--zy);font-weight:600;font-size:13px;text-transform:uppercase}
-.z-big{font-weight:800;font-size:clamp(32px,8.6vw,40px);line-height:1.15;color:var(--zy);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-.z-big + .z-lbl{margin-top:10px}
-.z-big.mid{font-size:clamp(24px,6.4vw,30px)}
+/* ── quy trình dán ── */
+.steps{display:grid;grid-template-columns:1fr;gap:clamp(12px,3cqi,18px);margin-top:clamp(26px,8cqi,50px)}
+@container (min-width:520px){.steps{grid-template-columns:1fr 1fr}}
+.step{position:relative;margin:0;border:3px solid var(--zy);border-radius:12px;overflow:hidden;aspect-ratio:446/247;background:#222}
+.step img{width:100%;height:100%;object-fit:cover}
+.step figcaption{position:absolute;left:0;bottom:0;width:84%;height:24%;display:flex}
+.step .n{flex:none;width:12%;min-width:26px;display:grid;place-items:center;background:var(--zy);color:#111;font-weight:800;font-size:clamp(15px,5cqi,24px)}
+.step .t{flex:1;display:flex;align-items:center;margin-left:-1px;padding:0 13% 0 8%;background:linear-gradient(90deg,#121212,#2c2c2c);clip-path:polygon(7% 0,100% 0,88% 100%,0 100%);
+  color:#fff;font-size:clamp(11px,3.4cqi,14px);font-weight:500;line-height:1.25}
+@container (min-width:520px){.step .t{font-size:clamp(10px,1.9cqi,13px)}}
+.feats{position:relative;border:2px solid var(--zy);border-radius:12px;padding:44px 12px 12px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+.feats h3{position:absolute;left:-2px;top:-2px;background:var(--zy);color:#111;font-weight:800;font-size:clamp(11px,3.4cqi,14px);text-transform:uppercase;
+  padding:6px 28px 6px 14px;border-radius:12px 0 0 0;clip-path:polygon(0 0,100% 0,90% 100%,0 100%)}
+.feats ul{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.feats li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:76px;border:1px solid rgba(255,255,255,.7);border-radius:6px;
+  padding:8px 4px;text-align:center;color:#fff;font-size:clamp(9px,2.8cqi,11px);font-weight:500;line-height:1.25;text-transform:uppercase}
+.feats svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.s-car{width:100%;margin-top:clamp(24px,6cqi,40px);-webkit-mask-image:linear-gradient(transparent,#000 35%);mask-image:linear-gradient(transparent,#000 35%)}
+
+/* ── chế độ bảo hành ── */
+.w-hero{position:relative;aspect-ratio:10/7.4;margin-top:4px}
+.w-frame{position:absolute;left:2%;top:4%;width:76%;height:66%;border:4px solid #9a9a9c}
+.w-k{position:absolute;left:20%;top:12%;color:#fff;font-style:italic;font-weight:800;font-size:5.4cqi;text-transform:uppercase;line-height:1}
+.w-t{position:absolute;left:6%;top:22%;color:var(--zy);font-style:italic;font-weight:800;font-size:6.8cqi;text-transform:uppercase;line-height:1;white-space:nowrap}
+.w-qr{position:absolute;left:7%;top:41%;width:13%;border-radius:4px}
+.w-car{position:absolute;right:-3%;bottom:0;width:72%;
+  -webkit-mask-image:radial-gradient(ellipse 60% 62% at 52% 54%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 60% 62% at 52% 54%,#000 62%,transparent 100%)}
+.w-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:clamp(22px,6cqi,40px)}
+@container (min-width:520px){.w-grid{grid-template-columns:repeat(3,1fr)}}
+.w-tile{background:linear-gradient(180deg,#5a5a5d,#3d3d40);border:2px solid #8e8e92;border-radius:10px;padding:14px 8px 12px;text-align:center}
+.w-mil{display:inline-block;background:#353537;color:#e2e2e2;font-weight:700;font-size:11px;padding:2px 8px;border-radius:5px}
+.w-tile img{width:100%;margin:10px 0 6px}
+.w-name{color:var(--zy);font-style:italic;font-weight:800;font-size:clamp(11px,3.4cqi,15px);text-transform:uppercase;line-height:1.2}
+.w-years{color:var(--zy);font-style:italic;font-weight:800;font-size:clamp(22px,7cqi,32px);text-transform:uppercase;line-height:1.1}
+.w-band{position:relative;margin-top:clamp(30px,9cqi,52px);text-align:center}
+.w-band::before{content:"";position:absolute;left:-8%;right:-8%;top:50%;height:2px;background:linear-gradient(90deg,transparent,#c9a45c 18%,#c9a45c 82%,transparent)}
+.w-band span{position:relative;display:inline-block;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:clamp(14px,5cqi,24px);text-transform:uppercase;
+  padding:9px 26px;clip-path:polygon(3% 0,100% 0,97% 100%,0 100%)}
+
+/* ── bảng giá PPF màu ── */
+.c-table{margin-top:clamp(24px,7cqi,40px);border:2px solid var(--zy);border-top-width:16px;border-radius:14px;overflow:hidden}
+.c-table table{width:100%;border-collapse:collapse;table-layout:fixed}
+.c-table th{background:#171717;color:#fff;font-weight:700;font-size:clamp(9px,2.8cqi,14px);text-transform:uppercase;padding:13px 3px;border-bottom:1px solid var(--zy)}
+.c-table td{background:#3b3b3d;color:#ececec;text-align:center;font-size:clamp(11px,3.3cqi,16px);padding:16px 3px;border:1px solid #2b2b2d}
+.c-table td:first-child{background:#141414;border-left:0;color:#fff;font-weight:700;font-size:clamp(9.5px,2.9cqi,14px);text-transform:uppercase;padding:14px 8px}
+.c-table td:first-child img{width:100%;margin-bottom:6px}
+.c-table td.price{color:var(--zy);font-weight:800;font-size:clamp(13px,4.2cqi,24px);white-space:nowrap;letter-spacing:-.01em}
+.c-war{margin-top:clamp(26px,7cqi,40px)}
+.c-war h3{display:inline-block;background:var(--zy);color:#111;font-weight:800;font-size:clamp(10.5px,3.3cqi,15px);text-transform:uppercase;padding:6px 34px 6px 14px;clip-path:polygon(0 0,93% 0,100% 100%,0 100%)}
+.c-war p{background:linear-gradient(90deg,#9d9d9d,#e8e8e8 40%,#c8c8c8 75%,#7d7d7d);color:#161616;font-style:italic;font-weight:800;font-size:clamp(10.5px,3.2cqi,15px);
+  text-transform:uppercase;padding:12px 14px;border-radius:0 10px 10px 0;line-height:1.75;display:flex;flex-wrap:wrap;gap:0 14px}
+
+/* ── gói hỗ trợ đại lý ── */
+.pack{position:relative;margin-top:clamp(28px,8cqi,48px);border:2px solid var(--zy);border-radius:14px;background:linear-gradient(115deg,#2b2b2b,#1a1a1a 46%,#262626);padding:0 0 clamp(18px,5cqi,28px)}
+.pack-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:0 10px 0 0}
+.pack-tag{background:var(--zy);color:#111;font-weight:800;font-size:clamp(16px,5.2cqi,24px);text-transform:uppercase;padding:8px 30px 8px 16px;border-radius:12px 0 0 0;clip-path:polygon(0 0,100% 0,86% 100%,0 100%)}
+.pack-cut{background:#fff;color:#111;font-style:italic;font-weight:800;font-size:clamp(13px,4.2cqi,20px);padding:4px 14px;border-radius:999px;border:2px solid var(--zy)}
+.pack-price{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 12px 0;padding:8px 14px;border:2px solid var(--zy);border-radius:12px;background:#151515}
+.pack-price::after{content:"";position:absolute;right:16%;bottom:-11px;border:9px solid transparent;border-top-color:var(--zy);border-bottom:0}
+.pack-price .strike{color:#9c9c9c;font-weight:800;font-size:clamp(14px,4.6cqi,24px)}
+.pack-price b{color:var(--zy);font-weight:800;font-size:clamp(18px,6cqi,30px)}
+.pack-items{display:grid;grid-template-columns:1fr;gap:20px;padding:26px 12px 0}
+@container (min-width:520px){.pack-items{grid-template-columns:1fr 1fr}}
+.pack-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+.pack-item img{width:78%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.6))}
+.pill{display:flex;align-items:stretch;font-style:italic;font-size:clamp(12.5px,4cqi,17px);border-radius:999px;overflow:hidden}
+.pill .q{background:var(--zy);color:#111;font-weight:800;padding:4px 10px 4px 14px}
+.pill .nm{background:#0d0d0d;color:#fff;font-weight:700;text-transform:uppercase;padding:4px 12px;border:2px solid #fff;border-radius:0 999px 999px 0;margin-right:-10px;position:relative;z-index:1}
+.pill .d{background:#e0262c;color:#fff;font-weight:800;padding:4px 12px 4px 16px;border-radius:0 8px 8px 0}
+.gifts{position:relative;margin-top:clamp(30px,9cqi,48px);background:#2d2d2d;border:1px solid rgba(214,180,96,.45);padding:0 12px clamp(18px,5cqi,26px)}
+.gifts h3{margin:0 -12px;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:clamp(15px,5cqi,24px);text-transform:uppercase;text-align:center;padding:10px 6px;
+  clip-path:polygon(0 0,100% 0,96% 100%,4% 100%)}
+.gift-list{display:grid;grid-template-columns:1fr 1fr;gap:22px 14px;margin-top:26px}
+.gift{position:relative;display:flex;flex-direction:column;border:2px solid var(--zy);border-radius:12px}
+.gift .gn{display:block;background:#161616;color:#fff;font-style:italic;font-weight:500;font-size:clamp(10.5px,3.3cqi,15px);padding:7px 34% 6px 10px;line-height:1.2;border-radius:10px 10px 0 0}
+.gift .gv{display:block;background:linear-gradient(180deg,#f1f1f1,#a3a3a3);color:#111;font-style:italic;font-weight:800;font-size:clamp(13px,4.4cqi,20px);padding:4px 34% 6px 10px;border-radius:0 0 10px 10px}
+.gift img{position:absolute;right:-8px;top:50%;width:36%;max-height:150%;object-fit:contain;transform:translateY(-50%)}
 
 .notes{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin:30px auto 0;max-width:900px;color:#a9a59c;font-size:12.5px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;text-align:center}
 .notes li::before{content:"✦";color:var(--gold);font-size:9px;margin-right:8px;vertical-align:2px}
@@ -333,65 +415,81 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     </div></div>
   </section>
 
-  <section class="board" id="ppf" data-stop="PPF Zappa" aria-label="Bảng giá PPF Zappa">
-    <div class="scroller" tabindex="-1"><div class="inner">
-      <header class="leg-head">
-        <img class="brand" src="assets/logo-zappa.png" alt="Zappa Paint Protection Film">
-        <h2>PPF Zappa</h2>
-        <p class="leg-sub">Zappa Paint Protection Film</p>
-        <p class="leg-meta">Áp dụng từ tháng 8-2026</p>
-      </header>
-      <div class="wrap">
-        <div class="grid" data-render="ppf"></div>
-        <ul class="notes">
-          <li>Giá chưa bao gồm phí vận chuyển</li>
-          <li>Thanh toán 100% tiền mặt hoặc chuyển khoản</li>
-        </ul>
+  <section class="board" id="thong-so" data-stop="Thông số kỹ thuật" aria-label="Thông số kỹ thuật sản phẩm">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">Thông số kỹ thuật<br>sản phẩm</h2>
+      <div class="spec-table" data-render="specTable"></div>
+    </div></div></div>
+  </section>
+
+  <!-- 6 trang PPF Zappa 1368 … 1398 PRO được dựng từ DATA.ppf, chèn vào đây -->
+
+  <section class="board" id="quy-trinh" data-stop="Quy trình dán PPF" aria-label="Quy trình dán PPF">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">Quy trình dán PPF</h2>
+      <div class="s-rule"></div>
+      <div class="steps">
+        <figure class="step"><img src="assets/step-1.jpg" alt="Rửa xe chi tiết" loading="lazy"><figcaption><span class="n">1</span><span class="t">Rửa xe chi tiết.</span></figcaption></figure>
+        <figure class="step"><img src="assets/step-2.jpg" alt="Xử lý bề mặt" loading="lazy"><figcaption><span class="n">2</span><span class="t">Xử lý bề mặt (loại bỏ nhựa cây, phân chim,...)</span></figcaption></figure>
+        <figure class="step"><img src="assets/step-3.jpg" alt="Đánh bóng hiệu chỉnh bề mặt sơn" loading="lazy"><figcaption><span class="n">3</span><span class="t">Đánh bóng hiệu chỉnh bề mặt sơn.</span></figcaption></figure>
+        <figure class="step"><img src="assets/step-4.jpg" alt="Dán PPF" loading="lazy"><figcaption><span class="n">4</span><span class="t">Dán PPF bảo vệ tối ưu bề mặt.</span></figcaption></figure>
+        <figure class="step"><img src="assets/step-5.jpg" alt="Phủ Ceramic" loading="lazy"><figcaption><span class="n">5</span><span class="t">Phủ Ceramic bảo vệ và tăng cường lớp PPF.</span></figcaption></figure>
+        <div class="feats">
+          <h3>Tính năng và ưu điểm</h3>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M4 20L15 9M13 7l4 4M17 3v2M19 5h2M20 9v1M15 3h1"/></svg>Tự phục hồi vết xước</li>
+            <li><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 12l8-8M4 18l14-14M8 20l12-12M14 20l6-6"/></svg>Giảm thiểu trầy xước</li>
+            <li><svg viewBox="0 0 24 24"><path d="M3 14a9 9 0 0 1 18 0z"/><path d="M8 17v1M12 17v2M16 17v1"/></svg>Kháng bụi</li>
+            <li><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M9 10v2.5a1.5 1.5 0 0 0 3 0V10M13 10l1.2 4L15.5 10"/></svg>Chống tia UV</li>
+            <li><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/><path d="M12 3v18"/></svg>Ngăn ngả màu sơn</li>
+            <li><svg viewBox="0 0 24 24"><path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18M9 4l3 16M15 4l-3 16"/></svg>Tạo độ bóng sâu</li>
+          </ul>
+        </div>
       </div>
-    </div></div>
+      <img class="s-car" src="assets/car-rear-dark.jpg" alt="" loading="lazy">
+    </div></div></div>
   </section>
 
-  <section class="board" id="ppf-mau" data-stop="PPF màu" aria-label="Bảng giá PPF màu">
-    <div class="scroller" tabindex="-1"><div class="inner">
-      <header class="leg-head">
-        <img class="brand" src="assets/logo-zappa.png" alt="Zappa Paint Protection Film">
-        <h2>PPF màu</h2>
-        <p class="leg-sub">Zappa Supreme Wrapping Film</p>
-        <p class="leg-meta">Giá đại lý theo cây</p>
-      </header>
-      <div class="wrap">
-        <div class="grid" data-render="color"></div>
-        <ul class="notes">
-          <li>Giá chưa bao gồm thuế VAT</li>
-          <li>Giá chưa bao gồm phí vận chuyển</li>
-          <li>Thanh toán 100% tiền mặt hoặc chuyển khoản</li>
-        </ul>
+  <section class="board" id="bao-hanh" data-stop="Chế độ bảo hành" aria-label="Chế độ bảo hành">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <div class="w-hero">
+        <div class="w-frame" aria-hidden="true"></div>
+        <p class="w-k">Chế độ bảo hành</p>
+        <h2 class="w-t">Bong tróc - Ngả màu</h2>
+        <img class="w-qr" src="assets/warranty-qr.jpg" alt="Mã QR tra cứu bảo hành">
+        <img class="w-car" src="assets/warranty-car.jpg" alt="" loading="lazy">
       </div>
-    </div></div>
+      <div class="w-grid" data-render="warranty"></div>
+      <div class="w-band"><span>Bảo hành ngả màu - 2 năm</span></div>
+    </div></div></div>
   </section>
 
-  <section class="board" id="cach-am" data-stop="Cách âm" aria-label="Bảng giá cách âm – tiêu âm">
-    <div class="scroller" tabindex="-1"><div class="inner">
-      <header class="leg-head">
-        <img class="brand" src="assets/logo-ultimate-vibromax.png" alt="Ultimate · Vibromax">
-        <h2>Cách âm · Tiêu âm</h2>
-        <p class="leg-sub">Ultimate · Vibromax</p>
-        <p class="leg-meta">Giá đại lý theo thùng</p>
-      </header>
-      <div class="wrap"><div class="grid" data-render="sound"></div></div>
-    </div></div>
+  <section class="board" id="ppf-mau" data-stop="Bảng giá PPF màu" aria-label="Bảng giá PPF màu đại lý">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">Bảng giá<br>PPF màu - đại lý</h2>
+      <div class="c-table" data-render="colorTable"></div>
+      <div class="c-war">
+        <h3>Chế độ bảo hành bong tróc - ngả màu</h3>
+        <p><span>Đơn Sport: 3 năm</span><span>|</span><span>Series 6 TPU: 5 năm</span><span>|</span><span>Series 8 TPU: 7 năm</span><span>Ánh nhũ/ Ánh chuyển sắc và Ánh Laser: 5 năm</span></p>
+      </div>
+      <p class="s-notes">* Giá trên chưa bao gồm thuế VAT.<br>* Giá trên chưa bao gồm phí vận chuyển.<br>* Phương thức thanh toán: 100% tiền mặt hoặc chuyển khoản.</p>
+    </div></div></div>
   </section>
 
-  <section class="board" id="phu-gam" data-stop="Phủ gầm" aria-label="Bảng giá phủ gầm GB">
-    <div class="scroller" tabindex="-1"><div class="inner">
-      <header class="leg-head">
-        <img class="brand" src="assets/logo-gb.png" alt="GB Premium Car Care" style="max-height:64px">
-        <h2>Phủ gầm</h2>
-        <p class="leg-sub">GB Premium Car Care</p>
-        <p class="leg-meta">Theo chai hoặc thùng 12 chai</p>
-      </header>
-      <div class="wrap"><div class="grid" data-render="gb"></div></div>
-    </div></div>
+  <section class="board" id="goi-1" data-stop="Gói hỗ trợ đại lý 1" aria-label="Gói hỗ trợ đại lý mới: gói 1A và 1B">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">Gói hỗ trợ<br>đại lý mới</h2>
+      <div data-render="packs" data-packs="1A,1B"></div>
+      <div data-render="gifts" data-extra="0"></div>
+    </div></div></div>
+  </section>
+
+  <section class="board" id="goi-2" data-stop="Gói hỗ trợ đại lý 2" aria-label="Gói hỗ trợ đại lý mới: gói 2">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">Gói hỗ trợ<br>đại lý mới</h2>
+      <div data-render="packs" data-packs="2"></div>
+      <div data-render="gifts" data-extra="1"></div>
+    </div></div></div>
   </section>
 
   <section class="board" id="lien-he" data-stop="Liên hệ" aria-label="Liên hệ đặt hàng">
@@ -448,68 +546,103 @@ const ein = t => t * t * t;
    DỮ LIỆU BẢNG GIÁ — sửa giá tại đây
    ══════════════════════════════════════════ */
 const DATA = {
-  ppf: [ // PPF Zappa — giá theo cây; warranty = bảo hành bong tróc, fade = bảo hành ngả màu (năm)
-    { name: '1368',     img: 'ppf-1368.jpg',    mil: 7.5,  warranty: 5,  fade: 2, list:  9600000 },
-    { name: '1378',     img: 'ppf-1378.jpg',    mil: 8.5,  warranty: 5,  fade: 2, list: 12800000 },
-    { name: '1388',     img: 'ppf-1388.jpg',    mil: 9.5,  warranty: 8,  fade: 2, list: 16800000 },
-    { name: '1388 PRO', img: 'ppf-1388pro.jpg', mil: 10.5, warranty: 8,  fade: 2, list: 19900000 },
-    { name: '1398',     img: 'ppf-1398.jpg',    mil: 12.5, warranty: 10, fade: 2, list: 29200000 },
-    { name: '1398 PRO', img: 'ppf-1398pro.jpg', mil: 13.5, warranty: 10, fade: 2, list: 33900000 },
+  // PPF Zappa — giá theo cây (list = niêm yết, sale = khuyến mãi, off = % giảm)
+  // pkgs = giá trọn gói theo cỡ xe; tech = thông số kỹ thuật cho bảng "Thông số"
+  ppf: [
+    { name: '1368', img: 'ppf-1368-cut.png', mil: 7.5, warranty: 5, fade: 2, list: 9600000, sale: 8160000, off: 15,
+      tech: { urethane: '75%', recover: '5s', gloss: '93%' },
+      pkgs: [['Medium', 23000000, 18900000], ['Large', 25000000, 20900000], ['X-Large', 27000000, 22900000]] },
+    { name: '1378', img: 'ppf-1378-cut.png', mil: 8.5, warranty: 5, fade: 2, list: 12800000, sale: 10880000, off: 15,
+      tech: { urethane: '80%', recover: '4,5s', gloss: '96%' },
+      pkgs: [['Medium', 30000000, 25000000], ['Large', 33000000, 27000000], ['X-Large', 35000000, 28900000]] },
+    { name: '1388', img: 'ppf-1388-cut.png', mil: 9.5, warranty: 8, fade: 2, list: 16800000, sale: 14280000, off: 15,
+      tech: { urethane: '85%', recover: '4s', gloss: '98%' },
+      pkgs: [['Medium', 38000000, 35000000], ['Large', 40000000, 37000000], ['X-Large', 42000000, 38900000]] },
+    { name: '1388 PRO', img: 'ppf-1388pro-cut.png', mil: 10.5, warranty: 8, fade: 2, list: 19900000, sale: 15920000, off: 20,
+      tech: { urethane: '90%', recover: '3,5s', gloss: '98%' },
+      pkgs: [['Medium', 60000000, 49600000], ['Large', 63000000, 50900000], ['X-Large', 65000000, 53900000]] },
+    { name: '1398', img: 'ppf-1398-cut.png', mil: 12.5, warranty: 10, fade: 2, list: 29200000, sale: 23360000, off: 20,
+      tech: { urethane: '95%', recover: '3s', gloss: '98%' },
+      pkgs: [['Medium', 86000000, 75000000], ['Large', 93000000, 80000000], ['X-Large', 99000000, 85000000]] },
+    { name: '1398 PRO', img: 'ppf-1398pro-cut.png', mil: 13.5, warranty: 10, fade: 2, list: 39900000, sale: 25425000, off: 25,
+      tech: { urethane: '95%', recover: '3s', gloss: '98%' },
+      pkgs: [['Medium', 96000000, 86000000], ['Large', 102000000, 93000000], ['X-Large', 110000000, 99000000]] },
   ],
   color: [ // PPF màu — giá đại lý theo cây
-    { name: 'Đơn Sport',                img: 'color-sport.png', size: '1,52 × 18 m', warranty: 3, price:  8500000 },
-    { name: 'Ánh nhũ / Ánh chuyển sắc', img: 'color-nhu.png',   size: '1,52 × 18 m', warranty: 5, price:  9000000 },
-    { name: 'Ánh Laser',                img: 'color-laser.png', size: '1,52 × 18 m', warranty: 5, price: 11500000 },
-    { name: 'Series 6 TPU',             img: 'color-s6.png',    size: '1,52 × 17 m', warranty: 5, price: 19800000 },
-    { name: 'Series 8 TPU',             img: 'color-s8.png',    size: '1,52 × 15 m', warranty: 7, price: 23800000 },
+    { name: 'Đơn Sport',                img: 'color-sport.png', size: '1,52 x 18m', price:  8500000 },
+    { name: 'Ánh nhũ/ Ánh chuyển sắc',  img: 'color-nhu.png',   size: '1,52 x 18m', price:  9000000 },
+    { name: 'Ánh Laser',                img: 'color-laser.png', size: '1,52 x 18m', price: 11500000 },
+    { name: 'Series 6 TPU',             img: 'color-s6.png',    size: '1,52 x 17m', price: 19800000 },
+    { name: 'Series 8 TPU',             img: 'color-s8.png',    size: '1,52 x 15m', price: 23800000 },
   ],
-  sound: [ // Cách âm – tiêu âm — giá đại lý theo thùng
-    { brand: 'Vibromax', name: 'Cách âm', img: 'sound-vibromax.png', size: '2 × 500 × 750 mm',   weight: '11,3 kg', price: 1850000 },
-    { brand: 'Ultimate', name: 'Cách âm', img: 'sound-ultimate.png', size: '2,2 × 460 × 800 mm', weight: '13,4 kg', price: 1650000 },
-    { brand: 'Ultimate', name: 'Tiêu âm', img: 'sound-tieuam.png',   size: '5,1 × 350 × 500 mm', weight: '6,3 kg',  price: 1150000 },
+  packs: { // gói hỗ trợ đại lý mới: [số cây, series, % giảm]
+    '1A': { list: 117000000, sale:  99960000, items: [[3, '1368', 15], [3, '1378', 15], [2, '1388', 15]] },
+    '1B': { list: 119000000, sale: 101600000, items: [[3, '1368', 15], [3, '1378', 15], [2, '1388', 15], [1, '1388 PRO', 20]] },
+    '2':  { list: 182300000, sale: 153960000, items: [[5, '1368', 15], [5, '1378', 15], [3, '1388', 15], [1, '1388 PRO', 20]] },
+  },
+  gifts: [ // ấn phẩm quà tặng: [tên, giá trị, ảnh]
+    ['1 Bảng tráng gương', 2000000, 'gift-mirror.jpg'],
+    ['5 Áo Zappa', 1000000, 'gift-shirt.jpg'],
+    ['5 nón Zappa', 1000000, 'gift-cap.jpg'],
+    ['1 Bạt trải Capo', 350000, 'gift-banner.jpg'],
+    ['2 Mica để bàn', 300000, 'gift-mica.jpg'],
   ],
-  gb: [ // Phủ gầm GB — giá 1 chai và thùng 12 chai
-    { name: 'UBS-B',     note: 'Gốc dầu',  img: 'gb-ubsb.png',     bottle: 230000, box: 2760000, weight: '18 kg' },
-    { name: 'UBS-R',     note: 'Gốc nước', img: 'gb-ubsr.png',     bottle: 295000, box: 3540000, weight: '18 kg' },
-    { name: 'Quang Phổ', note: 'Spectrum', img: 'gb-spectrum.png', bottle: 330000, box: 3960000, weight: '12 kg' },
-  ],
+  giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.jpg'], // chỉ có ở gói 2
 };
 /* Thời lượng màn xe kéo bảng (1 = khoảng 2,7 giây; 0.7 = nhanh hơn) */
 const TOW_SPEED = 1;
 
-/* ───────── render thẻ giá (một mẫu thẻ dùng chung) ───────── */
-const card = (c, i) => `
-    <article class="card rv" style="--i:${i % 3}">
-      <div class="z-plate ${c.plate || ''}"><img src="assets/${c.img}" alt="${c.alt}"></div>
-      <p class="z-kicker">${c.kicker}</p>
-      <h3 class="z-name">${c.name}</h3>
-      <dl class="z-specs">${c.rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
-      <div class="z-price">${c.prices.map(([k, v, mid]) => `<p class="z-lbl">${k}</p><p class="z-big${mid ? ' mid' : ''}">${vnd(v)}</p>`).join('')}</div>
-    </article>`;
+/* ───────── dựng các trang ───────── */
+const comma = n => String(n).replace('.', ',');
+const ppfBy = name => DATA.ppf.find(d => d.name === name);
+const slug = name => 'ppf-' + name.toLowerCase().replace(/\s+/g, '');
+const specRows = rows => `<dl class="z-specs p-specs">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>`;
+
+const productBoard = d => `
+  <section class="board" id="${slug(d.name)}" data-stop="PPF Zappa ${d.name}" aria-label="Bảng giá PPF Zappa ${d.name}">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">PPF Zappa ${d.name}</h2>
+      <img class="p-box" src="assets/${d.img}" alt="Hộp phim PPF Zappa ${d.name}">
+      <div class="p-price">
+        <s class="strike" aria-label="Giá niêm yết">${vnd(d.list)}</s>
+        <p class="p-now"><span class="p-off">-${d.off}%</span><b aria-label="Giá khuyến mãi">${vnd(d.sale)}</b></p>
+      </div>
+      ${specRows([['Độ dày ± 0.3 mil', d.mil + ' mil'], ['Đơn vị tính', 'Cây'], ['Bảo hành bong tróc', d.warranty + ' năm'], ['Bảo hành ngả màu', d.fade + ' năm']])}
+      <hr class="p-rule">
+      ${d.pkgs.map(([k, list, sale]) => `<div class="pkg"><span class="pkg-k">${k}</span><i></i><span class="pkg-v"><s class="strike">${vnd(list)}</s><b>${vnd(sale)}</b></span></div>`).join('')}
+    </div></div></div>
+  </section>`;
 
 const R = {
-  ppf: (d, i) => card({
-    img: d.img, alt: 'Hộp PPF Zappa ' + d.name, kicker: 'PPF Zappa Series', name: d.name,
-    rows: [['Độ dày ± 0.3 mil', d.mil + ' mil'], ['Đơn vị tính', 'Cây'], ['Bảo hành bong tróc', d.warranty + ' năm'], ['Bảo hành ngả màu', d.fade + ' năm']],
-    prices: [['Giá niêm yết', d.list]],
-  }, i),
-  color: (d, i) => card({
-    img: d.img, plate: 'fill', alt: 'Cuộn PPF màu Zappa ' + d.name, kicker: 'PPF màu Zappa', name: d.name,
-    rows: [['Kích thước', d.size], ['Đơn vị tính', 'Cây'], ['Bảo hành bong tróc', d.warranty + ' năm'], ['Bảo hành ngả màu', d.warranty + ' năm']],
-    prices: [['Giá đại lý', d.price]],
-  }, i),
-  sound: (d, i) => card({
-    img: d.img, plate: 'dark', alt: d.name + ' ' + d.brand, kicker: d.brand, name: d.name,
-    rows: [['Kích thước', d.size], ['Trọng lượng', d.weight], ['Đơn vị tính', 'Thùng']],
-    prices: [['Giá đại lý', d.price]],
-  }, i),
-  gb: (d, i) => card({
-    img: d.img, plate: 'dark', alt: 'Phủ gầm GB ' + d.name, kicker: 'Phủ gầm GB', name: `${d.name}<small>${d.note}</small>`,
-    rows: [['Quy cách', '12 chai / thùng'], ['Trọng lượng thùng', d.weight]],
-    prices: [['Giá 1 chai', d.bottle], ['Giá thùng 12 chai', d.box, true]],
-  }, i),
+  specTable: () => `<table>
+    <thead><tr><th>PPF Zappa Series</th><th>Độ dày<br>(±0.3 mil)</th><th>Thành phần Ure&shy;thane</th><th>Khả năng phục hồi</th><th>Độ bóng chống ố</th><th>Bảo hành</th></tr></thead>
+    <tbody>${DATA.ppf.map(d => `<tr>
+      <td>Zappa ${d.name}<img src="assets/${d.img}" alt=""></td>
+      <td>${comma(d.mil)} mil</td><td>${d.tech.urethane}</td><td>${d.tech.recover}</td><td>${d.tech.gloss}</td><td>${d.warranty} năm</td></tr>`).join('')}</tbody></table>`,
+  warranty: () => DATA.ppf.map(d => `<div class="w-tile"><span class="w-mil">${comma(d.mil)} mil</span><img src="assets/${d.img}" alt="">
+      <p class="w-name">Zappa TPU ${d.name}</p><p class="w-years">${d.warranty} năm</p></div>`).join(''),
+  colorTable: () => `<table>
+    <colgroup><col style="width:34%"><col style="width:13%"><col style="width:21%"><col style="width:32%"></colgroup>
+    <thead><tr><th>PPF Zappa Series</th><th>ĐVT (cây)</th><th>Kích thước</th><th>Giá đại lý</th></tr></thead>
+    <tbody>${DATA.color.map(d => `<tr><td><img src="assets/${d.img}" alt="">${d.name}</td><td>Cây</td><td>${d.size}</td><td class="price">${vnd(d.price)}</td></tr>`).join('')}</tbody></table>`,
+  packs: el => el.dataset.packs.split(',').map(id => {
+    const p = DATA.packs[id];
+    return `<div class="pack">
+      <div class="pack-head"><span class="pack-tag">Gói ${id.replace(/(\d)([A-Z])/, '$1 $2')}</span><span class="pack-cut">Giảm %</span></div>
+      <div class="pack-price"><s class="strike">${vnd(p.list)}</s><b>${vnd(p.sale)}</b></div>
+      <div class="pack-items">${p.items.map(([q, name, off]) => `<div class="pack-item"><img src="assets/${ppfBy(name).img}" alt="Hộp PPF Zappa ${name}">
+        <p class="pill"><span class="q">${q} Cây</span><span class="nm">PPF Zappa ${name}</span><span class="d">-${off}%</span></p></div>`).join('')}</div>
+    </div>`;
+  }).join(''),
+  gifts: el => {
+    const list = DATA.gifts.map(([n, v, img]) => [n, vnd(v), img]);
+    if (el.dataset.extra === '1') list.push(DATA.giftExtra);
+    return `<div class="gifts"><h3>🎁 Ấn phẩm quà tặng 🎁</h3><div class="gift-list">${list.map(([n, v, img]) =>
+      `<div class="gift"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
+  },
 };
-$$('[data-render]').forEach(el => { const k = el.dataset.render; el.innerHTML = DATA[k].map(R[k]).join(''); });
+$('#quy-trinh').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
+$$('[data-render]').forEach(el => { el.innerHTML = R[el.dataset.render](el); });
 
 /* ───────── logo SD (vẽ lại từ logo gốc, khung 466 × 466) ───────── */
 const SD_LOGO = `
@@ -771,22 +904,13 @@ const Road = (() => {
 
 /* ───────── các bảng giá + xe kéo ───────── */
 const stage = $('#stage');
-const ico = d => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
-const STOP_ICONS = [
-  ico('<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14.5 8.5l2 2"/>'),                 // xuất phát: chìa khóa
-  ico('<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/>'),                             // PPF: khiên bảo vệ
-  ico('<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>'),                               // PPF màu: giọt màu
-  ico('<path d="M4 9h3l4-4v14l-4-4H4z"/><path d="M16 9l5 6M21 9l-5 6"/>'),                            // cách âm: tắt tiếng ồn
-  ico('<path d="M5 15l1.6-4.6A2 2 0 0 1 8.5 9h7a2 2 0 0 1 1.9 1.4L19 15"/><path d="M3 15h18v3H3zM6 18v2M18 18v2"/>'), // phủ gầm: gầm xe
-  ico('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),   // liên hệ
-];
 const boards = $$('.board', stage).map((el, i) => ({ el, i, sc: $('.scroller', el), name: el.dataset.stop }));
 const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 boards.forEach((b, i) => {
   const nx = boards[i + 1];
   const html = i === 0
-    ? `<div class="onward"><button class="next" type="button" data-go="1"><b>${nx.name}</b><i class="arrow">${ARROW}</i></button>
+    ? `<div class="onward"><button class="next" type="button" data-go="1"><b>PPF Zappa</b><i class="arrow">${ARROW}</i></button>
        <p class="tagline">Giải pháp bảo vệ bề mặt sơn hàng đầu thế giới<br>Zappa Paint Protection Film</p></div>`
     : nx
     ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><b>${nx.name}</b><i class="arrow">${ARROW}</i></button>
@@ -954,7 +1078,7 @@ Road.onFrame(sp => {
 });
 const line = $('#routeLine'), nowEl = $('#routeNow');
 line.insertAdjacentHTML('beforeend', boards.map((b, i) =>
-  `<a class="stop" href="#${b.el.id}" data-go="${i}" style="--x:${i / N}"><b>${STOP_ICONS[i]}</b><span>${b.name}</span></a>`).join(''));
+  `<a class="stop" href="#${b.el.id}" data-go="${i}" style="--x:${i / N}"><b></b><span>${b.name}</span></a>`).join(''));
 line.addEventListener('click', e => { if (e.target.closest('.stop')) e.preventDefault(); });
 const stops = $$('.stop', line);
 let lastActive = -2;
