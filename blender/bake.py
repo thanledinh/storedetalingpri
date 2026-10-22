@@ -17,7 +17,7 @@ bk.margin = 8
 SIZE = {  # rộng x cao ảnh bake (tỉ lệ gần theo mặt thật)
     "bake_floor": (2048, 1902), "bake_wall_back": (1024, 468), "bake_wall_left": (1024, 504), "bake_wall_right": (1024, 504),
     "bake_ceiling": (512, 476), "bake_ground": (1024, 640), "bake_facade": (1024, 1024), "bake_header": (1024, 512),
-    "bake_counter_L": (512, 512), "bake_counter_R": (512, 512), "bake_pedestal": (512, 512),
+    "bake_counter_L": (512, 512), "bake_counter_R": (512, 512), "bake_pedestal": (512, 512), "bake_hw": (512, 512),
 }
 
 def select_only(ob):

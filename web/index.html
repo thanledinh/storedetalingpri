@@ -332,6 +332,13 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .rp-imgs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;touch-action:pan-x;padding-right:40px;flex:none;scrollbar-width:none}
 .rp-imgs img{height:clamp(70px,13svh,110px);width:auto;flex:none;scroll-snap-align:start;border-radius:8px;background:radial-gradient(#2a2a2d,#141416)}
 .rp-imgs.one img{max-width:78%;object-fit:contain}
+.rp-row{display:flex;gap:12px;align-items:flex-start;padding-right:30px}
+.rp-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.rp-tall{flex:none;display:block}
+.rp-tall img{display:block;height:clamp(150px,24svh,210px);width:auto;border-radius:6px}
+.rp-row .rp-kicker{margin-top:0}
+.rp-row .rp-name{font-size:clamp(15px,4.4cqi,20px)}
+.rp-row .rp-desc{font-size:12.5px;line-height:1.45}
 .rp-kicker{color:#bdbdbd;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
 .rp-name{color:var(--zy);font-weight:800;font-size:clamp(18px,5.6cqi,24px);text-transform:uppercase;line-height:1.15}
 .rp-desc{color:#e6e6e6;font-size:13px;line-height:1.5}
@@ -340,7 +347,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .rp-price .strike{color:#9a9a9a;font-weight:700;font-size:14px}
 .rp-price .p-off{font-size:12px;align-self:center}
 .rp-price b{color:var(--zy);font-weight:800;font-size:clamp(20px,6.4cqi,26px)}
-.rp-go{align-self:flex-start;margin-top:4px;border:1px solid var(--zy);background:none;color:var(--zy);font-weight:700;font-size:12px;text-transform:uppercase;padding:7px 14px;border-radius:999px;cursor:pointer}
+.rp-go{align-self:flex-start;margin-top:4px;border:1px solid var(--zy);background:none;color:var(--zy);font-weight:700;font-size:12px;text-transform:uppercase;padding:7px 14px;border-radius:999px;cursor:pointer;text-decoration:none}
 .rp-hint{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:6px;color:#9a9a9a;font-size:11.5px}
 .rp-hint svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:hintUp 1.4s ease-in-out infinite}
 @keyframes hintUp{0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}}
@@ -650,8 +657,12 @@ const DATA = {
   giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.jpg'], // chỉ có ở gói 2
   // Phòng trưng bày 3D — tên & mô tả TẠM, cần cập nhật theo thông tin chính thức
   room: {
-    lightbox: { short: 'Hộp đèn', kicker: 'Mặt tiền', name: 'Hộp đèn Zappa', imgs: ['room-lightbox.webp'],
-      desc: 'Hộp đèn gắn tường bằng tay đỡ, logo Zappa và dải Paint Protection Film, đặt hai bên cửa ra vào.' },
+    sign: { short: 'Bảng vẫy', kicker: 'Mặt tiền', name: 'Bảng vẫy Zappa', imgs: ['room-sign.webp'],
+      desc: 'Bảng vẫy hộp đèn hai mặt, treo bằng tay đỡ kim loại ở góc mặt tiền, nhìn rõ từ hai phía đường: logo Zappa, dải Paint Protection Film và dòng Phim bảo vệ bề mặt sơn ô tô.' },
+    standee1: { short: 'Standee', kicker: 'Standee 80 × 200 cm', name: 'Standee Bảo vệ toàn diện', imgs: ['room-standee-1.webp'], tall: true,
+      desc: 'Chống đá văng, tia UV, phân chim, va quẹt, ố đốm nước - mưa axit, bong tróc sơn. Cấu tạo 5 lớp phim, đủ 6 dòng Series, bảo hành lên đến 10 năm.' },
+    standee2: { short: 'Standee', kicker: 'Standee 80 × 200 cm', name: 'Standee Tính năng & ưu điểm', imgs: ['room-standee-2.webp'], tall: true,
+      desc: 'Các vị trí dán trên xe, 6 tính năng: tự phục hồi vết xước, giảm trầy xước, kháng bụi - kháng nước, chống tia UV, ngăn ngả màu sơn, tạo độ bóng sâu. Cấu tạo 5 lớp, bảo hành lên đến 10 năm.' },
     banner: { short: 'Băng rôn', kicker: 'Trang trí', name: 'Băng rôn Zappa', imgs: ['room-banner.webp'],
       desc: 'Băng rôn nền vàng in logo Zappa, có khoen treo ở 4 góc.' },
     hood: { short: 'Poster capo', kicker: 'Trưng bày', name: 'Poster capo Zappa', imgs: ['room-hood.jpg'],

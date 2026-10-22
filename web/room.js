@@ -53,13 +53,23 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   /* ── sản phẩm (bấm được) ── */
   const items = [];
   const product = (o) => {
-    const t = tex('assets/' + o.img);
-    const m = plane(o.w, o.h, new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: .04, toneMapped: false, side: THREE.DoubleSide }), ...o.pos, o.ry || 0);
-    if (o.flip) m.scale.x = -1;
+    const face = new THREE.MeshBasicMaterial({ map: tex('assets/' + o.img), transparent: true, alphaTest: .04, toneMapped: false, side: o.depth ? THREE.FrontSide : THREE.DoubleSide });
+    let m;
+    if (o.depth) {        // hộp đèn hai mặt: trước & sau in hình, các cạnh tối
+      const edge = new THREE.MeshBasicMaterial({ color: 0x0e0f0f });
+      m = add(new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.depth), [edge, edge, edge, edge, face, face]));
+      m.position.set(...o.pos); m.rotation.y = o.ry || 0;
+    } else m = plane(o.w, o.h, face, ...o.pos, o.ry || 0);
     const it = { ...o, mesh: m }; m.userData.item = it; items.push(it); return it;
   };
-  product({ kind: 'lightbox', img: 'room-lightbox.webp', w: .9, h: .83, pos: [-2.5, 1.95, .26], zone: 'out', label: true });
-  product({ kind: 'lightbox', img: 'room-lightbox.webp', w: .9, h: .83, pos: [2.5, 1.95, .26], zone: 'out' });
+  // bảng vẫy ở hai góc trên mặt tiền, xoè ra phía đường; standee 80×200 hai bên cửa — khớp blender/build_room.py
+  const SA = .9, SW = .78;
+  for (const s of [-1, 1]) {
+    product({ kind: 'sign', img: 'room-sign.webp', w: SW, h: 1.04, depth: .1, ry: -s * SA, zone: 'out', label: s < 0,
+      pos: [s * (3 + SW / 2 * Math.cos(SA)), 2.95, .06 + SW / 2 * Math.sin(SA)] });
+    product({ kind: s < 0 ? 'standee1' : 'standee2', img: `room-standee-${s < 0 ? 1 : 2}.webp`, w: .8, h: 2, ry: -s * .1, zone: 'out', label: true,
+      pos: [s * 2.45, 1.07, .5] });
+  }
   product({ kind: 'banner', img: 'room-banner.webp', w: 2.3, h: 1.19, pos: [-W / 2 + .03, 1.95, -3.3], ry: Math.PI / 2, zone: 'in', label: true });
   product({ kind: 'hood', img: 'room-hood.jpg', w: .95, h: 1.27, pos: [2.15, 2.05, -D + .02], zone: 'in', label: true });
   product({ kind: 'tank', img: 'room-tank-2.webp', w: .56, h: .63, pos: [-2.75, 1.03 + .315, -D + .32], zone: 'in', label: true });
@@ -135,6 +145,11 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
         <p class="rp-kicker">PPF Zappa Series · ${d.mil} mil · Bảo hành ${d.warranty} năm</p><h3 class="rp-name">PPF Zappa ${d.name}</h3>
         <p class="rp-price"><s class="strike">${vnd(d.list)}</s><span class="p-off">-${d.off}%</span><b>${vnd(d.sale)}</b></p>
         <button type="button" class="rp-go" data-board="ppf-${d.name.toLowerCase().replace(/\s+/g, '')}">Xem bảng giá ${d.name}</button>`;
+    } else if (products[it.kind].tall) {      // ảnh dọc (standee): ảnh bên trái, chữ bên phải cho bảng gọn
+      const p = products[it.kind];
+      html = `<div class="rp-row"><a class="rp-tall" href="assets/${p.imgs[0]}" target="_blank" rel="noopener"><img src="assets/${p.imgs[0]}" alt="${p.name}"></a>
+        <div><p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3><p class="rp-desc">${p.desc}</p>
+        <a class="rp-go" href="assets/${p.imgs[0]}" target="_blank" rel="noopener">Xem ảnh lớn</a></div></div>`;
     } else {
       const p = products[it.kind];
       html = `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>
@@ -142,7 +157,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     }
     panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>`;
     panel.querySelector('.rp-x').addEventListener('click', e => { e.stopPropagation(); unfocus(); });
-    const go = panel.querySelector('.rp-go');
+    const go = panel.querySelector('.rp-go[data-board]');
     if (go) go.addEventListener('click', e => { e.stopPropagation(); goToBoard(go.dataset.board); });
     requestAnimationFrame(() => panel.classList.add('open'));
   }
@@ -151,7 +166,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   let down = null;
   root.addEventListener('pointerdown', e => {
-    if (e.target.closest('.hot, .room-ui, .rp-x, .rp-go')) return;
+    if (e.target.closest('.hot, .room-ui, .rp-x, .rp-go, .rp-tall')) return;
     down = { x: e.clientX, y: e.clientY, yaw: tYaw, pitch: tPitch, t: performance.now() };
   });
   root.addEventListener('pointermove', e => {

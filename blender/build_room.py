@@ -79,9 +79,9 @@ class Builder:
         return self.mats.index(m)
     def quad(self, pts, uvs, m):
         i = len(self.v); self.v += pts; self.f.append((i, i + 1, i + 2, i + 3)); self.uv.append(uvs); self.mi.append(self._mat(m))
-    def box(self, w, h, d, c, m):
-        x, y, z = c; hw, hh, hd = w / 2, h / 2, d / 2
-        P = lambda a, b_, cc: B(x + a, y + b_, z + cc)
+    def box(self, w, h, d, c, m, ry=0.0):
+        x, y, z = c; hw, hh, hd = w / 2, h / 2, d / 2; cs, sn = math.cos(ry), math.sin(ry)
+        P = lambda a, b_, cc: B(x + a * cs + cc * sn, y + b_, z - a * sn + cc * cs)
         U = ((0, 0), (1, 0), (1, 1), (0, 1))
         self.quad([P(-hw, -hh, hd), P(hw, -hh, hd), P(hw, hh, hd), P(-hw, hh, hd)], U, m)      # trước (+z)
         self.quad([P(hw, -hh, -hd), P(-hw, -hh, -hd), P(-hw, hh, -hd), P(hw, hh, -hd)], U, m)  # sau
@@ -134,6 +134,7 @@ M = {
     "sign": mat_emit("m_sign", "#f2d51b", 5),
     "signbar": mat_emit("m_signbar", "#f2d51b", 2.5),
     "ink": mat_color("m_ink", "#111111", .6),
+    "metal": mat_color("m_metal", "#a3a6ab", .45),
 }
 
 # ── trong phòng ──
@@ -218,9 +219,39 @@ one_box("emit_sign_bar", 3.2, .3, .04, (0, 3.08, .16), M["signbar"], COL["EMIT"]
 text("emit_sign_ppf", "PAINT PROTECTION FILM", "C:/Windows/Fonts/ariblk.ttf", .2, (0, 3.08, .19), .005, M["ink"], COL["EMIT"])
 
 # ── sản phẩm (chỉ để tính bóng đổ khi bake, KHÔNG xuất ra web — web tự đặt lại để bấm được) ──
+# bảng vẫy hai mặt gắn ở góc trên mặt tiền, xoè ra hai bên; standee 80x200 đứng hai bên cửa
+SIGN_W, SIGN_H, SIGN_D, SIGN_Y, SIGN_A, SIGN_X, SIGN_Z = .78, 1.04, .1, 2.95, .9, 3.0, .06
+STAND_W, STAND_H, STAND_X, STAND_Z, STAND_A = .8, 2.0, 2.45, .5, .1
+m_sign = mat_image("m_sign_face", ASSET + "room-sign.webp", emit=1.0, alpha=True)
+hw = Builder()
+for s in (-1, 1):
+    ry = -s * SIGN_A
+    cx, cz = s * (SIGN_X + SIGN_W / 2 * math.cos(SIGN_A)), SIGN_Z + SIGN_W / 2 * math.sin(SIGN_A)
+    nx, nz = math.sin(ry), math.cos(ry)                         # pháp tuyến mặt trước
+    ux, uz = -s * math.cos(SIGN_A), -math.sin(SIGN_A)          # dọc mặt bảng, hướng về tường
+    b = Builder()
+    b.box(SIGN_W - .01, SIGN_H - .01, SIGN_D, (cx, SIGN_Y, cz), M["ink"], ry)
+    off = SIGN_D / 2 + .002
+    b.plane(SIGN_W, SIGN_H, (cx + nx * off, SIGN_Y, cz + nz * off), m_sign, ry=ry)
+    b.plane(SIGN_W, SIGN_H, (cx - nx * off, SIGN_Y, cz - nz * off), m_sign, ry=ry + math.pi)
+    b.build("prod_sign_" + "lr"[s > 0], COL["PRODUCTS"])
+    # tay đỡ: thanh ngang dọc mép trên cắm vào tường, 2 móc treo, đế bắt vít
+    top = SIGN_Y + SIGN_H / 2
+    hw.box(SIGN_W + .12, .035, .035, (cx + ux * .06, top + .06, cz + uz * .06), M["metal"], ry)
+    for t in (-.25, .25):
+        hw.box(.012, .05, .012, (cx + ux * t, top + .025, cz + uz * t), M["metal"], ry)
+    hw.box(.12, .22, .02, (s * (SIGN_X - .048), top + .03, .01), M["metal"])
+    # standee: đế nhôm, thanh nẹp trên, cột chống phía sau
+    ry = -s * STAND_A
+    x, z = s * STAND_X, STAND_Z
+    nx, nz = math.sin(ry), math.cos(ry)
+    hw.box(STAND_W + .06, .07, .22, (x - nx * .03, .035, z - nz * .03), M["metal"], ry)
+    hw.box(STAND_W + .02, .03, .03, (x, .07 + STAND_H + .01, z), M["metal"], ry)
+    hw.box(.02, STAND_H, .02, (x - nx * .07, .07 + STAND_H / 2, z - nz * .07), M["ink"], ry)
+hw.build("bake_hw", COL["BAKE"])
 P = [
-    ("lightbox_l", "room-lightbox.webp", .9, .83, (-2.5, 1.95, .26), 0, 1.2, False),
-    ("lightbox_r", "room-lightbox.webp", .9, .83, (2.5, 1.95, .26), 0, 1.2, False),
+    ("standee_1", "room-standee-1.webp", STAND_W, STAND_H, (-STAND_X, .07 + STAND_H / 2, STAND_Z), STAND_A, 0, False),
+    ("standee_2", "room-standee-2.webp", STAND_W, STAND_H, (STAND_X, .07 + STAND_H / 2, STAND_Z), -STAND_A, 0, False),
     ("banner", "room-banner.webp", 2.3, 1.19, (-W / 2 + .03, 1.95, -3.3), math.pi / 2, 0, False),
     ("hood", "room-hood.jpg", .95, 1.27, (2.15, 2.05, -D + .02), 0, 1.0, False),
     ("tank", "room-tank-2.webp", .56, .63, (-2.75, 1.03 + .315, -D + .32), 0, 0, False),
