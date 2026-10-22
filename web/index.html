@@ -299,6 +299,48 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .gift .gv{display:block;background:linear-gradient(180deg,#f1f1f1,#a3a3a3);color:#111;font-style:italic;font-weight:800;font-size:clamp(13px,4.4cqi,20px);padding:4px 34% 6px 10px;border-radius:0 0 10px 10px}
 .gift img{position:absolute;right:-8px;top:50%;width:36%;max-height:150%;object-fit:contain;transform:translateY(-50%)}
 
+/* ── phòng trưng bày 3D ── */
+.sheet-room{padding-left:clamp(10px,3vw,24px);padding-right:clamp(10px,3vw,24px)}
+.room{position:relative;height:clamp(380px,calc(100svh - 330px),720px);margin-top:clamp(18px,5cqi,30px);border-radius:16px;overflow:hidden;background:#050506;
+  touch-action:none;user-select:none;-webkit-user-select:none;border:1px solid rgba(214,180,96,.45)}
+.room canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.room canvas:active{cursor:grabbing}
+.room-hots{position:absolute;inset:0;pointer-events:none}
+.hot{position:absolute;left:0;top:0;display:flex;align-items:center;gap:6px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;
+  opacity:0;visibility:hidden;transition:opacity .25s;margin:-9px 0 0 -9px}
+.hot.show{opacity:1;visibility:visible}
+.hot i{position:relative;width:18px;height:18px;border-radius:50%;background:var(--zy);box-shadow:0 0 0 3px rgba(0,0,0,.45),0 0 14px rgba(238,213,28,.8)}
+.hot i::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--zy);animation:hotPulse 1.8s ease-out infinite}
+.hot span{background:rgba(8,8,9,.82);color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid rgba(238,213,28,.6);white-space:nowrap}
+@keyframes hotPulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}
+.room-ui{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(8,8,9,.75);border:1px solid rgba(214,180,96,.45);transition:opacity .3s}
+.room-ui button{border:0;border-radius:999px;padding:6px 14px;white-space:nowrap;background:none;color:#ddd;font-size:12px;font-weight:700;text-transform:uppercase;cursor:pointer}
+.room-ui button.on{background:var(--zy);color:#111}
+.room.focused .room-ui,.room.focused .room-tip{opacity:0;pointer-events:none}
+.room-tip{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(8,8,9,.75);color:#ddd;font-size:11.5px;white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.room-tip.gone{opacity:0}
+.room-loading{position:absolute;inset:0;display:grid;place-items:center;color:#cfcfcf;font-size:13px;background:#050506;text-align:center;padding:20px}
+.room-loading[hidden]{display:none}
+.room-panel{position:absolute;left:0;right:0;bottom:0;max-height:56%;padding:16px 16px 12px;border-radius:18px 18px 0 0;background:linear-gradient(180deg,rgba(18,18,20,.97),rgba(6,6,7,.98));
+  border-top:2px solid var(--zy);transform:translateY(105%);transition:transform .45s var(--out);overflow:hidden;display:flex;flex-direction:column;gap:6px}
+.room-panel.open{transform:none}
+.rp-x{position:absolute;top:8px;right:10px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#111;color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.rp-imgs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;touch-action:pan-x;padding-right:40px;flex:none;scrollbar-width:none}
+.rp-imgs img{height:clamp(70px,13svh,110px);width:auto;flex:none;scroll-snap-align:start;border-radius:8px;background:radial-gradient(#2a2a2d,#141416)}
+.rp-imgs.one img{max-width:78%;object-fit:contain}
+.rp-kicker{color:#bdbdbd;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.rp-name{color:var(--zy);font-weight:800;font-size:clamp(18px,5.6cqi,24px);text-transform:uppercase;line-height:1.15}
+.rp-desc{color:#e6e6e6;font-size:13px;line-height:1.5}
+.rp-imgs.film img{height:clamp(44px,8svh,64px);max-width:100%;background:none}
+.rp-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.rp-price .strike{color:#9a9a9a;font-weight:700;font-size:14px}
+.rp-price .p-off{font-size:12px;align-self:center}
+.rp-price b{color:var(--zy);font-weight:800;font-size:clamp(20px,6.4cqi,26px)}
+.rp-go{align-self:flex-start;margin-top:4px;border:1px solid var(--zy);background:none;color:var(--zy);font-weight:700;font-size:12px;text-transform:uppercase;padding:7px 14px;border-radius:999px;cursor:pointer}
+.rp-hint{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:6px;color:#9a9a9a;font-size:11.5px}
+.rp-hint svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:hintUp 1.4s ease-in-out infinite}
+@keyframes hintUp{0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}}
+
 .notes{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin:30px auto 0;max-width:900px;color:#a9a59c;font-size:12.5px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;text-align:center}
 .notes li::before{content:"✦";color:var(--gold);font-size:9px;margin-right:8px;vertical-align:2px}
 
@@ -492,6 +534,20 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     </div></div></div>
   </section>
 
+  <section class="board" id="phong-3d" data-stop="Phòng trưng bày 3D" aria-label="Phòng trưng bày đại lý 3D">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet sheet-room">
+      <h2 class="s-title">Phòng trưng bày<br>đại lý</h2>
+      <div class="room" id="room">
+        <canvas aria-label="Mô hình 3D phòng trưng bày Zappa"></canvas>
+        <div class="room-hots"></div>
+        <div class="room-ui"><button type="button" data-view="out" class="on">Mặt tiền</button><button type="button" data-view="in">Bên trong</button></div>
+        <p class="room-tip">Kéo để nhìn quanh · Chạm sản phẩm để xem chi tiết</p>
+        <div class="room-panel"></div>
+        <p class="room-loading">Đang dựng phòng trưng bày…</p>
+      </div>
+    </div></div></div>
+  </section>
+
   <section class="board" id="lien-he" data-stop="Liên hệ" aria-label="Liên hệ đặt hàng">
     <div class="scroller" tabindex="-1"><div class="inner finish">
       <div class="flag" aria-hidden="true"></div>
@@ -588,6 +644,21 @@ const DATA = {
     ['2 Mica để bàn', 300000, 'gift-mica.jpg'],
   ],
   giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.jpg'], // chỉ có ở gói 2
+  // Phòng trưng bày 3D — tên & mô tả TẠM, cần cập nhật theo thông tin chính thức
+  room: {
+    lightbox: { short: 'Hộp đèn', kicker: 'Mặt tiền', name: 'Hộp đèn Zappa', imgs: ['room-lightbox.webp'],
+      desc: 'Hộp đèn gắn tường bằng tay đỡ, logo Zappa và dải Paint Protection Film, đặt hai bên cửa ra vào.' },
+    banner: { short: 'Băng rôn', kicker: 'Trang trí', name: 'Băng rôn Zappa', imgs: ['room-banner.webp'],
+      desc: 'Băng rôn nền vàng in logo Zappa, có khoen treo ở 4 góc.' },
+    hood: { short: 'Poster capo', kicker: 'Trưng bày', name: 'Poster capo Zappa', imgs: ['room-hood.jpg'],
+      desc: 'Poster nền vàng gắn mẫu capo dán PPF Zappa: Glossy Paint Protection Film · For all paint surfaces · High transparent · Self healing up to 40°C.' },
+    tank: { short: 'Bình phun', kicker: 'Dụng cụ thi công', name: 'Bình phun áp lực Zappa', imgs: ['room-tank-2.webp', 'room-tank.webp'],
+      desc: 'Bình phun dây xoắn, vòi kim loại có cò bóp, thân in nhận diện Zappa Paint Protection Film.' },
+    pump: { short: 'Bình xịt', kicker: 'Dụng cụ thi công', name: 'Bình xịt tay Zappa', imgs: ['room-pump.webp'],
+      desc: 'Bình xịt bơm tay thân mờ, tem logo Zappa Paint Protection Film.' },
+    demo: { short: 'Máy demo PPF', kicker: 'Trình diễn tại cửa hàng', name: 'Máy demo PPF Zappa', imgs: ['room-demo-1.webp', 'room-demo-2.webp', 'room-demo-3.webp', 'room-demo-4.webp'],
+      desc: 'Hộp mica trình diễn cho khách xem trực tiếp: mẫu capo, bình đá, bộ quả nặng gắn lò xo, núm Speed Control và công tắc nguồn.' },
+  },
 };
 /* Thời lượng màn xe kéo bảng (1 = khoảng 2,7 giây; 0.7 = nhanh hơn) */
 const TOW_SPEED = 1;
@@ -932,7 +1003,29 @@ function activate(b) {
   Road.source(() => b.sc.scrollTop);
   if (root.classList.contains('ready')) b.sc.focus({ preventScroll: true });
   history.replaceState(null, '', '#' + b.el.id);
+  Room.toggle(b.el.id === 'phong-3d');
 }
+
+/* phòng trưng bày 3D: chỉ tải Three.js + room.js khi mở tới trang này */
+const Room = (() => {
+  let api = null, loading = null, want = false;
+  function toggle(on) {
+    want = on;
+    if (api) return api.setActive(on);
+    if (!on || loading) return;
+    loading = import('./room.js').then(m => {
+      api = m.mount($('#room'), {
+        products: DATA.room, ppf: DATA.ppf, vnd, reduce,
+        goToBoard: id => { const t = boards.find(x => x.el.id === id); if (t) goTo(t.i); },
+      });
+      api.setActive(want);
+    }).catch(err => {
+      console.error(err);
+      $('#room .room-loading').textContent = 'Không tải được phòng 3D. Kiểm tra kết nối mạng rồi tải lại trang.';
+    });
+  }
+  return { toggle };
+})();
 function resetBoard(b) {
   b.el.classList.remove('moving', 'framed');
   b.sc.style.opacity = ''; fade([b.bar, b.car], '');
