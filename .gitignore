@@ -1,2 +1,6 @@
 .claude/
 MKT_LANDING*.png
+blender/bake/
+blender/*.blend1
+blender/preview_*.png
+blender/bake_sheet.jpg
