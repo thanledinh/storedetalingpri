@@ -72,15 +72,22 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   }
 
   /* ── điểm chạm nổi trên sản phẩm ── */
+  // cuộn phim trên kệ không gắn chấm (chạm thẳng vào cuộn phim là được) để đỡ rối
   const hots = items.map(it => {
+    if (!it.label) return null;
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'hot' + (it.label ? ' lbl' : '');
-    const name = it.kind === 'film' ? 'PPF ' + it.film.name : products[it.kind].short;
-    b.innerHTML = `<i></i>${it.label ? `<span>${name}</span>` : ''}`;
+    b.type = 'button'; b.className = 'hot';
+    const name = products[it.kind].short;
+    b.innerHTML = `<i></i><span>${name}</span>`;
     b.setAttribute('aria-label', 'Xem ' + name);
     b.addEventListener('click', e => { e.stopPropagation(); focus(it); });
     hotsEl.appendChild(b); return b;
   });
+  let labelTimer = 0;
+  const flashLabels = () => {        // nhãn tên chỉ hiện vài giây khi vừa tới một góc nhìn
+    root.classList.add('labels'); clearTimeout(labelTimer);
+    labelTimer = setTimeout(() => root.classList.remove('labels'), 3200);
+  };
 
   /* ── điều khiển góc nhìn ── */
   const stations = {
@@ -99,6 +106,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     st = stations[name]; tYaw = yaw = 0; tPitch = pitch = st.pitch;
     fly(st.pos.clone(), st.pos.clone().add(dirOf(0, st.pitch).multiplyScalar(5)), 1500);
     viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === name));
+    setTimeout(flashLabels, reduce ? 0 : 1500);
   }
   function focus(it) {
     if (it.zone !== (st === stations.out ? 'out' : 'in')) { st = stations[it.zone]; viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === it.zone)); }
@@ -195,7 +203,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     const r = root.getBoundingClientRect();
     camera.updateMatrixWorld();
     items.forEach((it, i) => {
-      const b = hots[i];
+      const b = hots[i]; if (!b) return;
       it.mesh.getWorldPosition(tmp); tmp.y += it.h * .5;
       const inFront = tmp.clone().applyMatrix4(camera.matrixWorldInverse).z < 0;
       tmp.project(camera);
@@ -210,7 +218,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     setActive(on) {
       if (on === active) return;
       active = on;
-      if (on) { resize(); requestAnimationFrame(frame); }
+      if (on) { resize(); requestAnimationFrame(frame); flashLabels(); }
       else if (focused) unfocus(true);
     },
   };
