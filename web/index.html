@@ -274,31 +274,51 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .c-war p{background:linear-gradient(90deg,#9d9d9d,#e8e8e8 40%,#c8c8c8 75%,#7d7d7d);color:#161616;font-style:italic;font-weight:800;font-size:clamp(10.5px,3.2cqi,15px);
   text-transform:uppercase;padding:12px 14px;border-radius:0 10px 10px 0;line-height:1.75;display:flex;flex-wrap:wrap;gap:0 14px}
 
+/* ── trang gọn một màn (gói hỗ trợ đại lý): không cuộn; mọi kích thước trong khung theo cqi
+      để JS (fitSheets) thu hẹp khung thì chiều cao giảm theo đúng tỉ lệ ── */
+.board.fit .inner{padding:58px 0 calc(var(--route-gap) + 86px)}
+.board.fit .sheet{margin-top:0;padding:6cqi 2.6cqi 4cqi;border-radius:4cqi}
+.board.fit .sheet::before,.board.fit .sheet::after{top:0;height:4cqi;width:5.5cqi}
+.board.fit .sheet::before{right:13cqi}
+.board.fit .sheet::after{right:5cqi}
+.board.fit .onward{margin-top:12px}
+.board.fit .next{gap:14px;padding:7px 7px 7px 22px}
+.board.fit .next b{font-size:16px}
+.board.fit .next .arrow{width:36px;height:36px}
+.board.fit .next-hint{display:none}
+.s-title.one{font-size:6.3cqi;white-space:nowrap}
+
 /* ── gói hỗ trợ đại lý ── */
-.pack{position:relative;margin-top:clamp(28px,8cqi,48px);border:2px solid var(--zy);border-radius:14px;background:linear-gradient(115deg,#2b2b2b,#1a1a1a 46%,#262626);padding:0 0 clamp(18px,5cqi,28px)}
-.pack-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:0 10px 0 0}
-.pack-tag{background:var(--zy);color:#111;font-weight:800;font-size:clamp(16px,5.2cqi,24px);text-transform:uppercase;padding:8px 30px 8px 16px;border-radius:12px 0 0 0;clip-path:polygon(0 0,100% 0,86% 100%,0 100%)}
-.pack-cut{background:#fff;color:#111;font-style:italic;font-weight:800;font-size:clamp(13px,4.2cqi,20px);padding:4px 14px;border-radius:999px;border:2px solid var(--zy)}
-.pack-price{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 12px 0;padding:8px 14px;border:2px solid var(--zy);border-radius:12px;background:#151515}
-.pack-price::after{content:"";position:absolute;right:16%;bottom:-11px;border:9px solid transparent;border-top-color:var(--zy);border-bottom:0}
-.pack-price .strike{color:#9c9c9c;font-weight:800;font-size:clamp(14px,4.6cqi,24px)}
-.pack-price b{color:var(--zy);font-weight:800;font-size:clamp(18px,6cqi,30px)}
-.pack-items{display:grid;grid-template-columns:1fr;gap:20px;padding:26px 12px 0}
-@container (min-width:520px){.pack-items{grid-template-columns:1fr 1fr}}
-.pack-item{display:flex;flex-direction:column;align-items:center;gap:8px}
-.pack-item img{width:78%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.6))}
-.pill{display:flex;align-items:stretch;font-style:italic;font-size:clamp(12.5px,4cqi,17px);border-radius:999px;overflow:hidden}
-.pill .q{background:var(--zy);color:#111;font-weight:800;padding:4px 10px 4px 14px}
-.pill .nm{background:#0d0d0d;color:#fff;font-weight:700;text-transform:uppercase;padding:4px 12px;border:2px solid #fff;border-radius:0 999px 999px 0;margin-right:-10px;position:relative;z-index:1}
-.pill .d{background:#e0262c;color:#fff;font-weight:800;padding:4px 12px 4px 16px;border-radius:0 8px 8px 0}
-.gifts{position:relative;margin-top:clamp(30px,9cqi,48px);background:#2d2d2d;border:1px solid rgba(214,180,96,.45);padding:0 12px clamp(18px,5cqi,26px)}
-.gifts h3{margin:0 -12px;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:clamp(15px,5cqi,24px);text-transform:uppercase;text-align:center;padding:10px 6px;
+.pack{position:relative;margin-top:8cqi;border:.45cqi solid var(--zy);border-radius:2.4cqi;background:linear-gradient(115deg,#2b2b2b,#1a1a1a 46%,#262626);padding:0 1.6cqi 3.6cqi}
+.pack-head{display:flex;align-items:center;gap:1.2cqi;margin:-4.6cqi -.45cqi 0;min-height:9cqi}
+.pack-tag{align-self:flex-end;display:flex;align-items:center;height:5.6cqi;background:var(--zy);color:#111;font-weight:800;font-size:3.5cqi;text-transform:uppercase;white-space:nowrap;
+  padding:0 4.6cqi 0 2.6cqi;border-radius:2.4cqi 0 0 0;clip-path:polygon(0 0,100% 0,84% 100%,0 100%)}
+.pack-cut{align-self:flex-end;margin-bottom:.6cqi;background:#fff;color:#111;font-style:italic;font-weight:800;font-size:3cqi;white-space:nowrap;padding:.7cqi 2.2cqi;border-radius:99px;border:.45cqi solid var(--zy)}
+.pack-price{position:relative;margin-left:auto;display:flex;align-items:center;gap:2cqi;padding:1.3cqi 2.4cqi;border:.45cqi solid var(--zy);border-radius:2cqi;background:#151515;white-space:nowrap}
+.pack-price::after{content:"";position:absolute;right:18%;bottom:-1.9cqi;border:1.5cqi solid transparent;border-top-color:var(--zy);border-bottom:0}
+.pack-price .strike{color:#9c9c9c;font-weight:800;font-size:3.2cqi}
+.pack-price b{color:var(--zy);font-weight:800;font-size:4.4cqi}
+.pack-items{display:grid;grid-template-columns:auto auto;justify-content:space-around;gap:4.2cqi 1cqi;padding-top:4.6cqi}
+.pack-item{display:flex;flex-direction:column;align-items:center;gap:1.3cqi}
+.pack-item:last-child:nth-child(odd){grid-column:1/-1}
+.pack-item img{width:33cqi;aspect-ratio:6.3;object-fit:contain;filter:drop-shadow(0 1cqi 1.2cqi rgba(0,0,0,.6))}
+.pill{display:flex;align-items:stretch;font-style:italic;font-size:2.5cqi;line-height:1.25;white-space:nowrap;border-radius:99px;overflow:hidden}
+.pill .q{background:var(--zy);color:#111;font-weight:800;padding:.7cqi 1.4cqi .7cqi 2cqi}
+.pill .nm{background:#0d0d0d;color:#fff;font-weight:700;text-transform:uppercase;padding:.7cqi 1.4cqi;border:.35cqi solid #fff;border-radius:0 99px 99px 0;margin-right:-2cqi;position:relative;z-index:1}
+.pill .d{background:#e0262c;color:#fff;font-weight:800;padding:.7cqi 1.3cqi .7cqi 2.6cqi;border-radius:0 1.4cqi 1.4cqi 0}
+.gifts{position:relative;margin-top:5cqi;border:1px solid rgba(214,180,96,.6);padding:0 2.2cqi 4cqi}
+.pack .gifts{margin:5cqi -1.6cqi -3.6cqi;border:0;border-top:.45cqi solid var(--zy);border-radius:0 0 2cqi 2cqi;padding:0 0 4cqi;background:#303030}
+.gifts h3{margin:0 -2.2cqi;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:3.5cqi;text-transform:uppercase;text-align:center;padding:1.2cqi 1cqi;
   clip-path:polygon(0 0,100% 0,96% 100%,4% 100%)}
-.gift-list{display:grid;grid-template-columns:1fr 1fr;gap:22px 14px;margin-top:26px}
-.gift{position:relative;display:flex;flex-direction:column;border:2px solid var(--zy);border-radius:12px}
-.gift .gn{display:block;background:#161616;color:#fff;font-style:italic;font-weight:500;font-size:clamp(10.5px,3.3cqi,15px);padding:7px 34% 6px 10px;line-height:1.2;border-radius:10px 10px 0 0}
-.gift .gv{display:block;background:linear-gradient(180deg,#f1f1f1,#a3a3a3);color:#111;font-style:italic;font-weight:800;font-size:clamp(13px,4.4cqi,20px);padding:4px 34% 6px 10px;border-radius:0 0 10px 10px}
-.gift img{position:absolute;right:-8px;top:50%;width:36%;max-height:150%;object-fit:contain;transform:translateY(-50%)}
+.pack .gifts h3{margin:0}
+.gift-list{display:grid;grid-template-columns:1fr 1fr;gap:5cqi 3cqi;padding:5cqi 3cqi 0;background:#303030}
+/* thẻ quà theo đúng tỉ lệ thẻ trên poster (100px: viền 4 + nền tối 52 + bạc 40 + viền 4); --s = cqi cho 1px poster */
+.gift{--s:.114cqi;position:relative;display:flex;flex-direction:column;margin-right:6cqi;border:.45cqi solid var(--zy);border-radius:2.2cqi}
+.gift:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 7.5cqi)}
+.gift .gn,.gift .gv{display:flex;align-items:center;justify-content:center;white-space:nowrap;font-style:italic;padding:0 calc(var(--o) * var(--s) + .6cqi) 0 1.4cqi}
+.gift .gn{height:calc(52 * var(--s));background:#2d2d2d;color:#fff;font-weight:500;font-size:2.5cqi;border-radius:1.8cqi 1.8cqi 0 0}
+.gift .gv{height:calc(40 * var(--s));background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(0,0,0,.06)),linear-gradient(90deg,#d0d0d0,#f4f4f4 75%);color:#111;font-weight:800;font-size:3.3cqi;border-radius:0 0 1.8cqi 1.8cqi}
+.gift img{position:absolute;top:calc(-39 * var(--s) - .45cqi);left:calc(100% + .45cqi - var(--o) * var(--s));height:calc(170 * var(--s));width:auto}
 
 /* ── phòng trưng bày 3D ── */
 .room-page{container-type:inline-size;width:100%;margin-top:6px}
@@ -529,19 +549,18 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     </div></div></div>
   </section>
 
-  <section class="board" id="goi-1" data-stop="Gói hỗ trợ đại lý 1" aria-label="Gói hỗ trợ đại lý mới: gói 1A và 1B">
+  <section class="board fit" id="goi-1" data-stop="Gói hỗ trợ đại lý 1" aria-label="Gói hỗ trợ đại lý mới: gói 1A và 1B">
     <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
-      <h2 class="s-title">Gói hỗ trợ<br>đại lý mới</h2>
+      <h2 class="s-title one">Gói hỗ trợ đại lý mới</h2>
       <div data-render="packs" data-packs="1A,1B"></div>
       <div data-render="gifts" data-extra="0"></div>
     </div></div></div>
   </section>
 
-  <section class="board" id="goi-2" data-stop="Gói hỗ trợ đại lý 2" aria-label="Gói hỗ trợ đại lý mới: gói 2">
+  <section class="board fit" id="goi-2" data-stop="Gói hỗ trợ đại lý 2" aria-label="Gói hỗ trợ đại lý mới: gói 2">
     <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
-      <h2 class="s-title">Gói hỗ trợ<br>đại lý mới</h2>
-      <div data-render="packs" data-packs="2"></div>
-      <div data-render="gifts" data-extra="1"></div>
+      <h2 class="s-title one">Gói hỗ trợ đại lý mới</h2>
+      <div data-render="packs" data-packs="2" data-gifts="1"></div>
     </div></div></div>
   </section>
 
@@ -647,14 +666,16 @@ const DATA = {
     '1B': { list: 119000000, sale: 101600000, items: [[3, '1368', 15], [3, '1378', 15], [2, '1388', 15], [1, '1388 PRO', 20]] },
     '2':  { list: 182300000, sale: 153960000, items: [[5, '1368', 15], [5, '1378', 15], [3, '1388', 15], [1, '1388 PRO', 20]] },
   },
-  gifts: [ // ấn phẩm quà tặng: [tên, giá trị, ảnh]
-    ['1 Bảng tráng gương', 2000000, 'gift-mirror.jpg'],
-    ['5 Áo Zappa', 1000000, 'gift-shirt.jpg'],
-    ['5 nón Zappa', 1000000, 'gift-cap.jpg'],
-    ['1 Bạt trải Capo', 350000, 'gift-banner.jpg'],
-    ['2 Mica để bàn', 300000, 'gift-mica.jpg'],
+  // ấn phẩm quà tặng: [tên, giá trị, ảnh, o] — ảnh cắt từ poster theo khung thẻ (cao 170px quanh thẻ 100px),
+  // o = số px poster từ mép trái ảnh tới đầu phải thẻ, để ảnh đè lên đầu thẻ đúng như poster
+  gifts: [
+    ['1 Bảng tráng gương', 2000000, 'gift-mirror.webp', 65],
+    ['5 Áo Zappa', 1000000, 'gift-shirt.webp', 53],
+    ['5 nón Zappa', 1000000, 'gift-cap.webp', 72],
+    ['1 Bạt trải Capo', 350000, 'gift-banner.webp', 66],
+    ['2 Mica để bàn', 300000, 'gift-mica.webp', 67],
   ],
-  giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.jpg'], // chỉ có ở gói 2
+  giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.webp', 26], // chỉ có ở gói 2
   // Phòng trưng bày 3D — tên & mô tả TẠM, cần cập nhật theo thông tin chính thức
   room: {
     sign: { short: 'Bảng vẫy', kicker: 'Mặt tiền', name: 'Bảng vẫy Zappa', imgs: ['room-sign.webp'],
@@ -711,20 +732,22 @@ const R = {
     <colgroup><col style="width:34%"><col style="width:13%"><col style="width:21%"><col style="width:32%"></colgroup>
     <thead><tr><th>PPF Zappa Series</th><th>ĐVT (cây)</th><th>Kích thước</th><th>Giá đại lý</th></tr></thead>
     <tbody>${DATA.color.map(d => `<tr><td><img src="assets/${d.img}" alt="">${d.name}</td><td>Cây</td><td>${d.size}</td><td class="price">${vnd(d.price)}</td></tr>`).join('')}</tbody></table>`,
+  // data-gifts="1": quà tặng (kèm gói đào tạo) nằm chung khung với gói, như poster gói 2
   packs: el => el.dataset.packs.split(',').map(id => {
     const p = DATA.packs[id];
     return `<div class="pack">
-      <div class="pack-head"><span class="pack-tag">Gói ${id.replace(/(\d)([A-Z])/, '$1 $2')}</span><span class="pack-cut">Giảm %</span></div>
-      <div class="pack-price"><s class="strike">${vnd(p.list)}</s><b>${vnd(p.sale)}</b></div>
+      <div class="pack-head"><span class="pack-tag">Gói ${id.replace(/(\d)([A-Z])/, '$1 $2')}</span><span class="pack-cut">Giảm %</span>
+        <span class="pack-price"><s class="strike">${vnd(p.list)}</s><b>${vnd(p.sale)}</b></span></div>
       <div class="pack-items">${p.items.map(([q, name, off]) => `<div class="pack-item"><img src="assets/${ppfBy(name).img}" alt="Hộp PPF Zappa ${name}">
         <p class="pill"><span class="q">${q} Cây</span><span class="nm">PPF Zappa ${name}</span><span class="d">-${off}%</span></p></div>`).join('')}</div>
+      ${el.dataset.gifts ? R.gifts({ dataset: { extra: el.dataset.gifts } }) : ''}
     </div>`;
   }).join(''),
   gifts: el => {
-    const list = DATA.gifts.map(([n, v, img]) => [n, vnd(v), img]);
+    const list = DATA.gifts.map(([n, v, img, o]) => [n, vnd(v), img, o]);
     if (el.dataset.extra === '1') list.push(DATA.giftExtra);
-    return `<div class="gifts"><h3>🎁 Ấn phẩm quà tặng 🎁</h3><div class="gift-list">${list.map(([n, v, img]) =>
-      `<div class="gift"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
+    return `<div class="gifts"><h3>🎁 Ấn phẩm quà tặng 🎁</h3><div class="gift-list">${list.map(([n, v, img, o]) =>
+      `<div class="gift" style="--o:${o}"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
   },
 };
 $('#quy-trinh').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
@@ -1007,6 +1030,26 @@ boards.forEach((b, i) => {
   b.bar = $('.rig .bar', b.el); b.car = $('.rig .car', b.el);
   b.el.setAttribute('aria-hidden', 'true'); b.el.inert = true;
 });
+
+/* trang .fit: thu hẹp khung tới khi cả trang (kể cả nút sang trang) nằm gọn một màn.
+   Trong khung mọi kích thước theo cqi nên chiều cao tỉ lệ với chiều rộng; lặp 2 lần cho khớp phần px lẻ.
+   Không hẹp quá 300px (chữ sẽ quá nhỏ) — màn rất thấp như iPhone SE thì cuộn thêm một chút */
+const FIT_MIN = 300;
+function fitSheets() {
+  $$('.board.fit').forEach(el => {
+    const sc = $('.scroller', el), sh = $('.sheet', el);
+    sh.style.width = '';
+    for (let k = 0; k < 2; k++) {
+      const over = sc.scrollHeight - sc.clientHeight;
+      if (over <= 0) break;
+      const w = Math.floor(sh.offsetWidth * (1 - (over + 2) / sh.offsetHeight));
+      sh.style.width = Math.max(w, Math.min(FIT_MIN, sh.offsetWidth)) + 'px';
+    }
+  });
+}
+fitSheets();
+addEventListener('resize', fitSheets);
+document.fonts.ready.then(fitSheets);
 
 let cur = -1, busy = false, towP = null, pitchNow = .46;
 const setV = (el, o) => { for (const k in o) el.style.setProperty('--' + k, o[k]); };
