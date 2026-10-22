@@ -301,9 +301,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .gift img{position:absolute;right:-8px;top:50%;width:36%;max-height:150%;object-fit:contain;transform:translateY(-50%)}
 
 /* ── phòng trưng bày 3D ── */
-.sheet-room{padding-left:clamp(10px,3vw,24px);padding-right:clamp(10px,3vw,24px)}
-.room{position:relative;height:clamp(380px,calc(100svh - 330px),720px);margin-top:clamp(18px,5cqi,30px);border-radius:16px;overflow:hidden;background:#050506;
-  touch-action:none;user-select:none;-webkit-user-select:none;border:1px solid rgba(214,180,96,.45)}
+.room-page{container-type:inline-size;width:100%;margin-top:6px}
+.room-page .s-title{font-size:clamp(24px,7.2cqi,44px);padding:0 16px}
+.room{position:relative;height:clamp(400px,calc(100svh - 280px),1000px);margin-top:16px;overflow:hidden;background:#050506;
+  touch-action:none;user-select:none;-webkit-user-select:none;border-top:1px solid rgba(214,180,96,.5);border-bottom:1px solid rgba(214,180,96,.5)}
 .room canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
 .room canvas:active{cursor:grabbing}
 .room-hots{position:absolute;inset:0;pointer-events:none}
@@ -536,7 +537,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   </section>
 
   <section class="board" id="phong-3d" data-stop="Phòng trưng bày 3D" aria-label="Phòng trưng bày đại lý 3D">
-    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet sheet-room">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="room-page">
       <h2 class="s-title">Phòng trưng bày<br>đại lý</h2>
       <div class="room" id="room">
         <canvas aria-label="Mô hình 3D phòng trưng bày Zappa"></canvas>
