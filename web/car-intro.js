@@ -189,17 +189,8 @@ export async function createCarIntro(canvas, { onProgress } = {}) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.background = (() => {
-    const c = document.createElement('canvas');
-    c.width = 512; c.height = 320;
-    const g = c.getContext('2d');
-    const grd = g.createRadialGradient(256, 150, 10, 256, 160, 330);
-    grd.addColorStop(0, '#1c1f23'); grd.addColorStop(1, '#060708');
-    g.fillStyle = grd; g.fillRect(0, 0, c.width, c.height);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  })();
+  // nền phía trên cùng một màu với chỗ sàn tan vào bóng tối (sương mù + vòng tối quanh sàn) để không lộ đường chân trời
+  scene.background = new THREE.Color(BG);
   scene.environment = studioEnv(renderer);
   scene.fog = new THREE.Fog(BG, 14, 34);
   const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 80);
