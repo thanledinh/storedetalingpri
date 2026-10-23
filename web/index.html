@@ -412,7 +412,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 <header class="hud">
   <div class="hud-right">
     <div class="speedo" aria-hidden="true"><b id="kmh">0</b>km/h</div>
-    <button class="icon-btn" id="sound" type="button" aria-pressed="false" aria-label="Bật/tắt tiếng động cơ">
+    <button class="icon-btn" id="sound" type="button" aria-pressed="false" aria-label="Bật/tắt nhạc nền">
       <svg class="on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
       <svg class="off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
     </button>
@@ -729,56 +729,33 @@ const tfill = $('#tfill'), rpmEl = $('#rpm');
 function setTacho(k) { // k = nghìn vòng/phút
   tfill.style.strokeDashoffset = (414.7 * (1 - Math.min(k, 8) / 8)).toFixed(1);
   rpmEl.textContent = k.toFixed(1);
-  Engine.rpm(k * 1000);
 }
 
-/* ───────── âm thanh động cơ (WebAudio, tự tổng hợp) ───────── */
-const Engine = (() => {
-  let ac = null, out, o1, o2, sub, lp, lfo, on = false, cur = 0;
-  function curve(k) { const n = 1024, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i * 2 / n - 1; c[i] = (1 + k) * x / (1 + k * Math.abs(x)); } return c; }
-  function init() {
-    if (ac) return true;
-    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
-    ac = new AC();
-    out = ac.createGain(); out.gain.value = 0; out.connect(ac.destination);
-    lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 320; lp.Q.value = .9;
-    const sh = ac.createWaveShaper(); sh.curve = curve(5);
-    const am = ac.createGain(); am.gain.value = .65;
-    const g1 = ac.createGain(); g1.gain.value = .5;
-    const g2 = ac.createGain(); g2.gain.value = .22;
-    const gs = ac.createGain(); gs.gain.value = .7;
-    o1 = ac.createOscillator(); o1.type = 'sawtooth';
-    o2 = ac.createOscillator(); o2.type = 'square';
-    sub = ac.createOscillator(); sub.type = 'sine';
-    lfo = ac.createOscillator(); lfo.type = 'sine';
-    const lg = ac.createGain(); lg.gain.value = .35;
-    o1.connect(g1).connect(sh); o2.connect(g2).connect(sh); sh.connect(am); sub.connect(gs).connect(am);
-    lfo.connect(lg).connect(am.gain); am.connect(lp).connect(out);
-    [o1, o2, sub, lfo].forEach(o => o.start());
-    rpm(0);
-    return true;
-  }
-  function rpm(r) {
-    cur = r; if (!ac) return;
-    const t = ac.currentTime, f = Math.max(14, r / 60 * 4);
-    o1.frequency.setTargetAtTime(f, t, .04); o2.frequency.setTargetAtTime(f * 1.006, t, .04);
-    sub.frequency.setTargetAtTime(f / 2, t, .04); lfo.frequency.setTargetAtTime(Math.max(4, f / 4), t, .04);
-    lp.frequency.setTargetAtTime(180 + r * .13, t, .06);
-    if (on) out.gain.setTargetAtTime(Math.min(.16, .055 + r / 60000), t, .08);
+/* ───────── nhạc nền: assets/nhac-nen.mp3, phát lặp. Bật khi bấm START / Bỏ qua (trình duyệt chỉ cho phát tiếng
+   sau một lần chạm), nút loa góc trên để tắt/bật; ẩn tab thì tạm dừng ───────── */
+const Music = (() => {
+  const a = new Audio('assets/nhac-nen.mp3');
+  a.loop = true;
+  a.preload = 'auto';
+  const VOL = .55;
+  let on = false, fadeT = 0;
+  function fadeIn() {                       // vào nhẹ trong ~1,5 giây (iPhone không cho chỉnh âm lượng thì phát luôn)
+    clearInterval(fadeT);
+    a.volume = 0;
+    fadeT = setInterval(() => { a.volume = Math.min(VOL, a.volume + VOL / 30); if (a.volume >= VOL) clearInterval(fadeT); }, 50);
   }
   function set(v) {
-    if (v && !init()) return false;
-    on = v; if (!ac) return false;
-    if (v) ac.resume();
-    out.gain.setTargetAtTime(v ? Math.min(.16, .055 + cur / 60000) : 0, ac.currentTime, .12);
+    on = v;
+    if (v) { fadeIn(); a.play().catch(() => { on = false; soundBtn.setAttribute('aria-pressed', 'false'); }); }
+    else { clearInterval(fadeT); a.pause(); }
     return on;
   }
-  document.addEventListener('visibilitychange', () => { if (!ac) return; document.hidden ? ac.suspend() : on && ac.resume(); });
-  return { set, rpm, get on() { return on; } };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) a.pause(); else if (on) a.play().catch(() => {}); });
+  return { set, get on() { return on; } };
 })();
 const soundBtn = $('#sound');
-function setSound(v) { const ok = Engine.set(v); soundBtn.setAttribute('aria-pressed', String(!!ok && v)); }
-soundBtn.addEventListener('click', () => setSound(!Engine.on));
+function setSound(v) { const ok = Music.set(v); soundBtn.setAttribute('aria-pressed', String(!!ok && v)); }
+soundBtn.addEventListener('click', () => setSound(!Music.on));
 
 /* ───────── con đường (canvas) ───────── */
 const Road = (() => {
@@ -1277,7 +1254,6 @@ let kmhShown = -1;
 Road.onFrame(sp => {
   const v = Math.round(Math.min(320, Math.abs(sp) * 9));
   if (v !== kmhShown) { kmh.textContent = v; kmhShown = v; }
-  if (root.classList.contains('ready')) Engine.rpm(850 + Math.min(5600, Math.abs(sp) * 160));
 });
 // lộ trình: mỗi trang một chấm (kể cả các trang nối nhau trong một chặng); chạm chấm là mở đúng trang đó
 const line = $('#routeLine'), nowEl = $('#routeNow');
@@ -1358,7 +1334,7 @@ function skip(to) {
 const HOME = boards.findIndex(b => b.el.id === 'thong-so');     // "Bỏ qua": vào thẳng bảng giá
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
-$('#skip').addEventListener('click', () => skip(HOME));
+$('#skip').addEventListener('click', () => { setSound(true); skip(HOME); });
 if (!reduce) intro.addEventListener('pointermove', e => {
   if (started) return;
   const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
