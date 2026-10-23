@@ -234,6 +234,12 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 /* ── trang từng series ── */
 .p-box{width:100%;height:auto;margin:clamp(20px,6cqi,36px) auto 0;filter:drop-shadow(0 16px 22px rgba(0,0,0,.7))}
+/* máy tính: 6 dòng PPF chung một trang (#ppf-zappa), 3 cột × 2 hàng; mỗi thẻ là khung đo cqi riêng */
+.sheet.wide{max-width:1240px}
+.p-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;margin-top:clamp(18px,2.6cqi,34px)}
+.p-card{container-type:inline-size;padding:22px 20px 24px;border:1px solid rgba(214,180,96,.45);border-radius:18px;
+  background:radial-gradient(120% 60% at 50% 0%,rgba(255,255,255,.05),rgba(255,255,255,0) 70%)}
+.p-name{color:var(--zy);font-weight:800;text-transform:uppercase;text-align:center;font-size:min(8cqi,34px);line-height:1.1}
 .p-price{display:flex;align-items:flex-end;justify-content:space-between;gap:2cqi;margin-top:clamp(18px,5cqi,30px)}
 .p-price .strike{color:#8e8e8e;font-weight:800;font-size:min(5.6cqi,32px);margin-bottom:1.2cqi}
 .p-now{text-align:left}
@@ -864,10 +870,7 @@ const ppfBy = name => DATA.ppf.find(d => d.name === name);
 const slug = name => 'ppf-' + name.toLowerCase().replace(/\s+/g, '');
 const specRows = rows => `<dl class="z-specs p-specs">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>`;
 
-const productBoard = d => `
-  <section class="board" id="${slug(d.name)}" data-stop="PPF Zappa ${d.name}" aria-label="Bảng giá PPF Zappa ${d.name}">
-    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
-      <h2 class="s-title">PPF Zappa ${d.name}</h2>
+const productBody = d => `
       <img class="p-box" src="assets/${d.img}" alt="Hộp phim PPF Zappa ${d.name}">
       <div class="p-price">
         <s class="strike" aria-label="Giá niêm yết">${vnd(d.list)}</s>
@@ -875,9 +878,30 @@ const productBoard = d => `
       </div>
       ${specRows([['Độ dày ± 0.3 mil', d.mil + ' mil'], ['Đơn vị tính', 'Cây'], ['Bảo hành bong tróc', d.warranty + ' năm'], ['Bảo hành ngả màu', d.fade + ' năm']])}
       <hr class="p-rule">
-      ${d.pkgs.map(([k, list, sale]) => `<div class="pkg"><span class="pkg-k">${k}</span><i></i><span class="pkg-v"><s class="strike">${vnd(list)}</s><b>${vnd(sale)}</b></span></div>`).join('')}
+      ${d.pkgs.map(([k, list, sale]) => `<div class="pkg"><span class="pkg-k">${k}</span><i></i><span class="pkg-v"><s class="strike">${vnd(list)}</s><b>${vnd(sale)}</b></span></div>`).join('')}`;
+
+// điện thoại: mỗi dòng PPF một trang
+const productBoard = d => `
+  <section class="board" id="${slug(d.name)}" data-stop="PPF Zappa ${d.name}" aria-label="Bảng giá PPF Zappa ${d.name}">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title">PPF Zappa ${d.name}</h2>
+      ${productBody(d)}
     </div></div></div>
   </section>`;
+
+// máy tính: cả 6 dòng chung một trang, mỗi dòng một thẻ (thẻ là khung đo cqi nên nội dung co theo bề ngang thẻ)
+const productsBoard = () => `
+  <section class="board" id="ppf-zappa" data-stop="PPF Zappa" aria-label="Bảng giá 6 dòng PPF Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet wide">
+      <h2 class="s-title">Bảng giá PPF Zappa</h2>
+      <div class="p-grid">${DATA.ppf.map(d => `
+        <article class="p-card" id="card-${slug(d.name)}"><h3 class="p-name">PPF Zappa ${d.name}</h3>${productBody(d)}</article>`).join('')}
+      </div>
+    </div></div></div>
+  </section>`;
+const DESK_MQ = matchMedia('(min-width: 1000px) and (orientation: landscape)');
+const DESK = DESK_MQ.matches;
+const SERIES = DATA.ppf.map(d => slug(d.name));
 
 const R = {
   specTable: () => `<table>
@@ -909,7 +933,9 @@ const R = {
       `<div class="gift" style="--o:${o}"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
   },
 };
-$('#tpu').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
+$('#tpu').insertAdjacentHTML('beforebegin', DESK ? productsBoard() : DATA.ppf.map(productBoard).join(''));
+// đổi qua lại khổ điện thoại / máy tính (kéo cửa sổ, xoay máy tính bảng) thì tải lại để dựng đúng bố cục trang sản phẩm
+DESK_MQ.addEventListener('change', () => location.reload());
 $$('[data-render]').forEach(el => { el.innerHTML = R[el.dataset.render](el); });
 
 /* ───────── logo SD (vẽ lại từ logo gốc, khung 466 × 466) ───────── */
@@ -1173,6 +1199,23 @@ const Road = (() => {
 /* ───────── các bảng giá + xe kéo ───────── */
 const stage = $('#stage');
 const boards = $$('.board', stage).map((el, i) => ({ el, i, sc: $('.scroller', el), name: el.dataset.stop }));
+// tìm trang theo id; trang một dòng PPF (ppf-1368…) trên máy tính nằm chung trang ppf-zappa và ngược lại
+function findBoard(id) {
+  return boards.find(b => b.el.id === id)
+    || ((id === 'ppf-zappa' || SERIES.includes(id)) && boards.find(b => b.el.id === 'ppf-zappa' || SERIES.includes(b.el.id)))
+    || null;
+}
+// trên máy tính, trỏ tới một dòng PPF thì cuộn tới đúng thẻ của dòng đó trong trang chung
+function showCard(b, id, smooth) {
+  const card = b.el.id === 'ppf-zappa' && SERIES.includes(id) && document.getElementById('card-' + id);
+  if (card) card.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
+}
+async function openBoard(id) {
+  const b = findBoard(id);
+  if (!b) return;
+  await goTo(b.i);
+  showCard(b, id, true);
+}
 const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 boards.forEach((b, i) => {
@@ -1302,7 +1345,7 @@ const Room = (() => {
     loading = import('./room.js').then(m => {
       api = m.mount($('#room'), {
         products: DATA.room, ppf: DATA.ppf, vnd, reduce,
-        goToBoard: id => { const t = boards.find(x => x.el.id === id); if (t) goTo(t.i); },
+        goToBoard: openBoard,
       });
       api.setActive(want);
     }).catch(err => {
@@ -1544,8 +1587,9 @@ if (!reduce) intro.addEventListener('pointermove', e => {
   keyTilt.style.transform = `rotateY(${(x * 22).toFixed(2)}deg) rotateX(${(-y * 14).toFixed(2)}deg)`;
 });
 // vào thẳng một trang bằng đường link thì bỏ màn mở đầu; #xe / #xuat-phat (địa chỉ còn lại sau lần xem trước) vẫn chiếu
-const deep = !['', '#xe', '#xuat-phat'].includes(location.hash) && boards.find(b => '#' + b.el.id === location.hash);
-if (deep) skip(deep.i);
+const hashId = location.hash.slice(1);
+const deep = !['', 'xe', 'xuat-phat'].includes(hashId) && findBoard(hashId);
+if (deep) { skip(deep.i); showCard(deep, hashId, false); }
 // tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
 const startBtn = $('#start');
 intro.classList.add('loading'); startBtn.disabled = true;
