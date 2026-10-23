@@ -537,27 +537,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
   <!-- 6 trang PPF Zappa 1368 … 1398 PRO được dựng từ DATA.ppf, chèn vào đây -->
 
-  <section class="board fit" id="bao-ve" data-stop="Bảo vệ toàn diện" aria-label="Bảo vệ toàn diện khỏi các tác nhân gây hại và cấu tạo PPF Zappa">
-    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
-      <h2 class="s-title two">Bảo vệ toàn diện<br>khỏi các tác nhân gây hại</h2>
-      <div class="harm grow">
-        <img src="assets/harm-strip.webp" width="1004" height="522" alt="Xe được PPF bảo vệ khỏi đá văng, tia UV, phân chim, va quẹt, ố đốm nước mưa axit và bong tróc sơn">
-        <ul class="harm-labels"><li>Đá văng</li><li>Tia UV</li><li>Phân chim</li><li>Va quẹt<br>xước xe</li><li>Ố đốm nước<br>mưa axit</li><li>Bong tróc<br>sơn xe</li></ul>
-      </div>
-      <div class="layers-head"><h2 class="s-title one">Cấu tạo PPF Zappa</h2><p>Paint Protection Film</p></div>
-      <div class="layers grow"><div class="layers-art">
-        <img src="assets/ppf-layers.webp" width="629" height="600" alt="5 lớp của phim PPF Zappa">
-        <ol>
-          <li style="--y:19.67%"><b>1</b><span>Lớp bảo vệ bên ngoài<small>(Self healing)</small></span></li>
-          <li style="--y:44.83%"><b>2</b><span>Lớp phủ Nano Ceramic<small>(Gloss enhancer)</small></span></li>
-          <li style="--y:55.67%"><b>3</b><span>Màng đế TPU<small>(Thermoplastic PolyUrethane)</small></span></li>
-          <li style="--y:67%"><b>4</b><span>Lớp tinh thể<small>(Adhesive)</small></span></li>
-          <li style="--y:80.17%"><b>5</b><span>Lớp tách mờ<small>(Release Liner)</small></span></li>
-        </ol>
-      </div></div>
-    </div></div></div>
-  </section>
-
   <section class="board fit" id="tpu" data-stop="PPF Zappa TPU" aria-label="PPF Zappa TPU Paint Protection: vị trí dán trên xe và tính năng">
     <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
       <h2 class="tpu-title"><span class="y">PPF Zappa</span><span class="w">TPU Paint</span><span class="w sm">Protection</span></h2>
@@ -580,6 +559,27 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
         <li><img src="assets/tpu-feat-4.webp" width="80" height="84" alt=""><span>Giữ độ bóng</span></li>
         <li><img src="assets/tpu-feat-5.webp" width="80" height="84" alt=""><span>Kháng bụi, kháng nước</span></li>
       </ul></div>
+    </div></div></div>
+  </section>
+
+  <section class="board fit" id="bao-ve" data-stop="Bảo vệ toàn diện" aria-label="Bảo vệ toàn diện khỏi các tác nhân gây hại và cấu tạo PPF Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title two">Bảo vệ toàn diện<br>khỏi các tác nhân gây hại</h2>
+      <div class="harm grow">
+        <img src="assets/harm-strip.webp" width="1004" height="522" alt="Xe được PPF bảo vệ khỏi đá văng, tia UV, phân chim, va quẹt, ố đốm nước mưa axit và bong tróc sơn">
+        <ul class="harm-labels"><li>Đá văng</li><li>Tia UV</li><li>Phân chim</li><li>Va quẹt<br>xước xe</li><li>Ố đốm nước<br>mưa axit</li><li>Bong tróc<br>sơn xe</li></ul>
+      </div>
+      <div class="layers-head"><h2 class="s-title one">Cấu tạo PPF Zappa</h2><p>Paint Protection Film</p></div>
+      <div class="layers grow"><div class="layers-art">
+        <img src="assets/ppf-layers.webp" width="629" height="600" alt="5 lớp của phim PPF Zappa">
+        <ol>
+          <li style="--y:19.67%"><b>1</b><span>Lớp bảo vệ bên ngoài<small>(Self healing)</small></span></li>
+          <li style="--y:44.83%"><b>2</b><span>Lớp phủ Nano Ceramic<small>(Gloss enhancer)</small></span></li>
+          <li style="--y:55.67%"><b>3</b><span>Màng đế TPU<small>(Thermoplastic PolyUrethane)</small></span></li>
+          <li style="--y:67%"><b>4</b><span>Lớp tinh thể<small>(Adhesive)</small></span></li>
+          <li style="--y:80.17%"><b>5</b><span>Lớp tách mờ<small>(Release Liner)</small></span></li>
+        </ol>
+      </div></div>
     </div></div></div>
   </section>
 
@@ -836,7 +836,7 @@ const R = {
       `<div class="gift" style="--o:${o}"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
   },
 };
-$('#bao-ve').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
+$('#tpu').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
 $$('[data-render]').forEach(el => { el.innerHTML = R[el.dataset.render](el); });
 
 /* ───────── logo SD (vẽ lại từ logo gốc, khung 466 × 466) ───────── */
