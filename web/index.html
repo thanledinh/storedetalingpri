@@ -97,9 +97,9 @@ button{font:inherit;color:inherit}
 /* cảnh xe + PPF sau START (car-intro.js): che chìa khoá & nút, chạm để bỏ qua; mờ đi cùng màn mở đầu */
 .car-intro{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none;transition:opacity .7s ease}
 .car-credit{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));right:12px;font-size:10px;line-height:1.4;color:rgba(242,235,220,.42);opacity:0;pointer-events:none;transition:opacity .7s ease}
-#intro.car .car-intro{opacity:1;pointer-events:auto;cursor:pointer}
-#intro.car .car-credit{opacity:1}
-#intro.car .intro-inner,#intro.car .beam,#intro.car .skip{opacity:0;pointer-events:none;transition:opacity .45s ease}
+#intro.carscene .car-intro{opacity:1;pointer-events:auto;cursor:pointer}
+#intro.carscene .car-credit{opacity:1}
+#intro.carscene .intro-inner,#intro.carscene .beam,#intro.carscene .skip{opacity:0;pointer-events:none;transition:opacity .45s ease}
 #intro.go .car-intro,#intro.go .car-credit{opacity:0}
 html.shake .intro-inner{animation:shake .38s linear infinite}
 
@@ -1422,7 +1422,7 @@ async function ignite() {
   const car = carIntro && await carIntro;
   if (reduce) {               // giảm chuyển động: bỏ vòng tua & xe kéo bảng, vẫn chiếu cảnh xe (người xem tự bấm, chạm để bỏ qua)
     setTacho(.9); Road.engine(true);
-    if (car) { intro.classList.add('car'); await car.play(); }
+    if (car) { intro.classList.add('carscene'); await car.play(); }
     activate(boards[0]); hideIntro();
     if (car) setTimeout(() => car.dispose(), 1300);
     return;
@@ -1433,7 +1433,7 @@ async function ignite() {
   await tween(3.8, .9, 700, eio, setTacho);
   root.classList.remove('shake');
   // cảnh xe quay, phim PPF ập vào xe (đã tải xong trước khi cho bấm START; lỗi tải thì bỏ qua cảnh này)
-  if (car) { intro.classList.add('car'); await car.play(); }
+  if (car) { intro.classList.add('carscene'); await car.play(); }
   else { hint.textContent = 'Sẵn sàng'; await wait(260); }
   intro.classList.add('go'); Road.boost(30);
   tween(.9, 3.2, 500, eout, setTacho).then(() => tween(3.2, 1.2, 900, eio, setTacho));
