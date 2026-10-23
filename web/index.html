@@ -183,17 +183,8 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .xe-stage.failed .xe-hint .a{display:none}
 .xe-credit{position:absolute;left:16px;right:16px;top:calc(max(14px,env(safe-area-inset-top)) + 58px);text-align:center;font-size:10px;line-height:1.4;color:rgba(242,235,220,.38);pointer-events:none}
 
-/* xuất phát */
-.hero{flex:1;justify-content:center;align-items:center;text-align:center;padding-left:16px;padding-right:16px;font-family:"Montserrat",var(--sans)}
-.hero-logo{height:clamp(40px,7vw,64px);width:auto;margin:0 auto clamp(40px,9vh,80px)}
-.hero h1{display:flex;flex-direction:column;align-items:center;text-transform:uppercase;line-height:1}
-.hero h1 span{padding:.14em .05em 0;color:transparent;background:linear-gradient(180deg,#f6dd96 0%,#e3bb5e 55%,#b88a34 100%);-webkit-background-clip:text;background-clip:text}
-.h-sm{font-weight:600;font-size:clamp(34px,min(9vw,6.5vh),64px);letter-spacing:.04em}
-.h-lg{font-weight:800;font-size:clamp(52px,min(14vw,10.5vh),104px);letter-spacing:.03em}
-.lede{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:clamp(26px,5vh,44px);color:#f2efe8;font-weight:500;font-size:clamp(13px,3.4vw,17px);letter-spacing:.03em;text-transform:uppercase}
-.hero .onward{margin-top:clamp(40px,8vh,72px)}
-.hero .next b{font-size:clamp(20px,5.4vw,24px)}
-.tagline{margin-top:16px;color:var(--gold-hi);font-weight:500;font-size:clamp(10.5px,2.8vw,12.5px);letter-spacing:.02em;text-transform:uppercase;line-height:1.6;text-align:center}
+/* tiêu đề trang cho trình đọc màn hình (không hiện ra) */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* đầu mỗi bảng: logo · tiêu đề vàng · dòng phụ · gạch · dòng áp dụng */
 .leg-head{text-align:center;max-width:760px;margin:0 auto;padding:clamp(8px,4vh,40px) 16px 40px}
@@ -586,6 +577,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 <!-- ═════════ CÁC BẢNG GIÁ ═════════ -->
 <main id="stage">
+  <h1 class="sr-only">Bảng giá đại lý 2026 · Store Detailing</h1>
   <section class="board" id="xe" data-stop="Xe dán PPF" aria-label="Xe dán PPF Zappa: cuộn xuống để xem phim ập vào xe, cuộn lên để xem lại">
     <div class="scroller" tabindex="-1"><div class="inner"><div class="xe-track">
       <div class="xe-stage at-start">
@@ -594,14 +586,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
         <p class="xe-credit">Mô hình xe 3D: “Lamborghini Urus 2018” · kirikom9000 · CC BY 4.0 · đã chỉnh sửa</p>
       </div>
     </div></div></div>
-  </section>
-
-  <section class="board" id="xuat-phat" data-stop="Xuất phát" aria-label="Xuất phát">
-    <div class="scroller" tabindex="-1"><div class="inner hero">
-      <img class="hero-logo" src="assets/logo-store.png" alt="Store Detailing">
-      <h1><span class="h-sm">Bảng giá</span><span class="h-lg">Đại lý</span></h1>
-      <p class="lede"><span>PPF Zappa - PPF màu - Phủ gầm</span><span>Cách âm - Tiêu âm</span></p>
-    </div></div>
   </section>
 
   <section class="board" id="thong-so" data-stop="Thông số kỹ thuật" aria-label="Thông số kỹ thuật sản phẩm">
@@ -1208,7 +1192,7 @@ const stage = $('#stage');
 
 /* gom trang thành chặng: trong một chặng các trang nối tiếp nhau, cuộn bình thường; chỉ khi sang chặng khác mới có
    xe kéo bảng. Mỗi id trong CHAPTER_HEADS mở một chặng; trang theo sau (không nằm trong danh sách) nối vào chặng đó. */
-const CHAPTER_HEADS = ['xe', 'xuat-phat', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'le-ky-ket', 'lien-he'];
+const CHAPTER_HEADS = ['xe', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'le-ky-ket', 'lien-he'];
 {
   const asPage = (sec, inner) => {
     const pg = document.createElement('div');
@@ -1276,13 +1260,10 @@ const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 boards.forEach((b, i) => {
   const nx = boards[i + 1];
-  const html = b.el.id === 'xuat-phat'
-    ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><b>PPF Zappa</b><i class="arrow">${ARROW}</i></button>
-       <p class="tagline">Giải pháp bảo vệ bề mặt sơn hàng đầu thế giới<br>Zappa Paint Protection Film</p></div>`
-    : nx
+  const html = nx
     ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><b>${nx.name}</b><i class="arrow">${ARROW}</i></button>
        <p class="next-hint">hoặc cuộn tiếp — xe sẽ kéo bảng giá tiếp theo tới</p></div>`
-    : `<div class="onward"><button class="next" type="button" data-go="0"><b>Về điểm xuất phát</b><i class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></i></button></div>`;
+    : `<div class="onward"><button class="next" type="button" data-go="0"><b>Về trang đầu</b><i class="arrow"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg></i></button></div>`;
   $('.inner', b.el).insertAdjacentHTML('beforeend', html);
   b.el.insertAdjacentHTML('beforeend', `<div class="rig" aria-hidden="true"><i class="bar"></i><div class="car">${CAR_REAR}</div></div>`);
   b.bar = $('.rig .bar', b.el); b.car = $('.rig .car', b.el);
@@ -1678,7 +1659,7 @@ function skip(to) {
   if (started) return; started = true;
   Road.engine(true); activate(boards[to]); hideIntro();
 }
-const HOME = boards.findIndex(b => b.el.id === 'xuat-phat');
+const HOME = boards.findIndex(b => b.el.id === 'thong-so');     // "Bỏ qua": vào thẳng bảng giá
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
 $('#skip').addEventListener('click', () => skip(HOME));
@@ -1687,7 +1668,7 @@ if (!reduce) intro.addEventListener('pointermove', e => {
   const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
   keyTilt.style.transform = `rotateY(${(x * 22).toFixed(2)}deg) rotateX(${(-y * 14).toFixed(2)}deg)`;
 });
-// vào thẳng một trang bằng đường link thì bỏ màn mở đầu; #xe / #xuat-phat (địa chỉ còn lại sau lần xem trước) vẫn chiếu
+// vào thẳng một trang bằng đường link thì bỏ màn mở đầu; #xe (và #xuat-phat của bản cũ) vẫn chiếu màn mở đầu
 const hashId = location.hash.slice(1);
 const deep = !['', 'xe', 'xuat-phat'].includes(hashId) && findPage(hashId);
 if (deep) {
