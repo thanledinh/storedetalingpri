@@ -5,7 +5,7 @@ Trang bảng giá đại lý Store Detailing 2026 (PPF Zappa, PPF màu, cách â
 - Toàn bộ trang nằm trong `web/` (một file `index.html` + ảnh trong `web/assets/`).
 - Sửa giá: khối `DATA` ở đầu phần `<script>` trong `web/index.html`.
 - Tốc độ màn xe kéo bảng: hằng `TOW_SPEED` ngay dưới khối `DATA`.
-- Cảnh xe + PPF sau nút START: `web/car-intro.js` (mốc thời gian ở hằng `T`). Xe `assets/car-urus.glb` và khuôn phim `assets/ppf-patterns.*` lấy từ dự án son-wowww; mô hình “Lamborghini Urus 2018” của kirikom9000 (CC BY 4.0) — giữ dòng ghi nguồn ở màn mở đầu và trang Liên hệ.
+- Trang đầu "Xe dán PPF" (sau nút START): `web/car-stage.js` (mốc thời gian ở hằng `T`); cảnh chạy theo thanh cuộn của trang `#xe`, lần đầu tự cuộn một lượt. Xe `assets/car-urus.glb` và khuôn phim `assets/ppf-patterns.*` lấy từ dự án son-wowww; mô hình “Lamborghini Urus 2018” của kirikom9000 (CC BY 4.0) — giữ dòng ghi nguồn ở màn mở đầu và trang Liên hệ.
 - Phòng trưng bày 3D: `web/room.js` + `blender/` (xem `blender/README.md`).
 
 ## Chạy bằng Docker

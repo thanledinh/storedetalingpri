@@ -1,5 +1,6 @@
-/* Cảnh mở đầu sau khi bấm START: chiếc Urus vàng quay trên bàn xoay, 13 miếng PPF bay tới, uốn theo thân xe rồi
-   ập vào xe (mũi trước), một vệt sáng chạy dọc xe và sơn bóng sâu lên.
+/* Trang "Xe dán PPF" (trang đầu, ngay sau START): chiếc Urus vàng quay trên bàn xoay, 13 miếng PPF bay tới, uốn
+   theo thân xe rồi ập vào xe (mũi trước), một vệt sáng chạy dọc xe và sơn bóng sâu lên. Cảnh chạy theo thanh cuộn của
+   trang: cuộn xuống phim bay vào, cuộn lên phim bay ra (xem lại được); xe tự quay chậm khi đang ở trang.
    Xe, khuôn PPF và chất liệu sơn/phim lấy từ dự án son-wowww (src/car.js, src/v3/kit.js), rút gọn cho một cảnh.
    Mô hình xe: "Lamborghini Urus 2018" của kirikom9000 (Sketchfab, CC BY 4.0), đã chỉnh sửa. */
 import * as THREE from 'three';
@@ -182,8 +183,8 @@ function edgeAttr(geo) {
   return new THREE.BufferAttribute(edge, 1);
 }
 
-/** onProgress(0..1): phần đã tải của file xe (file nặng nhất), để trang hiện phần trăm trước khi cho bấm START */
-export async function createCarIntro(canvas, { onProgress } = {}) {
+/** onProgress(0..1): phần đã tải của file xe (file nặng nhất), để màn tải hiện phần trăm */
+export async function createCarStage(canvas, { onProgress } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.NeutralToneMapping;     // giữ màu vàng Giallo đậm (ACES làm nhạt)
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -309,10 +310,10 @@ export async function createCarIntro(canvas, { onProgress } = {}) {
     return Math.max(2.75 / tanH, 1.75 / tanV + 2.6);
   };
 
-  // một khung hình theo thời gian cảnh t (giây)
-  const q = new THREE.Quaternion(), qI = new THREE.Quaternion(), tmp = new THREE.Vector3();
-  function pose(t) {
-    turn.rotation.y = Math.PI - 0.95 + t * 0.5;           // bắt đầu 3/4 đầu xe, quay dần sang hông
+  // một khung hình theo thời gian cảnh t (giây); idle: số giây đã đứng ở trang (bàn xoay tự quay chậm)
+  const qI = new THREE.Quaternion(), tmp = new THREE.Vector3();
+  function pose(t, idle = 0) {
+    turn.rotation.y = Math.PI - 0.95 + t * 0.25 + idle * 0.08;  // bắt đầu 3/4 đầu xe trái, quay dần qua đầu xe sang 3/4 phải
     const dist = frameDist() * (1.06 - 0.08 * smooth(clamp01(t / T.end)));
     const el = 0.2 - 0.06 * smooth(clamp01(t / T.end));
     camera.position.set(0, Math.sin(el) * dist, Math.cos(el) * dist).add(target);
@@ -352,37 +353,41 @@ export async function createCarIntro(canvas, { onProgress } = {}) {
     paintU.uCarInv.value.copy(car.matrixWorld).invert();
   }
 
-  resize();
-  pose(0);
-  renderer.compile(scene, camera);
-  renderer.render(scene, camera);                         // dựng sẵn shader trước khi bấm START
-  addEventListener('resize', resize);
-
-  let raf = 0, done = null, t0 = 0;
+  // t chạy theo thanh cuộn (mượt dần tới đích); chỉ vẽ liên tục khi trang đang mở, ngoài ra giữ khung hình cuối
+  let active = false, raf = 0, t = 0, goal = 0, idle = 0, last = 0;
+  const draw = () => { pose(t, idle); renderer.render(scene, camera); };
   function frame(now) {
-    const t = (now - t0) / 1000;
-    pose(Math.min(t, T.end + 2));
-    renderer.render(scene, camera);
-    if (t >= T.end && done) { const d = done; done = null; d(); }
-    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    idle += dt;
+    t += (goal - t) * Math.min(1, dt * 9);
+    draw();
+    if (active) raf = requestAnimationFrame(frame);
   }
+
+  resize();
+  renderer.compile(scene, camera);
+  draw();                                                 // dựng sẵn shader trong lúc màn tải
+  const onResize = () => { resize(); if (!active) draw(); };
+  addEventListener('resize', onResize);
 
   return {
     /** vẽ đúng khung hình ở giây t của cảnh (để xem thử từng nhịp) */
-    seek(t) { pose(t); renderer.render(scene, camera); },
-    /** chạy cảnh; xong khi phim đã dán và sơn bóng lên (khung hình vẫn chạy tới lúc dispose) */
-    play() {
-      return new Promise((res) => {
-        done = res;
-        t0 = performance.now();
-        raf = requestAnimationFrame(frame);
-        const skip = () => { if (done) { const d = done; done = null; d(); } };
-        canvas.addEventListener('pointerdown', skip, { once: true });
-      });
+    seek(s) { t = goal = s; draw(); },
+    /** p 0..1 = vị trí thanh cuộn của trang; snap: nhảy thẳng tới (khi trang chưa mở, ví dụ lúc vừa quay lại trang) */
+    setProgress(p, snap = false) {
+      goal = clamp01(p) * T.end;
+      if (snap || !active) { t = goal; draw(); }
+    },
+    setActive(on) {
+      if (on === active) return;
+      active = on;
+      if (on) { last = performance.now(); raf = requestAnimationFrame(frame); }
+      else cancelAnimationFrame(raf);
     },
     dispose() {
       cancelAnimationFrame(raf);
-      removeEventListener('resize', resize);
+      removeEventListener('resize', onResize);
       scene.traverse((o) => {
         if (o.geometry) o.geometry.dispose();
         const mats = o.material ? [].concat(o.material) : [];

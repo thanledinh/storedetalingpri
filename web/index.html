@@ -104,13 +104,6 @@ button{font:inherit;color:inherit}
 #intro.loading .start-face{filter:grayscale(.7) brightness(.65)}
 #intro.loading .start-face::before{animation:none}
 #intro.loading .key{cursor:progress}
-/* cảnh xe + PPF sau START (car-intro.js): che chìa khoá & nút, chạm để bỏ qua; mờ đi cùng màn mở đầu */
-.car-intro{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none;transition:opacity .7s ease}
-.car-credit{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));right:12px;font-size:10px;line-height:1.4;color:rgba(242,235,220,.42);opacity:0;pointer-events:none;transition:opacity .7s ease}
-#intro.carscene .car-intro{opacity:1;pointer-events:auto;cursor:pointer}
-#intro.carscene .car-credit{opacity:1}
-#intro.carscene .intro-inner,#intro.carscene .beam,#intro.carscene .skip{opacity:0;pointer-events:none;transition:opacity .45s ease}
-#intro.go .car-intro,#intro.go .car-credit{opacity:0}
 html.shake .intro-inner{animation:shake .38s linear infinite}
 
 /* ───────────── HUD + LỘ TRÌNH ───────────── */
@@ -172,6 +165,23 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .car{--cw:clamp(150px,40vw,440px);position:absolute;bottom:0;left:0;width:var(--cw);aspect-ratio:2/1;transform-origin:50% 100%;opacity:0;
   transform:translateX(-50%) rotateX(calc(var(--tilt,0deg) * -1))}
 .car svg{width:100%;height:100%;overflow:visible}
+
+/* xe dán PPF (car-stage.js): khung xe dính trên màn, trang cuộn dài ~2,2 màn để chạy cảnh phim ập vào xe.
+   --xe-h = chiều cao vùng cuộn (JS đặt), để khung xe luôn vừa đúng màn */
+#xe .inner{padding:0}
+#xe .onward{display:none}
+.xe-track{height:calc(var(--xe-h,100svh) * 3.2)}
+.xe-stage{position:sticky;top:0;height:var(--xe-h,100svh);overflow:hidden;background:#060708}
+.xe-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.xe-hint{position:absolute;left:0;right:0;bottom:calc(var(--route-gap) + 104px);text-align:center;pointer-events:none;
+  color:var(--gold-hi);font-size:11.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.xe-hint span{display:none}
+.xe-hint span::after{content:"";display:block;width:9px;height:9px;margin:10px auto 0;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);animation:xeNudge 1.6s ease-in-out infinite}
+.xe-stage.at-start .xe-hint .a,.xe-stage.at-end .xe-hint .b{display:block}
+@keyframes xeNudge{0%,100%{transform:translateY(0) rotate(45deg);opacity:.5}50%{transform:translateY(6px) rotate(45deg);opacity:1}}
+.xe-stage.failed::before{content:"Không tải được mô hình xe 3D — tải lại trang để thử lại";position:absolute;left:16px;right:16px;top:45%;text-align:center;color:var(--muted);font-size:13px}
+.xe-stage.failed .xe-hint .a{display:none}
+.xe-credit{position:absolute;left:16px;right:16px;top:calc(max(14px,env(safe-area-inset-top)) + 58px);text-align:center;font-size:10px;line-height:1.4;color:rgba(242,235,220,.38);pointer-events:none}
 
 /* xuất phát */
 .hero{flex:1;justify-content:center;align-items:center;text-align:center;padding-left:16px;padding-right:16px;font-family:"Montserrat",var(--sans)}
@@ -520,8 +530,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 <div id="intro">
   <div class="intro-bg"></div>
   <div class="beam" aria-hidden="true"></div>
-  <canvas class="car-intro" aria-hidden="true"></canvas>
-  <p class="car-credit">Mô hình xe 3D: “Lamborghini Urus 2018” · kirikom9000 · CC BY 4.0 · đã chỉnh sửa</p>
   <div class="intro-inner">
     <div class="intro-top">
       <img class="intro-logo" src="assets/logo-store.png" alt="Store Detailing">
@@ -565,6 +573,16 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 <!-- ═════════ CÁC BẢNG GIÁ ═════════ -->
 <main id="stage">
+  <section class="board" id="xe" data-stop="Xe dán PPF" aria-label="Xe dán PPF Zappa: cuộn xuống để xem phim ập vào xe, cuộn lên để xem lại">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="xe-track">
+      <div class="xe-stage at-start">
+        <canvas class="xe-canvas" aria-hidden="true"></canvas>
+        <p class="xe-hint"><span class="a">Cuộn xuống để dán PPF</span><span class="b">Cuộn tiếp để xem bảng giá</span></p>
+        <p class="xe-credit">Mô hình xe 3D: “Lamborghini Urus 2018” · kirikom9000 · CC BY 4.0 · đã chỉnh sửa</p>
+      </div>
+    </div></div></div>
+  </section>
+
   <section class="board" id="xuat-phat" data-stop="Xuất phát" aria-label="Xuất phát">
     <div class="scroller" tabindex="-1"><div class="inner hero">
       <img class="hero-logo" src="assets/logo-store.png" alt="Store Detailing">
@@ -1159,8 +1177,8 @@ const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 boards.forEach((b, i) => {
   const nx = boards[i + 1];
-  const html = i === 0
-    ? `<div class="onward"><button class="next" type="button" data-go="1"><b>PPF Zappa</b><i class="arrow">${ARROW}</i></button>
+  const html = b.el.id === 'xuat-phat'
+    ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><b>PPF Zappa</b><i class="arrow">${ARROW}</i></button>
        <p class="tagline">Giải pháp bảo vệ bề mặt sơn hàng đầu thế giới<br>Zappa Paint Protection Film</p></div>`
     : nx
     ? `<div class="onward"><button class="next" type="button" data-go="${i + 1}"><b>${nx.name}</b><i class="arrow">${ARROW}</i></button>
@@ -1209,7 +1227,45 @@ function activate(b) {
   history.replaceState(null, '', '#' + b.el.id);
   Room.toggle(b.el.id === 'phong-3d');
   Clip.toggle(b.el.id === 'le-ky-ket');
+  CarStage.toggle(b.el.id === 'xe');
 }
+
+/* trang "Xe dán PPF": vị trí thanh cuộn của trang = tiến độ cảnh (cuộn xuống phim bay vào xe, cuộn lên phim bay ra).
+   Sau START trang tự cuộn một lượt cho xem; chạm, cuộn hay bấm phím là dừng tự cuộn, người xem tự điều khiển. */
+const XE = boards.find(b => b.el.id === 'xe');
+const CarStage = (() => {
+  const stageEl = $('.xe-stage', XE.el);
+  let api = null, active = false, auto = 0;
+  const progress = () => { const max = XE.sc.scrollHeight - XE.sc.clientHeight; return max > 0 ? XE.sc.scrollTop / max : 0; };
+  function sync() {
+    const p = progress();
+    stageEl.classList.toggle('at-start', p < .04);
+    stageEl.classList.toggle('at-end', p > .96);
+    if (api) api.setProgress(p);
+  }
+  const fit = () => { XE.el.style.setProperty('--xe-h', XE.sc.clientHeight + 'px'); sync(); };
+  XE.sc.addEventListener('scroll', sync, { passive: true });
+  addEventListener('resize', fit);
+  fit();
+  const stopAuto = () => { cancelAnimationFrame(auto); auto = 0; };
+  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(ev => XE.el.addEventListener(ev, stopAuto, { passive: true }));
+  return {
+    ready(a) { api = a; sync(); if (active) api.setActive(true); },
+    toggle(on) { active = on; if (!on) stopAuto(); if (api) api.setActive(on); },
+    /** cuộn hết trang trong ~4,6 giây (như một đoạn phim), dừng ngay khi người xem tự thao tác */
+    autoplay() {
+      if (!api || reduce) return;
+      stopAuto();
+      const from = XE.sc.scrollTop, to = XE.sc.scrollHeight - XE.sc.clientHeight, t0 = performance.now();
+      const step = now => {
+        const k = Math.min(1, (now - t0) / 4600);
+        XE.sc.scrollTop = from + (to - from) * eio(k);
+        auto = k < 1 ? requestAnimationFrame(step) : 0;
+      };
+      auto = requestAnimationFrame(step);
+    },
+  };
+})();
 
 /* video lễ ký kết: chỉ tải khi tới trang; màn dọc → bản dọc, màn ngang → bản ngang (đổi khi xoay máy).
    File gốc không có tiếng (rãnh âm thanh câm) nên video chạy không tiếng, không có nút loa */
@@ -1417,7 +1473,7 @@ Road.onFrame(() => {
 
 /* ───────── màn mở đầu ───────── */
 const intro = $('#intro'), hint = $('#hint'), keyTilt = $('#keyTilt');
-let started = false, carIntro = null;
+let started = false;
 function tween(a, b, ms, ease, cb) {
   return new Promise(res => {
     const t0 = performance.now();
@@ -1436,62 +1492,53 @@ async function ignite() {
   intro.classList.add('pressed');
   hint.textContent = 'Đang khởi động…';
   setSound(true);
-  const car = carIntro && await carIntro;
-  if (reduce) {               // giảm chuyển động: bỏ vòng tua & xe kéo bảng, vẫn chiếu cảnh xe (người xem tự bấm, chạm để bỏ qua)
-    setTacho(.9); Road.engine(true);
-    if (car) { intro.classList.add('carscene'); await car.play(); }
-    activate(boards[0]); hideIntro();
-    if (car) setTimeout(() => car.dispose(), 1300);
-    return;
-  }
+  if (reduce) { setTacho(.9); Road.engine(true); activate(boards[0]); hideIntro(); return; }
   await tween(0, .45, 340, eio, setTacho);
   root.classList.add('shake'); Road.engine(true); intro.classList.add('lit');
   await tween(.45, 3.8, 380, eout, setTacho);
   await tween(3.8, .9, 700, eio, setTacho);
   root.classList.remove('shake');
-  // cảnh xe quay, phim PPF ập vào xe (đã tải xong trước khi cho bấm START; lỗi tải thì bỏ qua cảnh này)
-  if (car) { intro.classList.add('carscene'); await car.play(); }
-  else { hint.textContent = 'Sẵn sàng'; await wait(260); }
+  hint.textContent = 'Sẵn sàng';
+  await wait(260);
   intro.classList.add('go'); Road.boost(30);
   tween(.9, 3.2, 500, eout, setTacho).then(() => tween(3.2, 1.2, 900, eio, setTacho));
   await wait(900);
   busy = true;
-  const arrival = tow(null, boards[0]);
+  const arrival = tow(null, boards[0]);                    // trang đầu: xe dán PPF
   await wait(250); hideIntro();
-  if (car) setTimeout(() => car.dispose(), 1300);         // sau khi màn mở đầu đã gỡ: trả bộ nhớ đồ hoạ
   await arrival; activate(boards[0]); busy = false;
+  CarStage.autoplay();                                     // lần đầu: tự chạy một lượt phim ập vào xe
 }
-function skip(to = 0) {
+function skip(to) {
   if (started) return; started = true;
   Road.engine(true); activate(boards[to]); hideIntro();
-  if (carIntro) carIntro.then(c => c && setTimeout(() => c.dispose(), 1300));
 }
+const HOME = boards.findIndex(b => b.el.id === 'xuat-phat');
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
-$('#skip').addEventListener('click', () => skip(0));
+$('#skip').addEventListener('click', () => skip(HOME));
 if (!reduce) intro.addEventListener('pointermove', e => {
   if (started) return;
   const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
   keyTilt.style.transform = `rotateY(${(x * 22).toFixed(2)}deg) rotateX(${(-y * 14).toFixed(2)}deg)`;
 });
-// vào thẳng một trang bằng đường link thì bỏ màn mở đầu; riêng #xuat-phat (địa chỉ còn lại sau lần xem trước) vẫn chiếu
-const deep = location.hash && location.hash !== '#' + boards[0].el.id && boards.find(b => '#' + b.el.id === location.hash);
+// vào thẳng một trang bằng đường link thì bỏ màn mở đầu; #xe / #xuat-phat (địa chỉ còn lại sau lần xem trước) vẫn chiếu
+const deep = !['', '#xe', '#xuat-phat'].includes(location.hash) && boards.find(b => '#' + b.el.id === location.hash);
 if (deep) skip(deep.i);
-else {
-  // tải cảnh xe + PPF ngay khi mở trang; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
-  const startBtn = $('#start');
-  intro.classList.add('loading'); startBtn.disabled = true;
-  carIntro = import('./car-intro.js')
-    .then(m => m.createCarIntro($('#intro .car-intro'), { onProgress: p => Preload.set('car', Math.min(p, .97)) }))
-    .catch(err => { console.warn('Bỏ qua cảnh xe mở đầu:', err); return null; })
-    .then(car => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); return car; });
-}
+// tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
+const startBtn = $('#start');
+intro.classList.add('loading'); startBtn.disabled = true;
+import('./car-stage.js')
+  .then(m => m.createCarStage($('.xe-canvas'), { onProgress: p => Preload.set('car', Math.min(p, .97)) }))
+  .then(car => CarStage.ready(car))
+  .catch(err => { console.warn('Không dựng được trang xe 3D:', err); $('.xe-stage').classList.add('failed'); })
+  .finally(() => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); });
 
 /* màn tải: thanh vàng chạy theo phần đã tải (cảnh xe 60% · ảnh mọi trang 30% · font 10%), xong hết mới mờ đi cho vào.
    Ảnh để tải chậm (lazy) cũng tải luôn để lúc chuyển trang không còn ảnh hiện dần. Kẹt quá 40 giây thì vẫn cho vào. */
 const Preload = (() => {
   const el = $('#preload'), bar = $('#preload .pl-bar i'), pct = $('#preload .pl-pct b');
-  const W = { car: .6, img: .3, font: .1 }, part = { car: carIntro ? 0 : 1, img: 0, font: 0 };
+  const W = { car: .6, img: .3, font: .1 }, part = { car: 0, img: 0, font: 0 };
   let shown = 0, over = false;
   function draw() {
     const p = Object.keys(W).reduce((s, k) => s + W[k] * part[k], 0);
