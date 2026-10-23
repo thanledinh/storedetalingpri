@@ -32,6 +32,16 @@ button{font:inherit;color:inherit}
 #road{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
 .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 85% 75% at 50% 45%,transparent 50%,rgba(0,0,0,.6))}
 
+/* ───────────── MÀN TẢI ───────────── */
+#preload{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  background:radial-gradient(120% 80% at 50% 32%,#17171b 0%,#09090b 55%,#030304 100%);transition:opacity .7s ease,visibility 0s linear .7s}
+#preload.done{opacity:0;visibility:hidden;pointer-events:none}
+.pl-logo{height:clamp(46px,7.5vh,72px);width:auto}
+.pl-bar{width:min(260px,64vw);height:3px;border-radius:3px;background:rgba(242,235,220,.12);overflow:hidden}
+.pl-bar i{display:block;height:100%;transform-origin:0 50%;transform:scaleX(var(--p,0));background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));transition:transform .3s ease}
+.pl-pct{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.pl-pct b{color:var(--gold-hi);font-weight:600;font-variant-numeric:tabular-nums}
+
 /* ───────────── INTRO ───────────── */
 #intro{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow:hidden;perspective:1100px;transition:opacity .9s ease,visibility 0s linear .9s}
 #intro.gone{opacity:0;visibility:hidden;pointer-events:none}
@@ -498,6 +508,13 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     <filter id="cGlow" x="-60%" y="-120%" width="220%" height="340%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
 </svg>
+
+<!-- ═════════ MÀN TẢI: chờ cảnh xe, ảnh các trang và font tải xong mới vào ═════════ -->
+<div id="preload" role="progressbar" aria-label="Đang tải trang" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+  <img class="pl-logo" src="assets/logo-store.png" alt="Store Detailing">
+  <div class="pl-bar"><i></i></div>
+  <p class="pl-pct">Đang tải <b>0%</b></p>
+</div>
 
 <!-- ═════════ MÀN MỞ ĐẦU ═════════ -->
 <div id="intro">
@@ -1461,20 +1478,50 @@ if (!reduce) intro.addEventListener('pointermove', e => {
 const deep = location.hash && location.hash !== '#' + boards[0].el.id && boards.find(b => '#' + b.el.id === location.hash);
 if (deep) skip(deep.i);
 else {
-  // tải cảnh xe + PPF ngay khi mở trang; tải xong mới mở nút START. Trong lúc tải, vòng tua quanh nút chạy theo phần trăm
+  // tải cảnh xe + PPF ngay khi mở trang; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
   const startBtn = $('#start');
-  const setLoad = p => { tfill.style.strokeDashoffset = (414.7 * (1 - p)).toFixed(1); hint.textContent = `Đang tải xe… ${Math.round(p * 100)}%`; };
-  intro.classList.add('loading'); startBtn.disabled = true; setLoad(0);
+  intro.classList.add('loading'); startBtn.disabled = true;
   carIntro = import('./car-intro.js')
-    .then(m => m.createCarIntro($('#intro .car-intro'), { onProgress: p => setLoad(Math.min(p, .99)) }))
+    .then(m => m.createCarIntro($('#intro .car-intro'), { onProgress: p => Preload.set('car', Math.min(p, .97)) }))
     .catch(err => { console.warn('Bỏ qua cảnh xe mở đầu:', err); return null; })
-    .then(car => {
-      intro.classList.remove('loading'); startBtn.disabled = false;
-      tfill.style.strokeDashoffset = '414.7';
-      hint.innerHTML = 'Nhấn <b>START</b> để khởi hành';
-      return car;
-    });
+    .then(car => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); return car; });
 }
+
+/* màn tải: thanh vàng chạy theo phần đã tải (cảnh xe 60% · ảnh mọi trang 30% · font 10%), xong hết mới mờ đi cho vào.
+   Ảnh để tải chậm (lazy) cũng tải luôn để lúc chuyển trang không còn ảnh hiện dần. Kẹt quá 40 giây thì vẫn cho vào. */
+const Preload = (() => {
+  const el = $('#preload'), bar = $('#preload .pl-bar i'), pct = $('#preload .pl-pct b');
+  const W = { car: .6, img: .3, font: .1 }, part = { car: carIntro ? 0 : 1, img: 0, font: 0 };
+  let shown = 0, over = false;
+  function draw() {
+    const p = Object.keys(W).reduce((s, k) => s + W[k] * part[k], 0);
+    shown = Math.max(shown, p);
+    bar.style.setProperty('--p', shown.toFixed(3));
+    pct.textContent = Math.floor(shown * 100) + '%';
+    el.setAttribute('aria-valuenow', String(Math.floor(shown * 100)));
+    if (!over && part.car >= 1 && part.img >= 1 && part.font >= 1) finish();
+  }
+  function finish() {
+    if (over) return; over = true;
+    bar.style.setProperty('--p', 1); pct.textContent = '100%';
+    setTimeout(() => { el.classList.add('done'); setTimeout(() => el.remove(), 800); }, 350);
+  }
+  const imgs = $$('img').filter(i => i.closest('#preload') === null);
+  imgs.forEach(i => { if (i.loading === 'lazy') i.loading = 'eager'; });
+  let left = imgs.filter(i => !i.complete).length;
+  const total = imgs.length || 1;
+  part.img = left ? (total - left) / total : 1;
+  imgs.forEach(i => {
+    if (i.complete) return;
+    const one = () => { left--; part.img = (total - left) / total; draw(); };
+    i.addEventListener('load', one, { once: true });
+    i.addEventListener('error', one, { once: true });
+  });
+  document.fonts.ready.then(() => { part.font = 1; draw(); });
+  setTimeout(finish, 40000);
+  draw();
+  return { set(k, v) { part[k] = Math.max(part[k], v); draw(); } };
+})();
 })();
 </script>
 </body>
