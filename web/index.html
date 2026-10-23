@@ -313,16 +313,23 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .c-war p{background:linear-gradient(90deg,#9d9d9d,#e8e8e8 40%,#c8c8c8 75%,#7d7d7d);color:#161616;font-style:italic;font-weight:800;font-size:clamp(10.5px,3.2cqi,15px);
   text-transform:uppercase;padding:12px 14px;border-radius:0 10px 10px 0;line-height:1.75;display:flex;flex-wrap:wrap;gap:0 14px}
 
-/* ── trang gọn một màn (gói hỗ trợ đại lý): không cuộn; mọi kích thước trong khung theo cqi
-      để JS (fitSheets) thu hẹp khung thì chiều cao giảm theo đúng tỉ lệ ── */
+/* ── chặng: nhiều trang nối nhau trong một bảng, cuộn bình thường (JS gom lúc tải; xem CHAPTER_HEADS).
+      Trang thường cách nhau bằng đệm trên; trang .fit cao đúng một màn và hút nhẹ về mép trên khi cuộn tới ── */
+.board.chapter .inner{padding-top:0}
+.board.chapter .scroller{scroll-snap-type:y proximity}
+.page{padding-top:84px}
+.page.fit{min-height:var(--vh,100svh);padding:58px 0 calc(var(--route-gap) + 86px);display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+
+/* ── trang gọn một màn (gói hỗ trợ đại lý…): không cuộn; mọi kích thước trong khung theo cqi
+      để JS (fitSheets) thu hẹp khung thì chiều cao giảm theo đúng tỉ lệ. .fit là cả bảng hoặc một trang trong chặng ── */
 .board.fit .inner{padding:58px 0 calc(var(--route-gap) + 86px)}
-.board.fit .sheet{margin-top:0;padding:6cqi 2.6cqi 4cqi;border-radius:4cqi;display:flex;flex-direction:column}
+.fit .sheet{margin-top:0;padding:6cqi 2.6cqi 4cqi;border-radius:4cqi;display:flex;flex-direction:column}
 /* màn dài hơn nội dung: fitSheets kéo khung cao ra, phần dư chia đều cho các khối, các hàng sản phẩm, các hàng quà */
-.board.fit [data-render],.board.fit .pack,.board.fit .gifts{flex:1 1 auto;display:flex;flex-direction:column}
-.board.fit .pack-items,.board.fit .gift-list{flex:1 1 auto;align-content:space-evenly}
-.board.fit .sheet::before,.board.fit .sheet::after{top:0;height:4cqi;width:5.5cqi}
-.board.fit .sheet::before{right:13cqi}
-.board.fit .sheet::after{right:5cqi}
+.fit [data-render],.fit .pack,.fit .gifts{flex:1 1 auto;display:flex;flex-direction:column}
+.fit .pack-items,.fit .gift-list{flex:1 1 auto;align-content:space-evenly}
+.fit .sheet::before,.fit .sheet::after{top:0;height:4cqi;width:5.5cqi}
+.fit .sheet::before{right:13cqi}
+.fit .sheet::after{right:5cqi}
 .board.fit .onward{margin-top:12px}
 .board.fit .next{gap:14px;padding:7px 7px 7px 22px}
 .board.fit .next b{font-size:16px}
@@ -330,7 +337,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .board.fit .next-hint{display:none}
 .s-title.one{font-size:6.3cqi;white-space:nowrap}
 .s-title.two{font-size:5cqi;white-space:nowrap}
-.board.fit .grow{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+.fit .grow{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
 
 /* ── bảo vệ toàn diện + cấu tạo PPF ── */
 .harm{margin:3cqi -2.6cqi 0}
@@ -1198,24 +1205,73 @@ const Road = (() => {
 
 /* ───────── các bảng giá + xe kéo ───────── */
 const stage = $('#stage');
-const boards = $$('.board', stage).map((el, i) => ({ el, i, sc: $('.scroller', el), name: el.dataset.stop }));
+
+/* gom trang thành chặng: trong một chặng các trang nối tiếp nhau, cuộn bình thường; chỉ khi sang chặng khác mới có
+   xe kéo bảng. Mỗi id trong CHAPTER_HEADS mở một chặng; trang theo sau (không nằm trong danh sách) nối vào chặng đó. */
+const CHAPTER_HEADS = ['xe', 'xuat-phat', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'le-ky-ket', 'lien-he'];
+{
+  const asPage = (sec, inner) => {
+    const pg = document.createElement('div');
+    pg.className = 'page' + (sec.classList.contains('fit') ? ' fit' : '');
+    pg.dataset.page = sec.id;
+    pg.dataset.stop = sec.dataset.stop;
+    pg.setAttribute('role', 'region');
+    pg.setAttribute('aria-label', sec.getAttribute('aria-label') || sec.dataset.stop);
+    pg.append(...inner.childNodes);
+    return pg;
+  };
+  let head = null;
+  $$('.board', stage).forEach(sec => {
+    if (CHAPTER_HEADS.includes(sec.id)) { head = sec; return; }
+    const hi = $('.inner', head);
+    if (!head.classList.contains('chapter')) {          // trang đầu chặng cũng thành một .page
+      hi.append(asPage(head, hi));
+      head.classList.add('chapter');
+      head.classList.remove('fit');
+    }
+    hi.append(asPage(sec, $('.inner', sec)));
+    sec.remove();
+  });
+}
+
+const boards = $$('.board', stage).map((el, i) => {
+  const b = { el, i, sc: $('.scroller', el), name: el.dataset.stop };
+  b.pages = el.classList.contains('chapter')
+    ? $$('.page', el).map(pg => ({ id: pg.dataset.page, name: pg.dataset.stop, el: pg, b }))
+    : [{ id: el.id, name: el.dataset.stop, el: null, b }];
+  return b;
+});
+// mọi trang theo thứ tự (thanh lộ trình mỗi trang một chấm); p0 = chỉ số trang đầu của chặng
+const PAGES = boards.flatMap(b => { b.p0 = 0; return b.pages; });
+PAGES.forEach((p, k) => { p.k = k; if (p.b.pages[0] === p) p.b.p0 = k; });
+const pageTop = p => (p.el ? p.el.offsetTop : 0);           // .scroller là offsetParent của .page
+// trang đang xem trong chặng: trang cuối cùng đã lên quá 45% màn
+function pageIn(b) {
+  const y = b.sc.scrollTop + b.sc.clientHeight * .45;
+  let p = b.pages[0];
+  for (const q of b.pages) if (pageTop(q) <= y) p = q;
+  return p;
+}
 // tìm trang theo id; trang một dòng PPF (ppf-1368…) trên máy tính nằm chung trang ppf-zappa và ngược lại
-function findBoard(id) {
-  return boards.find(b => b.el.id === id)
-    || ((id === 'ppf-zappa' || SERIES.includes(id)) && boards.find(b => b.el.id === 'ppf-zappa' || SERIES.includes(b.el.id)))
+function findPage(id) {
+  return PAGES.find(p => p.id === id)
+    || ((id === 'ppf-zappa' || SERIES.includes(id)) && PAGES.find(p => p.id === 'ppf-zappa' || SERIES.includes(p.id)))
     || null;
 }
 // trên máy tính, trỏ tới một dòng PPF thì cuộn tới đúng thẻ của dòng đó trong trang chung
-function showCard(b, id, smooth) {
-  const card = b.el.id === 'ppf-zappa' && SERIES.includes(id) && document.getElementById('card-' + id);
+function showCard(p, id, smooth) {
+  const card = p.id === 'ppf-zappa' && SERIES.includes(id) && document.getElementById('card-' + id);
   if (card) card.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
 }
-async function openBoard(id) {
-  const b = findBoard(id);
-  if (!b) return;
-  await goTo(b.i);
-  showCard(b, id, true);
+// mở một trang: cùng chặng thì cuộn tới, khác chặng thì xe kéo chặng đó tới, dừng đúng trang
+async function openPage(id) {
+  const p = findPage(id);
+  if (!p) return;
+  if (p.b.i === cur) p.b.sc.scrollTo({ top: pageTop(p), behavior: reduce ? 'auto' : 'smooth' });
+  else await goTo(p.b.i, { top: pageTop(p) });
+  showCard(p, id, true);
 }
+const openBoard = openPage;
 const N = boards.length - 1;
 const ARROW = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
 boards.forEach((b, i) => {
@@ -1253,6 +1309,21 @@ function fitSheets() {
     const spare = inner.offsetTop + inner.offsetHeight - parseFloat(getComputedStyle(inner).paddingBottom) - (last.offsetTop + last.offsetHeight);
     if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
   });
+  // trang .fit nằm trong một chặng: mỗi trang cao đúng một màn (--vh), khung vừa phần giữa đệm trên/dưới của trang
+  boards.forEach(b => b.el.style.setProperty('--vh', b.sc.clientHeight + 'px'));
+  $$('.page.fit').forEach(pg => {
+    const sc = pg.closest('.scroller'), sh = $('.sheet', pg), cs = getComputedStyle(pg);
+    const H = sc.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    sh.style.width = sh.style.minHeight = '';
+    for (let k = 0; k < 4; k++) {
+      const h = sh.offsetHeight;
+      if (h <= H) break;
+      const w = Math.floor(sh.offsetWidth * (1 - (h - H + 2) / h));
+      sh.style.width = Math.max(w, Math.min(FIT_MIN, sh.offsetWidth)) + 'px';
+    }
+    const spare = H - sh.offsetHeight;
+    if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
+  });
 }
 fitSheets();
 addEventListener('resize', fitSheets);
@@ -1267,7 +1338,7 @@ function activate(b) {
   cur = b.i;
   Road.source(() => b.sc.scrollTop);
   if (root.classList.contains('ready')) b.sc.focus({ preventScroll: true });
-  history.replaceState(null, '', '#' + b.el.id);
+  history.replaceState(null, '', '#' + pageIn(b).id);      // trang đang xem trong chặng, không phải tên chặng
   Room.toggle(b.el.id === 'phong-3d');
   Clip.toggle(b.el.id === 'le-ky-ket');
   CarStage.toggle(b.el.id === 'xe');
@@ -1364,7 +1435,7 @@ function resetBoard(b) {
 /* Bảng A ngã về trước, xe kéo đi xa; xe khác vượt lên từ phía sau kéo bảng B tới,
    tháo móc chạy tiếp, bảng B dựng đứng lại */
 const FLAT = 90;                       // bảng nằm phẳng trên mặt đường → song song với đường
-function tow(A, B) {
+function tow(A, B, top = 0) {
   const T = ms => ms * TOW_SPEED;
   const BS = 820;                      // lúc bảng B bắt đầu xuất hiện từ dưới lên
   const SU = BS + 1200;                // lúc bảng B dựng đứng (sau khi xe đã chạy khuất)
@@ -1373,7 +1444,7 @@ function tow(A, B) {
   const p0 = pitchNow;
   let bOn = false, aOff = !A, b16 = false, unframed = false;
   if (A) { A.el.classList.add('moving', 'framed'); setV(A.el, { s: 1, tilt: '0deg', z: '0px', lead: '0px' }); A.el.inert = true; Road.boost(5); }
-  B.sc.scrollTop = 0;
+  B.sc.scrollTop = top;
   setV(B.el, { s: .84, tilt: FLAT + 'deg', z: '560px', lead: '0px' });
   root.classList.add('towing'); Road.straighten(true);
   return new Promise(res => {
@@ -1410,7 +1481,7 @@ function tow(A, B) {
         if (t >= T(SU)) setPitch(lerp(.34, .46, st));
         if (!unframed && t >= T(SU + 430)) { unframed = true; B.el.classList.remove('framed'); }
       }
-      if (t < D) { towP = A ? lerp(A.i, B.i, eio(seg(t, 0, D))) : B.i; requestAnimationFrame(step); }
+      if (t < D) { towP = A ? eio(seg(t, 0, D)) : 1; requestAnimationFrame(step); }   // tiến độ 0→1 cho thanh lộ trình
       else { resetBoard(B); setPitch(.46); towP = null; root.classList.remove('towing'); Road.straighten(false); res(); }
     };
     requestAnimationFrame(step);
@@ -1420,8 +1491,8 @@ function tow(A, B) {
 /* trang xe dán PPF đứng yên, không dùng xe kéo: sang/về trang đó thì trang đang xem mờ hẳn đi trước (lộ con đường
    phía sau như các trang khác), rồi trang mới mới hiện dần — hai trang không bao giờ chồng lên nhau
    (trang Xuất phát nền trong suốt, chồng lên cảnh xe là chữ đè lên xe) */
-function crossfade(A, B, ms = 420) {
-  B.sc.scrollTop = 0;
+function crossfade(A, B, top = 0, ms = 420) {
+  B.sc.scrollTop = top;
   A.el.inert = true;
   const set = (x, op, anim) => { x.el.style.transition = anim ? `opacity ${ms}ms ease` : 'none'; x.el.style.opacity = op; };
   return new Promise(res => {
@@ -1438,14 +1509,21 @@ function crossfade(A, B, ms = 420) {
   });
 }
 
-async function goTo(i) {
+/* sang chặng i. opts.top: dừng ở vị trí cuộn này (mở đúng một trang); opts.end: dừng ở cuối chặng (lúc kéo ngược về,
+   như cuộn ngược lên trang trước). Thanh lộ trình chạy từ trang đang xem tới trang sẽ dừng. */
+let routeFrom = 0, routeTo = 0;
+async function goTo(i, opts = {}) {
   const B = boards[i];
   if (busy || !B || i === cur) return;
   busy = true; pullReset();
   const A = boards[cur] || null;
-  if (reduce) { if (A) resetBoard(A); B.sc.scrollTop = 0; }
-  else if (A === XE || B === XE) { if (A) await crossfade(A, B); }
-  else await tow(A, B);
+  const top = opts.top != null ? opts.top : opts.end ? Math.max(0, B.sc.scrollHeight - B.sc.clientHeight) : 0;
+  routeFrom = A ? routeNow() : B.p0;
+  B.sc.scrollTop = top;
+  routeTo = pageIn(B).k;
+  if (reduce) { if (A) resetBoard(A); B.sc.scrollTop = top; }
+  else if (A === XE || B === XE) { if (A) await crossfade(A, B, top); }
+  else await tow(A, B, top);
   activate(B);
   busy = false;
 }
@@ -1453,11 +1531,15 @@ async function goTo(i) {
 /* cuộn quá cuối bảng → sang chặng sau; quá đầu bảng → về chặng trước */
 const pull = $('#pull'), pullTxt = $('#pullTxt');
 let acc = 0, accTimer = 0, edgeSince = 0;
+// kéo ngược về chặng trước thì dừng ở cuối chặng đó (như cuộn ngược lên); riêng trang xe về đầu để xem lại phim ập vào xe
+const backEnd = b => b !== XE;
+const goBack = () => goTo(cur - 1, { end: backEnd(boards[cur - 1]) });
 function pullShow(k) {
   const fwd = k > 0, tgt = boards[cur + (fwd ? 1 : -1)];
   if (!tgt) return pullReset();
   pull.classList.toggle('top', !fwd);
-  pullTxt.textContent = fwd ? `Kéo tiếp để sang ${tgt.name}` : `Kéo xuống để quay lại ${tgt.name}`;
+  pullTxt.textContent = fwd ? `Kéo tiếp để sang ${tgt.name}`
+    : `Kéo xuống để quay lại ${backEnd(tgt) ? tgt.pages[tgt.pages.length - 1].name : tgt.name}`;
   pull.style.setProperty('--k', Math.min(1, Math.abs(k)).toFixed(3));
   pull.style.opacity = Math.min(1, Math.abs(k) * 3).toFixed(2);
 }
@@ -1475,7 +1557,7 @@ stage.addEventListener('wheel', e => {
     acc += e.deltaY / 700;
     pullShow(acc);
     clearTimeout(accTimer); accTimer = setTimeout(pullReset, 450);
-    if (Math.abs(acc) >= 1) { const d = Math.sign(acc); pullReset(); goTo(cur + d); }
+    if (Math.abs(acc) >= 1) { const d = Math.sign(acc); pullReset(); d > 0 ? goTo(cur + 1) : goBack(); }
   } else { edgeSince = 0; if (acc) pullReset(); }
 }, { passive: false });
 let ty = null, tEdge = null;
@@ -1494,7 +1576,7 @@ stage.addEventListener('touchend', e => {
   if (ty === null) return;
   const dy = ty - (e.changedTouches[0] || {}).clientY;
   if (!busy && tEdge.bottom && dy > 140 && boards[cur + 1]) goTo(cur + 1);
-  else if (!busy && tEdge.top && dy < -140 && boards[cur - 1]) goTo(cur - 1);
+  else if (!busy && tEdge.top && dy < -140 && boards[cur - 1]) goBack();
   ty = null; pullReset();
 });
 addEventListener('keydown', e => {
@@ -1502,7 +1584,7 @@ addEventListener('keydown', e => {
   if (busy) { if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) e.preventDefault(); return; }
   const { bottom, top } = edges();
   if (['ArrowDown', 'PageDown', ' '].includes(e.key) && bottom && boards[cur + 1] && !e.target.closest('button,a')) { e.preventDefault(); goTo(cur + 1); }
-  if (['ArrowUp', 'PageUp'].includes(e.key) && top && boards[cur - 1]) { e.preventDefault(); goTo(cur - 1); }
+  if (['ArrowUp', 'PageUp'].includes(e.key) && top && boards[cur - 1]) { e.preventDefault(); goBack(); }
 });
 document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) goTo(+g.dataset.go); });
 
@@ -1520,20 +1602,39 @@ Road.onFrame(sp => {
   if (v !== kmhShown) { kmh.textContent = v; kmhShown = v; }
   if (root.classList.contains('ready')) Engine.rpm(850 + Math.min(5600, Math.abs(sp) * 160));
 });
+// lộ trình: mỗi trang một chấm (kể cả các trang nối nhau trong một chặng); chạm chấm là mở đúng trang đó
 const line = $('#routeLine'), nowEl = $('#routeNow');
-line.insertAdjacentHTML('beforeend', boards.map((b, i) =>
-  `<a class="stop" href="#${b.el.id}" data-go="${i}" style="--x:${i / N}"><b></b><span>${b.name}</span></a>`).join(''));
-line.addEventListener('click', e => { if (e.target.closest('.stop')) e.preventDefault(); });
+const NP = PAGES.length - 1;
+line.insertAdjacentHTML('beforeend', PAGES.map(p =>
+  `<a class="stop" href="#${p.id}" data-page="${p.id}" style="--x:${p.k / NP}"><b></b><span>${p.name}</span></a>`).join(''));
+line.addEventListener('click', e => {
+  const s = e.target.closest('.stop');
+  if (!s) return;
+  e.preventDefault();
+  if (!busy) openPage(s.dataset.page);
+});
 const stops = $$('.stop', line);
+// vị trí xe trên lộ trình tính theo trang: trang đang xem + phần đã cuộn qua trang đó (đường đọc ở 45% màn)
+function routeNow() {
+  const b = boards[cur];
+  if (!b) return 0;
+  const sc = b.sc, y = sc.scrollTop + sc.clientHeight * .45;
+  const p = pageIn(b), next = b.pages[b.pages.indexOf(p) + 1];
+  const top = pageTop(p), end = next ? pageTop(next) : Math.max(sc.scrollHeight - sc.clientHeight + sc.clientHeight * .45, top + 1);
+  return p.k + (p.k < NP ? Math.min(1, Math.max(0, (y - top) / Math.max(1, end - top))) * .92 : 0);
+}
 let lastActive = -2;
 Road.onFrame(() => {
   if (cur < 0) return;
-  let p;
-  if (towP !== null) p = towP;
-  else { const sc = boards[cur].sc, max = sc.scrollHeight - sc.clientHeight; p = cur + (cur < N && max > 0 ? sc.scrollTop / max * .92 : 0); }
-  line.style.setProperty('--p', (p / N).toFixed(4));
-  const a = towP !== null ? Math.round(p) : cur;
-  if (a !== lastActive) { stops.forEach((s, j) => s.classList.toggle('on', j === a)); nowEl.textContent = boards[a].name; lastActive = a; }
+  const p = towP !== null ? lerp(routeFrom, routeTo, towP) : routeNow();
+  line.style.setProperty('--p', (p / NP).toFixed(4));
+  const a = towP !== null ? Math.round(p) : pageIn(boards[cur]).k;
+  if (a !== lastActive) {
+    stops.forEach((s, j) => s.classList.toggle('on', j === a));
+    nowEl.textContent = PAGES[a].name; lastActive = a;
+    // địa chỉ theo trang đang xem (tải lại là về đúng trang)
+    if (towP === null && root.classList.contains('ready')) history.replaceState(null, '', '#' + PAGES[a].id);
+  }
 });
 
 /* ───────── màn mở đầu ───────── */
@@ -1588,8 +1689,12 @@ if (!reduce) intro.addEventListener('pointermove', e => {
 });
 // vào thẳng một trang bằng đường link thì bỏ màn mở đầu; #xe / #xuat-phat (địa chỉ còn lại sau lần xem trước) vẫn chiếu
 const hashId = location.hash.slice(1);
-const deep = !['', 'xe', 'xuat-phat'].includes(hashId) && findBoard(hashId);
-if (deep) { skip(deep.i); showCard(deep, hashId, false); }
+const deep = !['', 'xe', 'xuat-phat'].includes(hashId) && findPage(hashId);
+if (deep) {
+  deep.b.sc.scrollTop = pageTop(deep);
+  skip(deep.b.i);
+  showCard(deep, hashId, false);
+}
 // tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
 const startBtn = $('#start');
 intro.classList.add('loading'); startBtn.disabled = true;
