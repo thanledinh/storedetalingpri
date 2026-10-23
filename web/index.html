@@ -1374,12 +1374,31 @@ function tow(A, B) {
   });
 }
 
+/* trang xe dán PPF đứng yên, không dùng xe kéo: sang/về trang đó thì chỉ trang nằm trên mờ đi/hiện ra
+   (đi tới: trang mới hiện dần đè lên; quay lại: trang đang xem mờ dần, lộ trang xe nằm dưới) — không lộ nền giữa chừng */
+function crossfade(A, B, ms = 650) {
+  B.sc.scrollTop = 0;
+  B.el.classList.add('on');
+  A.el.inert = true;
+  const top = B.i > A.i ? B : A;                 // trang đứng sau trong DOM nằm trên
+  top.el.style.transition = 'none';
+  top.el.style.opacity = top === B ? '0' : '1';
+  return new Promise(res => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      top.el.style.transition = `opacity ${ms}ms ease`;
+      top.el.style.opacity = top === B ? '1' : '0';
+      setTimeout(() => { top.el.style.transition = top.el.style.opacity = ''; res(); }, ms + 30);
+    }));
+  });
+}
+
 async function goTo(i) {
   const B = boards[i];
   if (busy || !B || i === cur) return;
   busy = true; pullReset();
   const A = boards[cur] || null;
   if (reduce) { if (A) resetBoard(A); B.sc.scrollTop = 0; }
+  else if (A === XE || B === XE) { if (A) await crossfade(A, B); }
   else await tow(A, B);
   activate(B);
   busy = false;
@@ -1503,10 +1522,9 @@ async function ignite() {
   intro.classList.add('go'); Road.boost(30);
   tween(.9, 3.2, 500, eout, setTacho).then(() => tween(3.2, 1.2, 900, eio, setTacho));
   await wait(900);
-  busy = true;
-  const arrival = tow(null, boards[0]);                    // trang đầu: xe dán PPF
-  await wait(250); hideIntro();
-  await arrival; activate(boards[0]); busy = false;
+  // trang đầu (xe dán PPF) đứng sẵn phía sau, màn mở đầu mờ đi là lộ ra — không dùng xe kéo
+  activate(boards[0]); hideIntro();
+  await wait(700);
   CarStage.autoplay();                                     // lần đầu: tự chạy một lượt phim ập vào xe
 }
 function skip(to) {
