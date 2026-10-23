@@ -361,6 +361,24 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .gift img{position:absolute;top:calc(-39 * var(--s) - .45cqi);left:calc(100% + .45cqi - var(--o) * var(--s));height:calc(170 * var(--s));width:auto}
 
 /* ── phòng trưng bày 3D ── */
+/* ── video lễ ký kết: điện thoại (màn dọc) xem bản dọc, máy tính (màn ngang) xem bản ngang ── */
+.board.fit .clip-sheet{max-width:1120px}
+.clip-title{font-size:min(7cqi,40px)}
+.clip{position:relative;margin:4cqi -1cqi 0;aspect-ratio:9/16;border-radius:2cqi;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(214,180,96,.55)}
+@media (orientation:landscape){       /* màn ngang: tiêu đề một dòng, chừa tối đa chiều cao cho video */
+  .clip{aspect-ratio:16/9;margin-top:2.6cqi}
+  .board.fit .clip-sheet{padding-top:3.6cqi;padding-bottom:2.6cqi}
+  .clip-title{font-size:min(4.2cqi,34px)}
+  .clip-title br{display:none}
+}
+.clip video{display:block;width:100%;height:100%;object-fit:cover}
+.clip-sound{position:absolute;right:12px;bottom:12px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(236,212,154,.6);background:rgba(10,10,12,.7);color:var(--zy);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.clip-sound svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clip-sound svg path:first-child{fill:currentColor}
+.clip-sound .on,.clip-sound[aria-pressed="true"] .off{display:none}
+.clip-sound[aria-pressed="true"] .on{display:inline}
+
 .room-page{container-type:inline-size;width:100%;margin-top:6px}
 .room-page .s-title{font-size:clamp(24px,7.2cqi,44px);padding:0 16px}
 .room{position:relative;height:clamp(400px,calc(100svh - 280px),1000px);margin-top:16px;overflow:hidden;background:#050506;
@@ -661,6 +679,16 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
         <div class="room-panel"></div>
         <p class="room-loading">Đang dựng phòng trưng bày…</p>
       </div>
+    </div></div></div>
+  </section>
+
+  <section class="board fit" id="le-ky-ket" data-stop="Lễ ký kết đại lý" aria-label="Video lễ ký kết đại lý ủy quyền Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet clip-sheet">
+      <h2 class="s-title clip-title">Lễ ký kết<br>đại lý ủy quyền</h2>
+      <div class="grow"><div class="clip" id="clip">
+        <video muted loop playsinline preload="none" aria-label="Video lễ ký kết đại lý ủy quyền Zappa"></video>
+        <button type="button" class="clip-sound" aria-pressed="false" aria-label="Bật tiếng"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="M17 9.5l5 5m0-5l-5 5"/></svg></button>
+      </div></div>
     </div></div></div>
   </section>
 
@@ -1119,14 +1147,14 @@ boards.forEach((b, i) => {
 
 /* trang .fit: cả trang (kể cả nút sang trang) nằm gọn đúng một màn.
    - dài hơn màn: thu hẹp khung; trong khung mọi kích thước theo cqi nên chiều cao giảm theo tỉ lệ
-     (lặp 2 lần cho khớp phần px lẻ; không hẹp quá 300px kẻo chữ quá nhỏ — màn rất thấp thì cuộn thêm chút)
+     (lặp vài lần cho khớp phần tính bằng px; không hẹp quá 300px kẻo chữ quá nhỏ — màn rất thấp thì cuộn thêm chút)
    - ngắn hơn màn: kéo khung cao ra cho kín màn (tối đa cao gấp 2 bề ngang, như poster dọc) */
 const FIT_MIN = 300, FIT_TALL = 2;
 function fitSheets() {
   $$('.board.fit').forEach(el => {
     const sc = $('.scroller', el), sh = $('.sheet', el);
     sh.style.width = sh.style.minHeight = '';
-    for (let k = 0; k < 2; k++) {
+    for (let k = 0; k < 4; k++) {
       const over = sc.scrollHeight - sc.clientHeight;
       if (over <= 0) break;
       const w = Math.floor(sh.offsetWidth * (1 - (over + 2) / sh.offsetHeight));
@@ -1153,7 +1181,38 @@ function activate(b) {
   if (root.classList.contains('ready')) b.sc.focus({ preventScroll: true });
   history.replaceState(null, '', '#' + b.el.id);
   Room.toggle(b.el.id === 'phong-3d');
+  Clip.toggle(b.el.id === 'le-ky-ket');
 }
+
+/* video lễ ký kết: chỉ tải khi tới trang; màn dọc → bản dọc, màn ngang → bản ngang (đổi khi xoay máy) */
+const Clip = (() => {
+  const v = $('#clip video'), snd = $('#clip .clip-sound');
+  const portrait = matchMedia('(orientation: portrait)');
+  let active = false;
+  function load() {
+    const kind = portrait.matches ? 'doc' : 'ngang';
+    if (v.dataset.kind === kind) return;
+    const t = v.currentTime || 0;
+    v.dataset.kind = kind;
+    v.poster = `assets/le-ky-ket-${kind}.jpg`;
+    v.src = `assets/le-ky-ket-${kind}.mp4`;
+    if (t) v.addEventListener('loadedmetadata', () => { v.currentTime = t; }, { once: true });
+  }
+  function toggle(on) {
+    active = on;
+    if (on) { load(); if (!reduce) v.play().catch(() => {}); }
+    else v.pause();
+  }
+  portrait.addEventListener('change', () => { if (!v.dataset.kind) return; load(); if (active && !reduce) v.play().catch(() => {}); });
+  if (reduce) v.controls = true;              // giảm chuyển động: không tự chạy, để người xem tự bấm
+  snd.addEventListener('click', () => {
+    v.muted = !v.muted;
+    snd.setAttribute('aria-pressed', String(!v.muted));
+    snd.setAttribute('aria-label', v.muted ? 'Bật tiếng' : 'Tắt tiếng');
+    if (!v.muted && v.paused) v.play().catch(() => {});
+  });
+  return { toggle };
+})();
 
 /* phòng trưng bày 3D: chỉ tải Three.js + room.js khi mở tới trang này */
 const Room = (() => {
