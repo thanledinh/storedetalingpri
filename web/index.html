@@ -290,6 +290,43 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .board.fit .next .arrow{width:36px;height:36px}
 .board.fit .next-hint{display:none}
 .s-title.one{font-size:6.3cqi;white-space:nowrap}
+.s-title.two{font-size:5cqi;white-space:nowrap}
+.board.fit .grow{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+
+/* ── bảo vệ toàn diện + cấu tạo PPF ── */
+.harm{margin:3cqi -2.6cqi 0}
+.harm img{display:block;width:100%;height:auto}
+.harm-labels{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);padding:.6cqi 0 0}
+.harm-labels li{color:#fff;font-style:italic;font-weight:800;font-size:2.1cqi;line-height:1.2;text-transform:uppercase;text-align:center;white-space:nowrap;
+  padding:.4cqi 0 1.2cqi;border-left:1px solid rgba(255,255,255,.12)}
+.harm-labels li:first-child{border-left:0}
+.layers-head{margin-top:5cqi;text-align:center}
+.layers-head p{color:#fff;font-weight:500;font-size:3.4cqi;text-transform:uppercase;letter-spacing:.01em;margin-top:.6cqi}
+.layers{margin:2cqi -2.6cqi 0}
+.layers-art{position:relative}
+.layers-art img{display:block;width:56cqi;height:auto}
+.layers-art ol{list-style:none}
+.layers-art li{position:absolute;left:57.5cqi;right:2cqi;top:var(--y);transform:translateY(-50%);display:flex;align-items:center;gap:1.4cqi}
+.layers-art b{color:var(--zy);font-weight:800;font-size:5cqi;line-height:1}
+.layers-art span{color:#fff;font-weight:700;font-size:2.7cqi;line-height:1.25}
+.layers-art small{display:block;color:var(--zy);font-weight:500;font-size:2cqi;line-height:1.3}
+
+/* ── PPF Zappa TPU: vị trí dán + tính năng ── */
+.tpu-title{display:flex;flex-direction:column;align-items:center;font-weight:800;text-transform:uppercase;line-height:1.02;letter-spacing:.01em;margin-top:1cqi}
+.tpu-title .y{color:var(--zy);font-size:12.2cqi;text-shadow:.25cqi .25cqi 0 #111,.6cqi .6cqi 0 #fff}
+.tpu-title .w{color:#fff;font-size:12.6cqi;text-shadow:.25cqi .25cqi 0 #111,.6cqi .6cqi 0 var(--zy)}
+.tpu-title .sm{font-size:10.4cqi}
+.tpu-car{margin:4cqi -2.6cqi 0}
+.tpu-art{position:relative}
+.tpu-art img{display:block;width:100%;height:auto;      /* mờ dần 4 mép cho ảnh tan vào nền đen */
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(transparent,#000 10%,#000 88%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(transparent,#000 10%,#000 88%,transparent);mask-composite:intersect}
+.tpu-art span{position:absolute;transform:translateY(-50%);color:#fff;font-weight:600;font-size:2.3cqi;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;text-shadow:0 0 1cqi #000}
+.tpu-art span.c{transform:translate(-50%,-50%)}
+.tpu-feats{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:0 1.4cqi;align-content:center;margin-top:5cqi}
+.tpu-feats li{display:flex;flex-direction:column;align-items:center;gap:1.6cqi;text-align:center}
+.tpu-feats img{width:10.5cqi;height:auto}
+.tpu-feats span{color:#fff;font-weight:600;font-size:2.4cqi;line-height:1.25}
 
 /* ── gói hỗ trợ đại lý ── */
 .pack{position:relative;margin-top:8cqi;border:.45cqi solid var(--zy);border-radius:2.4cqi;background:linear-gradient(115deg,#2b2b2b,#1a1a1a 46%,#262626);padding:0 1.6cqi 3.6cqi}
@@ -499,6 +536,52 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   </section>
 
   <!-- 6 trang PPF Zappa 1368 … 1398 PRO được dựng từ DATA.ppf, chèn vào đây -->
+
+  <section class="board fit" id="bao-ve" data-stop="Bảo vệ toàn diện" aria-label="Bảo vệ toàn diện khỏi các tác nhân gây hại và cấu tạo PPF Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="s-title two">Bảo vệ toàn diện<br>khỏi các tác nhân gây hại</h2>
+      <div class="harm grow">
+        <img src="assets/harm-strip.webp" width="1004" height="522" alt="Xe được PPF bảo vệ khỏi đá văng, tia UV, phân chim, va quẹt, ố đốm nước mưa axit và bong tróc sơn">
+        <ul class="harm-labels"><li>Đá văng</li><li>Tia UV</li><li>Phân chim</li><li>Va quẹt<br>xước xe</li><li>Ố đốm nước<br>mưa axit</li><li>Bong tróc<br>sơn xe</li></ul>
+      </div>
+      <div class="layers-head"><h2 class="s-title one">Cấu tạo PPF Zappa</h2><p>Paint Protection Film</p></div>
+      <div class="layers grow"><div class="layers-art">
+        <img src="assets/ppf-layers.webp" width="629" height="600" alt="5 lớp của phim PPF Zappa">
+        <ol>
+          <li style="--y:19.67%"><b>1</b><span>Lớp bảo vệ bên ngoài<small>(Self healing)</small></span></li>
+          <li style="--y:44.83%"><b>2</b><span>Lớp phủ Nano Ceramic<small>(Gloss enhancer)</small></span></li>
+          <li style="--y:55.67%"><b>3</b><span>Màng đế TPU<small>(Thermoplastic PolyUrethane)</small></span></li>
+          <li style="--y:67%"><b>4</b><span>Lớp tinh thể<small>(Adhesive)</small></span></li>
+          <li style="--y:80.17%"><b>5</b><span>Lớp tách mờ<small>(Release Liner)</small></span></li>
+        </ol>
+      </div></div>
+    </div></div></div>
+  </section>
+
+  <section class="board fit" id="tpu" data-stop="PPF Zappa TPU" aria-label="PPF Zappa TPU Paint Protection: vị trí dán trên xe và tính năng">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
+      <h2 class="tpu-title"><span class="y">PPF Zappa</span><span class="w">TPU Paint</span><span class="w sm">Protection</span></h2>
+      <div class="tpu-car grow"><div class="tpu-art">
+        <img src="assets/tpu-car.webp" width="1005" height="575" alt="Các vị trí dán PPF trên xe">
+        <span style="left:1.7%;top:23%">Đèn xe</span>
+        <span class="c" style="left:26.6%;top:17.7%">Mui xe</span>
+        <span class="r" style="right:51.2%;top:4.4%">Trần xe</span>
+        <span class="c" style="left:80.7%;top:4.6%">Gương xe</span>
+        <span class="r" style="right:1.8%;top:12.8%">Nắp xăng</span>
+        <span style="left:78.2%;top:43.7%">Cửa xe</span>
+        <span style="left:78%;top:84.1%">Lườn xe</span>
+        <span class="c" style="left:55.6%;top:96.3%">Fenders</span>
+        <span class="c" style="left:10.3%;top:95.8%">Cản trước</span>
+      </div></div>
+      <div class="grow"><ul class="tpu-feats">
+        <li><img src="assets/tpu-feat-1.webp" width="81" height="84" alt=""><span>Hydrophobic</span></li>
+        <li><img src="assets/tpu-feat-2.webp" width="80" height="84" alt=""><span>Tự phục hồi vết xước</span></li>
+        <li><img src="assets/tpu-feat-3.webp" width="80" height="84" alt=""><span>Chống ố vàng</span></li>
+        <li><img src="assets/tpu-feat-4.webp" width="80" height="84" alt=""><span>Giữ độ bóng</span></li>
+        <li><img src="assets/tpu-feat-5.webp" width="80" height="84" alt=""><span>Kháng bụi, kháng nước</span></li>
+      </ul></div>
+    </div></div></div>
+  </section>
 
   <section class="board" id="quy-trinh" data-stop="Quy trình dán PPF" aria-label="Quy trình dán PPF">
     <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet">
@@ -753,7 +836,7 @@ const R = {
       `<div class="gift" style="--o:${o}"><span class="gn">${n}</span><span class="gv">${v}</span><img src="assets/${img}" alt=""></div>`).join('')}</div></div>`;
   },
 };
-$('#quy-trinh').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
+$('#bao-ve').insertAdjacentHTML('beforebegin', DATA.ppf.map(productBoard).join(''));
 $$('[data-render]').forEach(el => { el.innerHTML = R[el.dataset.render](el); });
 
 /* ───────── logo SD (vẽ lại từ logo gốc, khung 466 × 466) ───────── */
