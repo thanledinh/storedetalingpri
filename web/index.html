@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700;1,800&display=swap" rel="stylesheet">
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
 <style>
 :root{
   --bg:#07080a;
@@ -88,6 +88,13 @@ button{font:inherit;color:inherit}
 .skip{position:absolute;right:max(16px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));background:none;border:1px solid var(--line-soft);border-radius:999px;padding:7px 14px;font-size:12px;letter-spacing:.08em;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s}
 .skip:hover{color:var(--ink);border-color:var(--line)}
 #intro.go .skip{opacity:0;transition:opacity .3s}
+/* cảnh xe + PPF sau START (car-intro.js): che chìa khoá & nút, chạm để bỏ qua; mờ đi cùng màn mở đầu */
+.car-intro{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none;transition:opacity .7s ease}
+.car-credit{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));right:12px;font-size:10px;line-height:1.4;color:rgba(242,235,220,.42);opacity:0;pointer-events:none;transition:opacity .7s ease}
+#intro.car .car-intro{opacity:1;pointer-events:auto;cursor:pointer}
+#intro.car .car-credit{opacity:1}
+#intro.car .intro-inner,#intro.car .beam,#intro.car .skip{opacity:0;pointer-events:none;transition:opacity .45s ease}
+#intro.go .car-intro,#intro.go .car-credit{opacity:0}
 html.shake .intro-inner{animation:shake .38s linear infinite}
 
 /* ───────────── HUD + LỘ TRÌNH ───────────── */
@@ -451,6 +458,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .hotline .hl b{font-family:var(--serif);font-weight:600;font-size:clamp(26px,7vw,36px);color:var(--ink);letter-spacing:.02em;font-variant-numeric:lining-nums}
 .finish-logo{height:34px;width:auto;margin:48px auto 0;opacity:.85}
 .copy{margin-top:18px;font-size:12px;color:var(--muted);letter-spacing:.06em}
+.copy.credit{max-width:520px;margin:10px auto 0;font-size:10.5px;letter-spacing:.02em;line-height:1.5;opacity:.75}
 
 /* hiện dần */
 .rv{opacity:0;transform:perspective(900px) translate3d(0,40px,-140px);transition:opacity .9s ease calc(var(--i,0) * 90ms),transform 1.2s var(--out) calc(var(--i,0) * 90ms)}
@@ -489,6 +497,8 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 <div id="intro">
   <div class="intro-bg"></div>
   <div class="beam" aria-hidden="true"></div>
+  <canvas class="car-intro" aria-hidden="true"></canvas>
+  <p class="car-credit">Mô hình xe 3D: “Lamborghini Urus 2018” · kirikom9000 · CC BY 4.0 · đã chỉnh sửa</p>
   <div class="intro-inner">
     <div class="intro-top">
       <img class="intro-logo" src="assets/logo-store.png" alt="Store Detailing">
@@ -702,6 +712,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
         </ul>
         <img class="finish-logo" src="assets/logo-store.png" alt="Store Detailing">
         <p class="copy">© 2026 Store Detailing · storedetailing.vn</p>
+        <p class="copy credit">Mô hình xe 3D ở màn mở đầu: “Lamborghini Urus 2018” của kirikom9000, giấy phép CC BY 4.0, đã chỉnh sửa. Store Detailing không liên kết với Automobili Lamborghini.</p>
       </div>
     </div></div>
   </section>
@@ -1383,7 +1394,7 @@ Road.onFrame(() => {
 
 /* ───────── màn mở đầu ───────── */
 const intro = $('#intro'), hint = $('#hint'), keyTilt = $('#keyTilt');
-let started = false;
+let started = false, carIntro = null;
 function tween(a, b, ms, ease, cb) {
   return new Promise(res => {
     const t0 = performance.now();
@@ -1407,19 +1418,23 @@ async function ignite() {
   await tween(.45, 3.8, 380, eout, setTacho);
   await tween(3.8, .9, 700, eio, setTacho);
   root.classList.remove('shake');
-  hint.textContent = 'Sẵn sàng';
-  await wait(260);
+  // cảnh xe quay, phim PPF ập vào xe (nếu đã tải xong; mạng chậm quá thì bỏ qua cảnh này)
+  const car = carIntro && await Promise.race([carIntro, wait(6000).then(() => null)]);
+  if (car) { intro.classList.add('car'); await car.play(); }
+  else { hint.textContent = 'Sẵn sàng'; await wait(260); }
   intro.classList.add('go'); Road.boost(30);
   tween(.9, 3.2, 500, eout, setTacho).then(() => tween(3.2, 1.2, 900, eio, setTacho));
   await wait(900);
   busy = true;
   const arrival = tow(null, boards[0]);
   await wait(250); hideIntro();
+  if (car) setTimeout(() => car.dispose(), 1300);         // sau khi màn mở đầu đã gỡ: trả bộ nhớ đồ hoạ
   await arrival; activate(boards[0]); busy = false;
 }
 function skip(to = 0) {
   if (started) return; started = true;
   Road.engine(true); activate(boards[to]); hideIntro();
+  if (carIntro) carIntro.then(c => c && setTimeout(() => c.dispose(), 1300));
 }
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
@@ -1431,6 +1446,10 @@ if (!reduce) intro.addEventListener('pointermove', e => {
 });
 const deep = location.hash && boards.find(b => '#' + b.el.id === location.hash);
 if (deep) skip(deep.i);
+// tải sẵn cảnh xe + PPF ngay khi mở trang để bấm START là chạy (vào thẳng một trang hoặc giảm chuyển động thì thôi)
+if (!deep && !reduce) carIntro = import('./car-intro.js')
+  .then(m => m.createCarIntro($('#intro .car-intro')))
+  .catch(err => { console.warn('Bỏ qua cảnh xe mở đầu:', err); return null; });
 })();
 </script>
 </body>
