@@ -1374,21 +1374,24 @@ function tow(A, B) {
   });
 }
 
-/* trang xe dán PPF đứng yên, không dùng xe kéo: sang/về trang đó thì chỉ trang nằm trên mờ đi/hiện ra
-   (đi tới: trang mới hiện dần đè lên; quay lại: trang đang xem mờ dần, lộ trang xe nằm dưới) — không lộ nền giữa chừng */
-function crossfade(A, B, ms = 650) {
+/* trang xe dán PPF đứng yên, không dùng xe kéo: sang/về trang đó thì trang đang xem mờ hẳn đi trước (lộ con đường
+   phía sau như các trang khác), rồi trang mới mới hiện dần — hai trang không bao giờ chồng lên nhau
+   (trang Xuất phát nền trong suốt, chồng lên cảnh xe là chữ đè lên xe) */
+function crossfade(A, B, ms = 420) {
   B.sc.scrollTop = 0;
-  B.el.classList.add('on');
   A.el.inert = true;
-  const top = B.i > A.i ? B : A;                 // trang đứng sau trong DOM nằm trên
-  top.el.style.transition = 'none';
-  top.el.style.opacity = top === B ? '0' : '1';
+  const set = (x, op, anim) => { x.el.style.transition = anim ? `opacity ${ms}ms ease` : 'none'; x.el.style.opacity = op; };
   return new Promise(res => {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      top.el.style.transition = `opacity ${ms}ms ease`;
-      top.el.style.opacity = top === B ? '1' : '0';
-      setTimeout(() => { top.el.style.transition = top.el.style.opacity = ''; res(); }, ms + 30);
-    }));
+    set(A, '0', true);
+    setTimeout(() => {
+      A.el.classList.remove('on');
+      set(B, '0', false);
+      B.el.classList.add('on');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        set(B, '1', true);
+        setTimeout(() => { [A, B].forEach(x => { x.el.style.transition = x.el.style.opacity = ''; }); res(); }, ms + 30);
+      }));
+    }, ms + 30);
   });
 }
 
