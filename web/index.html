@@ -1290,18 +1290,13 @@ function fitSheets() {
     const spare = inner.offsetTop + inner.offsetHeight - parseFloat(getComputedStyle(inner).paddingBottom) - (last.offsetTop + last.offsetHeight);
     if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
   });
-  // trang .fit nằm trong một chặng: mỗi trang cao đúng một màn (--vh), khung vừa phần giữa đệm trên/dưới của trang
+  // trang .fit nằm trong một chặng: khung giữ đúng bề ngang như các khung khác (không thu nhỏ — dài hơn màn thì cuộn
+  // thêm chút); màn dài hơn nội dung thì vẫn kéo khung cao ra cho kín một màn (--vh)
   boards.forEach(b => b.el.style.setProperty('--vh', b.sc.clientHeight + 'px'));
   $$('.page.fit').forEach(pg => {
     const sc = pg.closest('.scroller'), sh = $('.sheet', pg), cs = getComputedStyle(pg);
     const H = sc.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     sh.style.width = sh.style.minHeight = '';
-    for (let k = 0; k < 4; k++) {
-      const h = sh.offsetHeight;
-      if (h <= H) break;
-      const w = Math.floor(sh.offsetWidth * (1 - (h - H + 2) / h));
-      sh.style.width = Math.max(w, Math.min(FIT_MIN, sh.offsetWidth)) + 'px';
-    }
     const spare = H - sh.offsetHeight;
     if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
   });
