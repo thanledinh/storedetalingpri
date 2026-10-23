@@ -70,7 +70,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     product({ kind: s < 0 ? 'standee1' : 'standee2', img: `room-standee-${s < 0 ? 1 : 2}.webp`, w: .8, h: 2, ry: -s * .1, zone: 'out', label: true,
       pos: [s * 2.45, 1.07, .5] });
   }
-  product({ kind: 'banner', img: 'room-banner.webp', w: 2.3, h: 1.19, pos: [-W / 2 + .03, 1.95, -3.3], ry: Math.PI / 2, zone: 'in', label: true });
+  product({ kind: 'banner', img: 'room-banner.webp', w: 2.43, h: 1.19, pos: [-W / 2 + .03, 1.95, -3.3], ry: Math.PI / 2, zone: 'in', label: true });   // bạt trải nắp capo
   product({ kind: 'hood', img: 'room-hood.jpg', w: .95, h: 1.27, pos: [2.15, 2.05, -D + .02], zone: 'in', label: true });
   product({ kind: 'tank', img: 'room-tank-2.webp', w: .56, h: .63, pos: [-2.75, 1.03 + .315, -D + .32], zone: 'in', label: true });
   product({ kind: 'pump', img: 'room-pump.webp', w: .27, h: .39, pos: [1.6, 1.03 + .195, -D + .32], zone: 'in', label: true });
@@ -137,6 +137,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     if (!silent) fly(st.pos.clone(), st.pos.clone().add(dirOf(yaw, pitch).multiplyScalar(5)), 950);
   }
 
+  const desc = p => (p.desc ? `<p class="rp-desc">${p.desc}</p>` : '');   // sản phẩm không có mô tả thì thôi
   function showPanel(it) {
     let html;
     if (it.kind === 'film') {
@@ -148,12 +149,12 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     } else if (products[it.kind].tall) {      // ảnh dọc (standee): ảnh bên trái, chữ bên phải cho bảng gọn
       const p = products[it.kind];
       html = `<div class="rp-row"><a class="rp-tall" href="assets/${p.imgs[0]}" target="_blank" rel="noopener"><img src="assets/${p.imgs[0]}" alt="${p.name}"></a>
-        <div><p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3><p class="rp-desc">${p.desc}</p>
+        <div><p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}
         <a class="rp-go" href="assets/${p.imgs[0]}" target="_blank" rel="noopener">Xem ảnh lớn</a></div></div>`;
     } else {
       const p = products[it.kind];
       html = `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>
-        <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3><p class="rp-desc">${p.desc}</p>`;
+        <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}`;
     }
     panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>`;
     panel.querySelector('.rp-x').addEventListener('click', e => { e.stopPropagation(); unfocus(); });

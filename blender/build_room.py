@@ -251,7 +251,7 @@ hw.build("bake_hw", COL["BAKE"])
 P = [
     ("standee_1", "room-standee-1.webp", STAND_W, STAND_H, (-STAND_X, .07 + STAND_H / 2, STAND_Z), STAND_A, 0, False),
     ("standee_2", "room-standee-2.webp", STAND_W, STAND_H, (STAND_X, .07 + STAND_H / 2, STAND_Z), -STAND_A, 0, False),
-    ("banner", "room-banner.webp", 2.3, 1.19, (-W / 2 + .03, 1.95, -3.3), math.pi / 2, 0, False),
+    ("banner", "room-banner.webp", 2.43, 1.19, (-W / 2 + .03, 1.95, -3.3), math.pi / 2, 0, False),   # bạt trải nắp capo treo tường
     ("hood", "room-hood.jpg", .95, 1.27, (2.15, 2.05, -D + .02), 0, 1.0, False),
     ("tank", "room-tank-2.webp", .56, .63, (-2.75, 1.03 + .315, -D + .32), 0, 0, False),
     ("pump", "room-pump.webp", .27, .39, (1.6, 1.03 + .195, -D + .32), 0, 0, False),

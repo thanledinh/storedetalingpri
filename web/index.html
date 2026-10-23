@@ -211,8 +211,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .s-rule{position:relative;height:2px;background:var(--zy);margin:14px auto 0}
 .s-rule::after{content:"";position:absolute;left:50%;top:2px;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--zy);border-bottom:0}
 .s-notes{margin-top:24px;color:#ddd;font-style:italic;font-size:clamp(11.5px,3.4cqi,15px);line-height:1.7}
-.strike{position:relative;display:inline-block;text-decoration:none}
-.strike::after{content:"";position:absolute;left:-3%;right:-3%;top:54%;height:2px;background:var(--zy)}
+/* giá gạch: giãn dòng 1 để hộp chữ luôn cao đúng 1em → chân chữ ở 0,86em (Montserrat: ascent .968, descent .251),
+   chữ số cao 0,7em nên giữa con số ở 0,51em; vạch đặt đúng đó, trình duyệt nào cũng nằm giữa (không theo line-through của font) */
+.strike{position:relative;display:inline-block;text-decoration:none;line-height:1}
+.strike::after{content:"";position:absolute;left:-3%;right:-3%;top:.51em;height:max(2px,.07em);transform:translateY(-50%);background:var(--zy)}
 
 /* ── thông số kỹ thuật ── */
 .spec-table{margin-top:clamp(24px,7cqi,44px);border-radius:14px;overflow:hidden;background:#2a2a2c}
@@ -304,12 +306,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .c-war p{background:linear-gradient(90deg,#9d9d9d,#e8e8e8 40%,#c8c8c8 75%,#7d7d7d);color:#161616;font-style:italic;font-weight:800;font-size:clamp(10.5px,3.2cqi,15px);
   text-transform:uppercase;padding:12px 14px;border-radius:0 10px 10px 0;line-height:1.75;display:flex;flex-wrap:wrap;gap:0 14px}
 
-/* ── chặng: nhiều trang nối nhau trong một bảng, cuộn bình thường (JS gom lúc tải; xem CHAPTER_HEADS).
-      Trang thường cách nhau bằng đệm trên; trang .fit cao đúng một màn và hút nhẹ về mép trên khi cuộn tới ── */
+/* ── chặng: nhiều trang nối nhau trong một bảng, cuộn bình thường như phần giá (JS gom lúc tải; xem CHAPTER_HEADS).
+      Mọi trang trong chặng cao theo nội dung, cách nhau bằng đệm trên như nhau ── */
 .board.chapter .inner{padding-top:0}
-.board.chapter .scroller{scroll-snap-type:y proximity}
 .page{padding-top:84px}
-.page.fit{min-height:var(--vh,100svh);padding:58px 0 calc(var(--route-gap) + 86px);display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
 
 /* ── trang gọn một màn (gói hỗ trợ đại lý…): không cuộn; mọi kích thước trong khung theo cqi
       để JS (fitSheets) thu hẹp khung thì chiều cao giảm theo đúng tỉ lệ. .fit là cả bảng hoặc một trang trong chặng ── */
@@ -383,12 +383,12 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .pill .q{background:var(--zy);color:#111;font-weight:800;padding:.7cqi 1.4cqi .7cqi 2cqi}
 .pill .nm{background:#0d0d0d;color:#fff;font-weight:700;text-transform:uppercase;padding:.7cqi 1.4cqi;border:.35cqi solid #fff;border-radius:0 99px 99px 0;margin-right:-2cqi;position:relative;z-index:1}
 .pill .d{background:#e0262c;color:#fff;font-weight:800;padding:.7cqi 1.3cqi .7cqi 2.6cqi;border-radius:0 1.4cqi 1.4cqi 0}
-.gifts{position:relative;margin-top:5cqi;border:1px solid rgba(214,180,96,.6);padding:0 2.2cqi 4cqi}
+.gifts{position:relative;margin-top:5cqi;border:1px solid rgba(214,180,96,.6);padding:0 0 4cqi;background:#303030}   /* nền xám khít viền ngoài */
 .pack .gifts{margin:5cqi -1.6cqi -3.6cqi;border:0;border-top:.45cqi solid var(--zy);border-radius:0 0 2cqi 2cqi;padding:0 0 4cqi;background:#303030}
-.gifts h3{margin:0 -2.2cqi;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:3.5cqi;text-transform:uppercase;text-align:center;padding:1.2cqi 1cqi;
+.gifts h3{margin:0;background:var(--zy);color:#111;font-style:italic;font-weight:800;font-size:3.5cqi;text-transform:uppercase;text-align:center;padding:1.2cqi 1cqi;
   clip-path:polygon(0 0,100% 0,96% 100%,4% 100%)}
 .pack .gifts h3{margin:0}
-.gift-list{display:grid;grid-template-columns:1fr 1fr;gap:5cqi 3cqi;padding:5cqi 3cqi 0;background:#303030}
+.gift-list{display:grid;grid-template-columns:1fr 1fr;gap:5cqi 3cqi;padding:5cqi 4cqi 0}
 /* thẻ quà theo đúng tỉ lệ thẻ trên poster (100px: viền 4 + nền tối 52 + bạc 40 + viền 4); --s = cqi cho 1px poster */
 .gift{--s:.114cqi;position:relative;display:flex;flex-direction:column;margin-right:6cqi;border:.45cqi solid var(--zy);border-radius:2.2cqi}
 .gift:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 7.5cqi)}
@@ -834,22 +834,19 @@ const DATA = {
   giftExtra: ['Gói đào tạo kỹ thuật', '1 người', 'gift-training.webp', 26], // chỉ có ở gói 2
   // Phòng trưng bày 3D — tên & mô tả TẠM, cần cập nhật theo thông tin chính thức
   room: {
-    sign: { short: 'Bảng vẫy', kicker: 'Mặt tiền', name: 'Bảng vẫy Zappa', imgs: ['room-sign.webp'],
-      desc: 'Bảng vẫy hộp đèn hai mặt, treo bằng tay đỡ kim loại ở góc mặt tiền, nhìn rõ từ hai phía đường: logo Zappa, dải Paint Protection Film và dòng Phim bảo vệ bề mặt sơn ô tô.' },
-    standee1: { short: 'Standee', kicker: 'Standee 80 × 200 cm', name: 'Standee Bảo vệ toàn diện', imgs: ['room-standee-1.webp'], tall: true,
-      desc: 'Chống đá văng, tia UV, phân chim, va quẹt, ố đốm nước - mưa axit, bong tróc sơn. Cấu tạo 5 lớp phim, đủ 6 dòng Series, bảo hành lên đến 10 năm.' },
-    standee2: { short: 'Standee', kicker: 'Standee 80 × 200 cm', name: 'Standee Tính năng & ưu điểm', imgs: ['room-standee-2.webp'], tall: true,
-      desc: 'Các vị trí dán trên xe, 6 tính năng: tự phục hồi vết xước, giảm trầy xước, kháng bụi - kháng nước, chống tia UV, ngăn ngả màu sơn, tạo độ bóng sâu. Cấu tạo 5 lớp, bảo hành lên đến 10 năm.' },
-    banner: { short: 'Băng rôn', kicker: 'Trang trí', name: 'Băng rôn Zappa', imgs: ['room-banner.webp'],
-      desc: 'Băng rôn nền vàng in logo Zappa, có khoen treo ở 4 góc.' },
-    hood: { short: 'Poster capo', kicker: 'Trưng bày', name: 'Poster capo Zappa', imgs: ['room-hood.jpg'],
-      desc: 'Poster nền vàng gắn mẫu capo dán PPF Zappa: Glossy Paint Protection Film · For all paint surfaces · High transparent · Self healing up to 40°C.' },
-    tank: { short: 'Bình phun', kicker: 'Dụng cụ thi công', name: 'Bình phun áp lực Zappa', imgs: ['room-tank-2.webp', 'room-tank.webp'],
+    // desc bỏ trống = khung chi tiết chỉ có ảnh + tên
+    sign: { short: 'Bảng vẫy', kicker: 'Mặt tiền', name: 'Bảng vẫy Zappa', imgs: ['room-sign.webp'] },
+    standee1: { short: 'Standee', kicker: 'Mặt tiền', name: 'Standee 80 × 200 cm', imgs: ['room-standee-1.webp'], tall: true },
+    standee2: { short: 'Standee', kicker: 'Mặt tiền', name: 'Standee 80 × 200 cm', imgs: ['room-standee-2.webp'], tall: true },
+    banner: { short: 'Bạt trải capo', kicker: 'Phụ kiện thi công', name: 'Bạt trải nắp capo', imgs: ['room-banner.webp'],
+      desc: 'Bạt trải nắp capo in logo Zappa Paint Protection Film, có khoen ở 4 góc.' },
+    hood: { short: 'Dụng cụ test PPF', kicker: 'Trưng bày', name: 'Dụng cụ test PPF', imgs: ['room-hood.jpg'],
+      desc: 'Bảng nền vàng gắn mẫu capo dán PPF Zappa: Glossy Paint Protection Film · For all paint surfaces · High transparent · Self healing up to 40°C.' },
+    tank: { short: 'Bình tạo bọt', kicker: 'Dụng cụ thi công', name: 'Bình xịt tạo bọt', imgs: ['room-tank-2.webp', 'room-tank.webp'],
       desc: 'Bình phun dây xoắn, vòi kim loại có cò bóp, thân in nhận diện Zappa Paint Protection Film.' },
-    pump: { short: 'Bình xịt', kicker: 'Dụng cụ thi công', name: 'Bình xịt tay Zappa', imgs: ['room-pump.webp'],
+    pump: { short: 'Bình xịt', kicker: 'Dụng cụ thi công', name: 'Bình xịt tay', imgs: ['room-pump.webp'],
       desc: 'Bình xịt bơm tay thân mờ, tem logo Zappa Paint Protection Film.' },
-    demo: { short: 'Máy demo PPF', kicker: 'Trình diễn tại cửa hàng', name: 'Máy demo PPF Zappa', imgs: ['room-demo-1.webp', 'room-demo-2.webp', 'room-demo-3.webp', 'room-demo-4.webp'],
-      desc: 'Hộp mica trình diễn cho khách xem trực tiếp: mẫu capo, bình đá, bộ quả nặng gắn lò xo, núm Speed Control và công tắc nguồn.' },
+    demo: { short: 'Máy test bắn đá', kicker: 'Trình diễn tại cửa hàng', name: 'Máy test bắn đá', imgs: ['room-demo-1.webp', 'room-demo-2.webp', 'room-demo-3.webp', 'room-demo-4.webp'] },
   },
 };
 /* Thời lượng màn xe kéo bảng (1 = khoảng 2,7 giây; 0.7 = nhanh hơn) */
@@ -1270,7 +1267,7 @@ boards.forEach((b, i) => {
   b.el.setAttribute('aria-hidden', 'true'); b.el.inert = true;
 });
 
-/* trang .fit: cả trang (kể cả nút sang trang) nằm gọn đúng một màn.
+/* bảng .fit đứng riêng (video lễ ký kết): cả trang (kể cả nút sang trang) nằm gọn đúng một màn.
    - dài hơn màn: thu hẹp khung; trong khung mọi kích thước theo cqi nên chiều cao giảm theo tỉ lệ
      (lặp vài lần cho khớp phần tính bằng px; không hẹp quá 300px kẻo chữ quá nhỏ — màn rất thấp thì cuộn thêm chút)
    - ngắn hơn màn: kéo khung cao ra cho kín màn (tối đa cao gấp 2 bề ngang, như poster dọc) */
@@ -1290,19 +1287,17 @@ function fitSheets() {
     const spare = inner.offsetTop + inner.offsetHeight - parseFloat(getComputedStyle(inner).paddingBottom) - (last.offsetTop + last.offsetHeight);
     if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
   });
-  // trang .fit nằm trong một chặng: khung giữ đúng bề ngang như các khung khác (không thu nhỏ — dài hơn màn thì cuộn
-  // thêm chút); màn dài hơn nội dung thì vẫn kéo khung cao ra cho kín một màn (--vh)
-  boards.forEach(b => b.el.style.setProperty('--vh', b.sc.clientHeight + 'px'));
-  $$('.page.fit').forEach(pg => {
-    const sc = pg.closest('.scroller'), sh = $('.sheet', pg), cs = getComputedStyle(pg);
-    const H = sc.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
-    sh.style.width = sh.style.minHeight = '';
-    const spare = H - sh.offsetHeight;
-    if (spare > 4) sh.style.minHeight = Math.min(sh.offsetHeight + spare - 2, sh.offsetWidth * FIT_TALL) + 'px';
-  });
+  // trang .fit nằm trong một chặng (TPU, Bảo vệ, Gói 1, Gói 2): cao theo nội dung, bề ngang như các khung khác — không đụng tới
 }
 fitSheets();
-addEventListener('resize', fitSheets);
+// chỉ tính lại khi đổi bề ngang hoặc đổi cao hẳn (xoay máy): thanh địa chỉ Safari thu/hiện lúc cuộn cũng bắn resize,
+// tính lại giữa lúc cuộn làm nội dung nhảy — cảm giác khựng
+let fitW = innerWidth, fitH = innerHeight;
+addEventListener('resize', () => {
+  if (Math.abs(innerWidth - fitW) < 2 && Math.abs(innerHeight - fitH) < 160) return;
+  fitW = innerWidth; fitH = innerHeight;
+  fitSheets();
+});
 document.fonts.ready.then(fitSheets);
 
 let cur = -1, busy = false, towP = null, pitchNow = .46;
