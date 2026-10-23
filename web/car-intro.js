@@ -182,7 +182,8 @@ function edgeAttr(geo) {
   return new THREE.BufferAttribute(edge, 1);
 }
 
-export async function createCarIntro(canvas) {
+/** onProgress(0..1): phần đã tải của file xe (file nặng nhất), để trang hiện phần trăm trước khi cho bấm START */
+export async function createCarIntro(canvas, { onProgress } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.NeutralToneMapping;     // giữ màu vàng Giallo đậm (ACES làm nhạt)
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -237,7 +238,7 @@ export async function createCarIntro(canvas) {
   const draco = new DRACOLoader().setDecoderPath(DRACO_PATH);
   const loader = new GLTFLoader().setDRACOLoader(draco);
   const [carGltf, patGltf, layout] = await Promise.all([
-    loader.loadAsync('assets/car-urus.glb'),
+    loader.loadAsync('assets/car-urus.glb', (e) => onProgress && onProgress(e.loaded / (e.total || 1105540))),
     loader.loadAsync('assets/ppf-patterns.glb'),
     fetch('assets/ppf-patterns.json').then((r) => r.json()),
   ]);
