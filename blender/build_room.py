@@ -131,8 +131,6 @@ M = {
     "ped": mat_color("m_ped", "#0d0d0f", .25, .4),
     "led": mat_emit("m_led", "#ffffff", 14),
     "gold": mat_emit("m_gold", "#f2d51b", 6),
-    "sign": mat_emit("m_sign", "#f2d51b", 5),
-    "signbar": mat_emit("m_signbar", "#f2d51b", 2.5),
     "ink": mat_color("m_ink", "#111111", .6),
     "metal": mat_color("m_metal", "#a3a6ab", .45),
 }
@@ -206,16 +204,26 @@ for i in range(n):
 hb.build("bake_header", COL["BAKE"])
 one_plane("bake_ground", 16, 10, (0, 0, 5), M["ground"], COL["BAKE"], face="up")
 
-# chữ nổi ZAPPA + dải PAINT PROTECTION FILM
-def text(name, body, font, size, c, extrude, mat, coll):
-    cu = bpy.data.curves.new(name, "FONT"); cu.body = body
-    cu.font = bpy.data.fonts.load(font, check_existing=True)
-    cu.size = size; cu.extrude = extrude; cu.align_x = "CENTER"; cu.align_y = "CENTER"
-    ob = bpy.data.objects.new(name, cu); ob.location = B(*c); ob.rotation_euler = (math.pi / 2, 0, 0)
-    ob.data.materials.append(mat); coll.objects.link(ob); return ob
-text("emit_sign_zappa", "ZAPPA", "C:/Windows/Fonts/seguibli.ttf", .95, (0, 3.78, .2), .05, M["sign"], COL["EMIT"])
-one_box("emit_sign_bar", 3.2, .3, .04, (0, 3.08, .16), M["signbar"], COL["EMIT"])
-text("emit_sign_ppf", "PAINT PROTECTION FILM", "C:/Windows/Fonts/ariblk.ttf", .2, (0, 3.08, .19), .005, M["ink"], COL["EMIT"])
+# biển hiệu: logo chữ ZAPPA Paint Protection Film (tex/sign-zappa.png, 1600 × 449, nền ngoài viền tô đen) dán lên một
+# tấm chữ nhật bo góc đúng theo viền logo (bán kính góc = 1/24 bề ngang) — khỏi cần ảnh trong suốt (GLB xuất ảnh JPEG)
+def rounded_panel(name, w, h, r, c, m, coll, seg=10):
+    x0, y0, z0 = c
+    pts = []
+    for cx, cy, a0 in ((w / 2 - r, h / 2 - r, 0), (-w / 2 + r, h / 2 - r, 90), (-w / 2 + r, -h / 2 + r, 180), (w / 2 - r, -h / 2 + r, 270)):
+        for i in range(seg + 1):
+            a = math.radians(a0 + 90 * i / seg)
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([B(x0 + x, y0 + y, z0) for x, y in pts], [], [list(range(len(pts)))])
+    uvl = me.uv_layers.new(name="UVMap")
+    for li in me.polygons[0].loop_indices:
+        x, y = pts[me.loops[li].vertex_index]
+        uvl.data[li].uv = (x / w + .5, y / h + .5)
+    me.materials.append(m); me.update()
+    ob = bpy.data.objects.new(name, me); coll.objects.link(ob); return ob
+SIGN_LOGO_W = 4.0
+rounded_panel("emit_sign_logo", SIGN_LOGO_W, SIGN_LOGO_W * 449 / 1600, SIGN_LOGO_W / 24, (0, 3.55, .16),
+              mat_image("m_sign_logo", TEX + "sign-zappa.png", emit=3.0), COL["EMIT"])
 
 # ── sản phẩm (chỉ để tính bóng đổ khi bake, KHÔNG xuất ra web — web tự đặt lại để bấm được) ──
 # bảng vẫy hai mặt gắn ở góc trên mặt tiền, xoè ra hai bên; standee 80x200 đứng hai bên cửa
