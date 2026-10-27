@@ -190,7 +190,14 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     }
   });
   root.addEventListener('wheel', e => { if (focused) { e.preventDefault(); e.stopPropagation(); if (e.deltaY < 0) unfocus(); } }, { passive: false });
-  for (const ev of ['touchstart', 'touchmove', 'touchend']) root.addEventListener(ev, e => e.stopPropagation(), { passive: true });
+  for (const ev of ['touchmove', 'touchend']) root.addEventListener(ev, e => e.stopPropagation(), { passive: true });
+  // kéo trên khung phòng chỉ để nhìn quanh: chặn mặc định của trình duyệt ngay từ touchstart, kẻo iPhone hiểu vuốt ngang
+  // (nhất là bắt đầu sát mép màn) là cử chỉ quay lại / tới trang và thoát khỏi web. Chạm chọn sản phẩm vẫn chạy vì dùng
+  // pointerup, không dùng click
+  root.addEventListener('touchstart', e => {
+    e.stopPropagation();
+    if (e.target === canvas) e.preventDefault();
+  }, { passive: false });
   viewBtns.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); goStation(b.dataset.view); }));
 
   /* ── kích thước ── */
