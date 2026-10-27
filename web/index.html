@@ -242,17 +242,37 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .fit .grow{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
 
 /* ── phòng trưng bày 3D ── */
-/* ── video lễ ký kết: điện thoại (màn dọc) xem bản dọc, máy tính (màn ngang) xem bản ngang ── */
+/* ── video lễ ký kết: điện thoại (màn dọc) xem bản dọc; máy tính (màn ngang) xem 6 clip ngang xếp thành dải lướt ngang ── */
 .board.fit .clip-sheet{max-width:1120px}
 .clip-title{font-size:min(7cqi,40px)}
 .clip{position:relative;margin:4cqi -1cqi 0;aspect-ratio:9/16;border-radius:2cqi;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(214,180,96,.55)}
+.clip video,.reel-slide video{display:block;width:100%;height:100%;object-fit:cover}
+.reel,.reel-dots{display:none}
 @media (orientation:landscape){       /* màn ngang: tiêu đề một dòng, chừa tối đa chiều cao cho video */
-  .clip{aspect-ratio:16/9;margin-top:2.6cqi}
+  .clip{display:none}
   .board.fit .clip-sheet{padding-top:3.6cqi;padding-bottom:2.6cqi}
   .clip-title{font-size:min(4.2cqi,34px)}
   .clip-title br{display:none}
+  /* dải clip tràn sát mép khung: clip đang xem nằm giữa, hai bên ló clip kề; cuộn ngang có hút từng clip */
+  .reel{display:block;position:relative;margin:2.6cqi -2.6cqi 0}
+  .reel-track{position:relative;display:flex;align-items:flex-start;gap:1.6cqi;overflow-x:auto;scroll-snap-type:x mandatory;
+    overscroll-behavior-x:contain;scrollbar-width:none}
+  .reel-track::-webkit-scrollbar{display:none}
+  .reel-track::before,.reel-track::after{content:"";flex:0 0 calc(9% - 1.6cqi)}   /* chừa chỗ cho clip đầu / cuối cũng vào giữa được */
+  .reel-slide{flex:0 0 82%;aspect-ratio:16/9;scroll-snap-align:center;scroll-snap-stop:always;border-radius:2cqi;overflow:hidden;background:#000;
+    box-shadow:0 0 0 1px rgba(214,180,96,.55);opacity:.38;transform:scale(.92);transition:opacity .45s,transform .45s;cursor:pointer}
+  .reel-slide.on{opacity:1;transform:none;cursor:auto}
+  .reel-nav{position:absolute;top:50%;width:max(34px,4.2cqi);aspect-ratio:1;translate:0 -50%;padding:0;border-radius:50%;display:grid;place-items:center;
+    background:rgba(10,10,12,.72);border:1px solid rgba(214,180,96,.7);color:#f6dd96;cursor:pointer}
+  .reel-nav[data-step="-1"]{left:2.2cqi}
+  .reel-nav[data-step="1"]{right:2.2cqi}
+  .reel-nav svg{width:55%;height:55%;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  /* mỗi clip một vạch; vạch của clip đang chạy đầy dần theo thời gian */
+  .reel-dots{display:flex;justify-content:center;gap:1cqi;margin-top:1.6cqi}
+  .reel-dots button{position:relative;width:max(28px,5cqi);height:18px;padding:0;border:0;background:none;cursor:pointer}
+  .reel-dots button::before,.reel-dots button::after{content:"";position:absolute;left:0;right:0;top:7px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
+  .reel-dots button::after{background:var(--zy);transform-origin:left;transform:scaleX(var(--p,0))}
 }
-.clip video{display:block;width:100%;height:100%;object-fit:cover}
 
 .room-page{container-type:inline-size;width:100%;margin-top:6px}
 .room-page .s-title{font-size:clamp(24px,7.2cqi,44px);padding:0 16px}
@@ -426,8 +446,26 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     <div class="scroller" tabindex="-1"><div class="inner"><div class="xe-track">
       <div class="xe-stage at-start">
         <canvas class="xe-canvas" aria-hidden="true"></canvas>
-        <p class="xe-hint"><span class="a">Cuộn xuống để dán PPF</span><span class="b">Cuộn tiếp để xem bảng giá</span></p>
+        <p class="xe-hint"><span class="a">Cuộn xuống để dán PPF</span><span class="b">Cuộn tiếp để xem lễ ký kết</span></p>
         <p class="xe-credit">Mô hình xe 3D: “Lamborghini Urus 2018” · kirikom9000 · CC BY 4.0 · đã chỉnh sửa</p>
+      </div>
+    </div></div></div>
+  </section>
+
+  <section class="board fit" id="le-ky-ket" data-stop="Lễ ký kết đại lý" aria-label="Video lễ ký kết đại lý ủy quyền Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet clip-sheet">
+      <h2 class="s-title clip-title">Lễ ký kết <br>đại lý ủy quyền</h2>
+      <div class="grow">
+        <div class="clip" id="clip">
+          <video muted loop playsinline preload="none" aria-label="Video lễ ký kết đại lý ủy quyền Zappa"></video>
+        </div>
+        <!-- màn ngang: dải clip ngang (dựng trong JS, module Clip) -->
+        <div class="reel" id="reel" role="region" aria-roledescription="carousel" aria-label="Video lễ ký kết, lướt ngang để xem clip khác">
+          <div class="reel-track"></div>
+          <button class="reel-nav" type="button" data-step="-1" aria-label="Video trước"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="reel-nav" type="button" data-step="1" aria-label="Video sau"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="reel-dots"></div>
       </div>
     </div></div></div>
   </section>
@@ -494,15 +532,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
         <div class="room-panel"></div>
         <p class="room-loading">Đang dựng phòng trưng bày…</p>
       </div>
-    </div></div></div>
-  </section>
-
-  <section class="board fit" id="le-ky-ket" data-stop="Lễ ký kết đại lý" aria-label="Video lễ ký kết đại lý ủy quyền Zappa">
-    <div class="scroller" tabindex="-1"><div class="inner"><div class="sheet clip-sheet">
-      <h2 class="s-title clip-title">Lễ ký kết<br>đại lý ủy quyền</h2>
-      <div class="grow"><div class="clip" id="clip">
-        <video muted loop playsinline preload="none" aria-label="Video lễ ký kết đại lý ủy quyền Zappa"></video>
-      </div></div>
     </div></div></div>
   </section>
 
@@ -872,7 +901,7 @@ const stage = $('#stage');
 
 /* gom trang thành chặng: trong một chặng các trang nối tiếp nhau, cuộn bình thường; chỉ khi sang chặng khác mới có
    xe kéo bảng. Mỗi id trong CHAPTER_HEADS mở một chặng; trang theo sau (không nằm trong danh sách) nối vào chặng đó. */
-const CHAPTER_HEADS = ['xe', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'le-ky-ket', 'lien-he'];
+const CHAPTER_HEADS = ['xe', 'le-ky-ket', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'lien-he'];
 {
   const asPage = (sec, inner) => {
     const pg = document.createElement('div');
@@ -1035,28 +1064,96 @@ const CarStage = (() => {
   };
 })();
 
-/* video lễ ký kết: chỉ tải khi tới trang; màn dọc → bản dọc, màn ngang → bản ngang (đổi khi xoay máy).
+/* video lễ ký kết: chỉ tải khi tới trang, đổi theo khi xoay máy.
+   - màn dọc (điện thoại): một bản dọc chạy lặp
+   - màn ngang (máy tính): REEL clip ngang xếp thành dải lướt ngang. Clip giữa tự chạy, hết thì dải trượt sang clip kế
+     (hết clip cuối quay về clip đầu); lướt ngang, bấm mũi tên, phím ← →, bấm clip ló bên cạnh hay vạch bên dưới để đổi clip.
+     Chỉ tải clip đang xem và hai clip kề nó.
    File gốc không có tiếng (rãnh âm thanh câm) nên video chạy không tiếng, không có nút loa */
+const REEL = 6;                                     // assets/le-ky-ket-ngang-1…6.mp4 (+ .jpg ảnh chờ)
 const Clip = (() => {
-  const v = $('#clip video');
+  const doc = $('#clip video'), track = $('#reel .reel-track'), dots = $('#le-ky-ket .reel-dots');
   const portrait = matchMedia('(orientation: portrait)');
-  let active = false;
-  function load() {
-    const kind = portrait.matches ? 'doc' : 'ngang';
-    if (v.dataset.kind === kind) return;
-    const t = v.currentTime || 0;
-    v.dataset.kind = kind;
-    v.poster = `assets/le-ky-ket-${kind}.jpg`;
-    v.src = `assets/le-ky-ket-${kind}.mp4`;
-    if (t) v.addEventListener('loadedmetadata', () => { v.currentTime = t; }, { once: true });
+  const file = i => `assets/le-ky-ket-ngang-${i + 1}`;
+  track.innerHTML = Array.from({ length: REEL }, (_, i) =>
+    `<div class="reel-slide" role="group" aria-roledescription="slide" aria-label="Video ${i + 1} / ${REEL}"><video muted playsinline preload="none"></video></div>`).join('');
+  dots.innerHTML = Array.from({ length: REEL }, (_, i) => `<button type="button" aria-label="Xem video ${i + 1}"></button>`).join('');
+  const slides = $$('.reel-slide', track), vids = slides.map(s => $('video', s)), bars = $$('button', dots);
+  let active = false, at = -1, steer = -1, raf = 0, posters = false;
+
+  const centerOf = i => slides[i].offsetLeft + slides[i].offsetWidth / 2 - track.clientWidth / 2;
+  const want = i => { const v = vids[i]; if (!v.src) { v.preload = 'auto'; v.src = file(i) + '.mp4'; } };
+  function playAt() {
+    if (!active || portrait.matches || at < 0) return;
+    [at, (at + 1) % REEL, (at + REEL - 1) % REEL].forEach(want);
+    vids[at].currentTime = 0;
+    if (!reduce) vids[at].play().catch(() => {});
+  }
+  // clip i thành clip đang xem: sáng lên và chạy, các clip khác dừng
+  function pick(i) {
+    if (i === at) return;
+    at = i;
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    bars.forEach((b, k) => { b.setAttribute('aria-current', String(k === i)); b.style.setProperty('--p', k < i ? 1 : 0); });
+    vids.forEach((v, k) => { if (k !== i) v.pause(); });
+    playAt();
+  }
+  function go(i) {
+    i = (i + REEL) % REEL;
+    steer = i;                                      // đang trượt tới clip i: bỏ qua các clip lướt qua giữa đường
+    track.scrollTo({ left: centerOf(i), behavior: reduce ? 'auto' : 'smooth' });
+    pick(i);
+  }
+  // clip nằm gần giữa dải nhất và độ lệch của nó
+  function nearest() {
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    let best = 0, d = Infinity;
+    slides.forEach((s, k) => { const e = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (e < d) { d = e; best = k; } });
+    return [best, d];
+  }
+  track.addEventListener('scroll', () => {
+    const [best, d] = nearest();
+    if (steer >= 0) { if (best === steer && d < 2) steer = -1; return; }
+    pick(best);
+  }, { passive: true });
+  track.addEventListener('scrollend', () => { steer = -1; pick(nearest()[0]); });   // trượt bị ngắt giữa chừng
+  ['pointerdown', 'wheel', 'touchstart'].forEach(ev => track.addEventListener(ev, () => { steer = -1; }, { passive: true }));
+  slides.forEach((s, k) => s.addEventListener('click', () => { if (k !== at) go(k); }));
+  bars.forEach((b, k) => b.addEventListener('click', () => go(k)));
+  $$('#reel .reel-nav').forEach(b => b.addEventListener('click', () => go(at + +b.dataset.step)));
+  vids.forEach((v, k) => v.addEventListener('ended', () => { if (k === at && active && !reduce) go(at + 1); }));
+  addEventListener('keydown', e => {
+    if (!active || portrait.matches || busy || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    go(at + (e.key === 'ArrowRight' ? 1 : -1));
+  });
+  function tick() {                                 // vạch của clip đang chạy đầy dần theo thời gian
+    const v = vids[at];
+    bars[at].style.setProperty('--p', v.duration ? (v.currentTime / v.duration).toFixed(4) : 0);
+    raf = requestAnimationFrame(tick);
+  }
+  function show() {
+    cancelAnimationFrame(raf);
+    if (portrait.matches) {
+      vids.forEach(v => v.pause());
+      if (!doc.src) { doc.poster = 'assets/le-ky-ket-doc.jpg'; doc.src = 'assets/le-ky-ket-doc.mp4'; }
+      if (!reduce) doc.play().catch(() => {});
+      return;
+    }
+    doc.pause();
+    if (!posters) { posters = true; vids.forEach((v, i) => { v.poster = file(i) + '.jpg'; }); }
+    if (at < 0) pick(0); else playAt();
+    track.scrollLeft = centerOf(at);                // vừa xoay từ màn dọc (dải bị ẩn): đặt lại đúng clip
+    raf = requestAnimationFrame(tick);
   }
   function toggle(on) {
     active = on;
-    if (on) { load(); if (!reduce) v.play().catch(() => {}); }
-    else v.pause();
+    if (on) return show();
+    cancelAnimationFrame(raf);
+    doc.pause(); vids.forEach(v => v.pause());
   }
-  portrait.addEventListener('change', () => { if (!v.dataset.kind) return; load(); if (active && !reduce) v.play().catch(() => {}); });
-  if (reduce) v.controls = true;              // giảm chuyển động: không tự chạy, để người xem tự bấm
+  portrait.addEventListener('change', () => { if (active) show(); });
+  if (reduce) [doc, ...vids].forEach(v => { v.controls = true; });   // giảm chuyển động: không tự chạy, để người xem tự bấm
   return { toggle };
 })();
 
