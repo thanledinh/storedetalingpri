@@ -95,9 +95,6 @@ button{font:inherit;color:inherit}
 .hint b{color:var(--gold-hi);letter-spacing:.12em}
 .rpm{font-size:11px;letter-spacing:.18em;color:var(--muted);font-variant-numeric:tabular-nums}
 .rpm span{color:var(--gold-hi);font-weight:600}
-.skip{position:absolute;right:max(16px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));background:none;border:1px solid var(--line-soft);border-radius:999px;padding:7px 14px;font-size:12px;letter-spacing:.08em;color:var(--muted);cursor:pointer;transition:color .2s,border-color .2s}
-.skip:hover{color:var(--ink);border-color:var(--line)}
-#intro.go .skip{opacity:0;transition:opacity .3s}
 /* đang tải cảnh xe: nút START khoá, mờ đi; vòng tua quanh nút chạy theo phần trăm tải */
 .start .start-face,.key{transition:filter .5s ease,opacity .5s ease}
 #intro.loading .start{cursor:progress}
@@ -432,7 +429,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
       <p class="rpm" aria-hidden="true"><span id="rpm">0.0</span> ×1000 r/min</p>
     </div>
   </div>
-  <button class="skip" id="skip" type="button">Bỏ qua ›</button>
 </div>
 
 <!-- ═════════ HUD ═════════ -->
@@ -767,7 +763,7 @@ function setTacho(k) { // k = nghìn vòng/phút
   rpmEl.textContent = k.toFixed(1);
 }
 
-/* ───────── nhạc nền: assets/nhac-nen.mp3, phát lặp. Bật khi bấm START / Bỏ qua (trình duyệt chỉ cho phát tiếng
+/* ───────── nhạc nền: assets/nhac-nen.mp3, phát lặp. Bật khi bấm START (trình duyệt chỉ cho phát tiếng
    sau một lần chạm), nút loa góc trên để tắt/bật; ẩn tab thì tạm dừng ───────── */
 const Music = (() => {
   const a = new Audio('assets/nhac-nen.mp3');
@@ -1419,10 +1415,8 @@ function skip(to) {
   if (started) return; started = true;
   Road.engine(true); activate(boards[to]); hideIntro();
 }
-const HOME = boards.findIndex(b => b.el.id === 'bang-gia');     // "Bỏ qua": vào thẳng bảng giá
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
-$('#skip').addEventListener('click', () => { setSound(true); skip(HOME); });
 if (!reduce) intro.addEventListener('pointermove', e => {
   if (started) return;
   const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
