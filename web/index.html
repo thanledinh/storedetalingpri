@@ -471,6 +471,12 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   </section>
 
   <!-- các trang bảng giá: ảnh poster gốc (assets/poster-<id>.webp, 1125×2000) -->
+  <section class="board" id="bang-gia" data-stop="Bảng giá PPF Zappa" aria-label="Bảng giá PPF Zappa">
+    <div class="scroller" tabindex="-1"><div class="inner">
+      <img class="poster" src="assets/poster-bang-gia.webp" width="1125" height="2000" alt="Bảng giá PPF Zappa áp dụng từ tháng 8-2026, giá theo cây: 1368 (7.5 mil) 9.600.000 giảm 15% còn 8.160.000; 1378 (8.5 mil) 12.800.000 giảm 15% còn 10.880.000; 1388 (9.5 mil) 16.800.000 giảm 15% còn 14.280.000; 1388 PRO (10.5 mil) 19.900.000 giảm 20% còn 15.920.000; 1398 (12.5 mil) 29.200.000 giảm 20% còn 23.360.000; 1398 PRO (13.5 mil) 33.900.000 giảm 25% còn 25.425.000. Bảo hành bong tróc: 1368 và 1378 5 năm, 1388 và 1388 PRO 8 năm, 1398 và 1398 PRO 10 năm; bảo hành ngả màu 2 năm. Giá chưa gồm phí vận chuyển, thanh toán 100% tiền mặt hoặc chuyển khoản.">
+    </div></div>
+  </section>
+
   <section class="board" id="thong-so" data-stop="Thông số kỹ thuật" aria-label="Thông số kỹ thuật sản phẩm">
     <div class="scroller" tabindex="-1"><div class="inner">
       <img class="poster" src="assets/poster-thong-so.webp" width="1125" height="2000" alt="Thông số kỹ thuật 6 dòng PPF Zappa 1368, 1378, 1388, 1388 PRO, 1398, 1398 PRO: độ dày, thành phần urethane, khả năng phục hồi, độ bóng chống ố và thời gian bảo hành.">
@@ -903,7 +909,7 @@ const stage = $('#stage');
 
 /* gom trang thành chặng: trong một chặng các trang nối tiếp nhau, cuộn bình thường; chỉ khi sang chặng khác mới có
    xe kéo bảng. Mỗi id trong CHAPTER_HEADS mở một chặng; trang theo sau (không nằm trong danh sách) nối vào chặng đó. */
-const CHAPTER_HEADS = ['xe', 'le-ky-ket', 'thong-so', 'tpu', 'ppf-mau', 'phong-3d', 'lien-he'];
+const CHAPTER_HEADS = ['xe', 'le-ky-ket', 'bang-gia', 'tpu', 'ppf-mau', 'phong-3d', 'lien-he'];
 {
   const asPage = (sec, inner) => {
     const pg = document.createElement('div');
@@ -1430,7 +1436,7 @@ function skip(to) {
   if (started) return; started = true;
   Road.engine(true); activate(boards[to]); hideIntro();
 }
-const HOME = boards.findIndex(b => b.el.id === 'thong-so');     // "Bỏ qua": vào thẳng bảng giá
+const HOME = boards.findIndex(b => b.el.id === 'bang-gia');     // "Bỏ qua": vào thẳng bảng giá
 $('#start').addEventListener('click', ignite);
 $('#key').addEventListener('click', ignite);
 $('#skip').addEventListener('click', () => { setSound(true); skip(HOME); });
