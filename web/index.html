@@ -286,8 +286,8 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .room canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
 .room canvas:active{cursor:grabbing}
 .room-hots{position:absolute;inset:0;pointer-events:none}
-.hot{position:absolute;left:0;top:0;display:flex;align-items:center;gap:5px;padding:8px;border:0;background:none;cursor:pointer;pointer-events:auto;
-  opacity:0;visibility:hidden;transition:opacity .25s;margin:-14px 0 0 -14px}      /* padding = vùng chạm rộng hơn chấm */
+.hot{position:absolute;left:0;top:0;display:flex;align-items:center;gap:5px;padding:12px;border:0;background:none;cursor:pointer;pointer-events:auto;
+  opacity:0;visibility:hidden;transition:opacity .25s;margin:-18px 0 0 -18px}      /* padding = vùng chạm rộng hơn chấm */
 .hot.show{opacity:1;visibility:inherit}
 .hot i{position:relative;flex:none;width:12px;height:12px;border-radius:50%;background:var(--zy);box-shadow:0 0 0 2px rgba(0,0,0,.5),0 0 10px rgba(238,213,28,.75)}
 .hot i::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--zy);animation:hotPulse 2.2s ease-out infinite}
@@ -296,7 +296,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .room.labels .hot span,.hot:hover span,.hot:focus-visible span{opacity:1;transform:none}
 @keyframes hotPulse{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.6);opacity:0}}
 .room-ui{position:absolute;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(8,8,9,.75);border:1px solid rgba(214,180,96,.45);transition:opacity .3s}
-.room-ui button{border:0;border-radius:999px;padding:6px 14px;white-space:nowrap;background:none;color:#ddd;font-size:12px;font-weight:700;text-transform:uppercase;cursor:pointer}
+.room-ui button{position:relative;border:0;border-radius:999px;padding:9px 16px;white-space:nowrap;background:none;color:#ddd;font-size:12px;font-weight:700;text-transform:uppercase;cursor:pointer}
 .room-ui button.on{background:var(--zy);color:#111}
 .room.focused .room-ui,.room.focused .room-tip{opacity:0;pointer-events:none}
 .room-tip{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(8,8,9,.75);color:#ddd;font-size:11.5px;white-space:nowrap;pointer-events:none;transition:opacity .4s}
@@ -306,7 +306,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .room-panel{position:absolute;left:0;right:0;bottom:0;max-height:clamp(56%,300px,92%);padding:16px 16px 12px;border-radius:18px 18px 0 0;background:linear-gradient(180deg,rgba(18,18,20,.97),rgba(6,6,7,.98));
   border-top:2px solid var(--zy);transform:translateY(105%);transition:transform .45s var(--out);overflow:hidden;display:flex;flex-direction:column;gap:6px}
 .room-panel.open{transform:none}
-.rp-x{position:absolute;top:8px;right:10px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#111;color:#fff;font-size:20px;line-height:1;cursor:pointer}
+.rp-x{position:absolute;top:6px;right:8px;z-index:2;width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:#111;color:#fff;font-size:24px;line-height:1;cursor:pointer}
 .rp-imgs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;touch-action:pan-x;padding-right:40px;flex:none;scrollbar-width:none}
 .rp-imgs img{height:clamp(70px,13svh,110px);width:auto;flex:none;scroll-snap-align:start;border-radius:8px;background:radial-gradient(#2a2a2d,#141416)}
 .rp-imgs.one img{max-width:78%;object-fit:contain}
@@ -325,7 +325,10 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .rp-price .strike{color:#9a9a9a;font-weight:700;font-size:14px}
 .rp-price .p-off{font-size:12px;align-self:center}
 .rp-price b{color:var(--zy);font-weight:800;font-size:clamp(20px,6.4cqi,26px)}
-.rp-go{align-self:flex-start;margin-top:4px;border:1px solid var(--zy);background:none;color:var(--zy);font-weight:700;font-size:12px;text-transform:uppercase;padding:7px 14px;border-radius:999px;cursor:pointer;text-decoration:none}
+.rp-go{position:relative;align-self:flex-start;margin-top:4px;border:1px solid var(--zy);background:none;color:var(--zy);font-weight:700;font-size:12px;text-transform:uppercase;padding:10px 16px;border-radius:999px;cursor:pointer;text-decoration:none}
+/* vùng chạm rộng hơn hình nút (ngón tay trên điện thoại) */
+.rp-x::before,.rp-go::before,.room-ui button::before{content:"";position:absolute;inset:-9px}
+.room-ui button::before{inset:-8px -2px}
 .rp-hint{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:auto;padding-top:6px;color:#9a9a9a;font-size:11.5px}
 .rp-hint svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:hintUp 1.4s ease-in-out infinite}
 @keyframes hintUp{0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}}
