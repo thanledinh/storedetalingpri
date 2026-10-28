@@ -221,8 +221,8 @@ def rounded_panel(name, w, h, r, c, m, coll, seg=10):
         uvl.data[li].uv = (x / w + .5, y / h + .5)
     me.materials.append(m); me.update()
     ob = bpy.data.objects.new(name, me); coll.objects.link(ob); return ob
-SIGN_LOGO_W = 4.0
-rounded_panel("emit_sign_logo", SIGN_LOGO_W, SIGN_LOGO_W * 449 / 1600, SIGN_LOGO_W / 24, (0, 3.55, .16),
+SIGN_LOGO_W = 3.0                   # khoảng nửa bề ngang mảng tôn (5,6 m), chừa khoảng thở hai bên
+rounded_panel("emit_sign_logo", SIGN_LOGO_W, SIGN_LOGO_W * 449 / 1600, SIGN_LOGO_W / 24, (0, 3.52, .16),
               mat_image("m_sign_logo", TEX + "sign-zappa.png", emit=3.0), COL["EMIT"])
 
 # ── sản phẩm (chỉ để tính bóng đổ khi bake, KHÔNG xuất ra web — web tự đặt lại để bấm được) ──
