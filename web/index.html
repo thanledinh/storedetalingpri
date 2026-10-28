@@ -181,7 +181,6 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 @keyframes xeNudge{0%,100%{transform:translateY(0) rotate(45deg);opacity:.5}50%{transform:translateY(6px) rotate(45deg);opacity:1}}
 .xe-stage.failed::before{content:"Không tải được mô hình xe 3D — tải lại trang để thử lại";position:absolute;left:16px;right:16px;top:45%;text-align:center;color:var(--muted);font-size:13px}
 .xe-stage.failed .xe-hint .a,.xe-stage.failed .xe-canvas{display:none}
-.xe-credit{position:absolute;left:16px;right:16px;top:calc(max(14px,env(safe-area-inset-top)) + 58px);text-align:center;font-size:10px;line-height:1.4;color:rgba(242,235,220,.38);pointer-events:none}
 
 /* tiêu đề trang cho trình đọc màn hình (không hiện ra) */
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -454,9 +453,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     <div class="scroller" tabindex="-1"><div class="inner"><div class="xe-track">
       <div class="xe-stage at-start">
         <canvas class="xe-canvas" aria-hidden="true"></canvas>
-        <p class="xe-hint"><span class="a">Cuộn xuống để dán PPF</span><span class="b">Cuộn tiếp để xem lễ ký kết</span></p>
-        <p class="xe-credit">Mô hình xe 3D: “Porsche 911” · Outlaw Games · CC BY-NC 4.0 · đã chỉnh sửa</p>
-      </div>
+        <p class="xe-hint"><span class="a">Cuộn xuống để dán PPF</span><span class="b">Cuộn tiếp để xem lễ ký kết</span></p>      </div>
     </div></div></div>
   </section>
 
