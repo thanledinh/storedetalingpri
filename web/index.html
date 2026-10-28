@@ -1038,11 +1038,11 @@ function activate(b) {
 }
 
 /* trang "Xe dán PPF": vị trí thanh cuộn của trang = tiến độ cảnh (cuộn xuống phim bay vào xe, cuộn lên phim bay ra).
-   Sau START trang tự cuộn một lượt cho xem; chạm, cuộn hay bấm phím là dừng tự cuộn, người xem tự điều khiển. */
+   Không tự cuộn: người xem tự lướt (dòng gợi ý "Cuộn xuống để dán PPF" ở đầu trang) */
 const XE = boards.find(b => b.el.id === 'xe');
 const CarStage = (() => {
   const stageEl = $('.xe-stage', XE.el);
-  let api = null, active = false, auto = 0;
+  let api = null, active = false;
   const progress = () => { const max = XE.sc.scrollHeight - XE.sc.clientHeight; return max > 0 ? XE.sc.scrollTop / max : 0; };
   function sync() {
     const p = progress();
@@ -1054,24 +1054,9 @@ const CarStage = (() => {
   XE.sc.addEventListener('scroll', sync, { passive: true });
   addEventListener('resize', fit);
   fit();
-  const stopAuto = () => { cancelAnimationFrame(auto); auto = 0; };
-  ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(ev => XE.el.addEventListener(ev, stopAuto, { passive: true }));
   return {
     ready(a) { api = a; sync(); if (active) api.setActive(true); },
-    toggle(on) { active = on; if (!on) stopAuto(); if (api) api.setActive(on); },
-    /** cuộn hết trang trong ~7,8 giây (như một đoạn phim; cả đoạn dài bằng lúc nút "Xem tự động" của trang kia chạy nó,
-        nhưng ở đây nhanh dần rồi chậm dần), dừng ngay khi người xem tự thao tác */
-    autoplay() {
-      if (!api || reduce) return;
-      stopAuto();
-      const from = XE.sc.scrollTop, to = XE.sc.scrollHeight - XE.sc.clientHeight, t0 = performance.now();
-      const step = now => {
-        const k = Math.min(1, (now - t0) / 7800);
-        XE.sc.scrollTop = from + (to - from) * eio(k);
-        auto = k < 1 ? requestAnimationFrame(step) : 0;
-      };
-      auto = requestAnimationFrame(step);
-    },
+    toggle(on) { active = on; if (api) api.setActive(on); },
   };
 })();
 
@@ -1432,8 +1417,6 @@ async function ignite() {
   await wait(900);
   // trang đầu (xe dán PPF) đứng sẵn phía sau, màn mở đầu mờ đi là lộ ra — không dùng xe kéo
   activate(boards[0]); hideIntro();
-  await wait(700);
-  CarStage.autoplay();                                     // lần đầu: tự chạy một lượt phim ập vào xe
 }
 function skip(to) {
   if (started) return; started = true;
