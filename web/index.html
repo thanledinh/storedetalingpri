@@ -274,9 +274,14 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   .reel-dots button::after{background:var(--zy);transform-origin:left;transform:scaleX(var(--p,0))}
 }
 
-.room-page{container-type:inline-size;width:100%;margin-top:6px}
+/* kéo trên khung phòng là xoay nhìn quanh, không cuộn được trang → cả trang (tiêu đề, khung, nút "Liên hệ") phải nằm gọn
+   một màn, nút sang trang thấy ngay trên thanh lộ trình: khung phòng lấp phần cao còn lại (240 – 1000px) */
+#phong-3d .inner{padding:64px 0 calc(var(--route-gap) + 84px)}
+#phong-3d .onward{margin-top:16px}
+#phong-3d .next-hint{display:none}
+.room-page{container-type:inline-size;width:100%;margin-top:6px;flex:1 1 auto;display:flex;flex-direction:column}
 .room-page .s-title{font-size:clamp(24px,7.2cqi,44px);padding:0 16px}
-.room{position:relative;height:clamp(400px,calc(100svh - 280px),1000px);margin-top:16px;overflow:hidden;background:#050506;
+.room{position:relative;flex:1 1 auto;min-height:240px;max-height:1000px;margin-top:16px;overflow:hidden;background:#050506;
   touch-action:none;user-select:none;-webkit-user-select:none;border-top:1px solid rgba(214,180,96,.5);border-bottom:1px solid rgba(214,180,96,.5)}
 .room canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
 .room canvas:active{cursor:grabbing}
@@ -298,7 +303,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .room-tip.gone{opacity:0}
 .room-loading{position:absolute;inset:0;display:grid;place-items:center;color:#cfcfcf;font-size:13px;background:#050506;text-align:center;padding:20px}
 .room-loading[hidden]{display:none}
-.room-panel{position:absolute;left:0;right:0;bottom:0;max-height:56%;padding:16px 16px 12px;border-radius:18px 18px 0 0;background:linear-gradient(180deg,rgba(18,18,20,.97),rgba(6,6,7,.98));
+.room-panel{position:absolute;left:0;right:0;bottom:0;max-height:clamp(56%,300px,92%);padding:16px 16px 12px;border-radius:18px 18px 0 0;background:linear-gradient(180deg,rgba(18,18,20,.97),rgba(6,6,7,.98));
   border-top:2px solid var(--zy);transform:translateY(105%);transition:transform .45s var(--out);overflow:hidden;display:flex;flex-direction:column;gap:6px}
 .room-panel.open{transform:none}
 .rp-x{position:absolute;top:8px;right:10px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#111;color:#fff;font-size:20px;line-height:1;cursor:pointer}
