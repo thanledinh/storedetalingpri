@@ -289,7 +289,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #phong-3d .next-hint{display:none}
 .room-page{container-type:inline-size;width:100%;margin-top:6px;flex:1 1 auto;display:flex;flex-direction:column}
 .room-page .s-title{font-size:clamp(24px,7.2cqi,44px);padding:0 16px;white-space:nowrap}      /* một dòng: nhường chỗ cho khung phòng */
-.room{position:relative;flex:1 1 auto;min-height:240px;max-height:1000px;margin-top:16px;overflow:hidden;background:#050506;
+.room{position:relative;flex:1 1 auto;min-height:240px;max-height:1000px;margin-top:16px;overflow:hidden;overflow:clip;background:#050506;
   touch-action:none;user-select:none;-webkit-user-select:none;border-top:1px solid rgba(214,180,96,.5);border-bottom:1px solid rgba(214,180,96,.5)}
 .room canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
 .room canvas:active{cursor:grabbing}
@@ -661,7 +661,15 @@ const DATA = {
     shirt: { short: 'Áo Zappa', kicker: 'Đồ đi kèm', name: 'Áo thun Zappa', imgs: ['room-ao.webp'] },
     cap: { short: 'Mũ Zappa', kicker: 'Đồ đi kèm', name: 'Mũ lưỡi trai Zappa', imgs: ['room-mu.webp'] },
     logo: { short: 'Biển hiệu', kicker: 'Đồ đi kèm', name: 'Biển hiệu Zappa', imgs: ['logo-zappa.webp'] },
-    floor: { short: 'Sàn bóng', kicker: 'Quà tặng đại lý', name: 'Sàn bóng', imgs: [] },     // imgs rỗng = khung chỉ có chữ
+    floor: { short: 'Sàn bóng', kicker: 'Quà tặng đại lý', name: 'Sàn bóng', imgs: ['room-san.webp'] },     // ảnh sàn nhựa ghép
+    badge: { short: 'Logo Zappa', kicker: 'Treo tường', name: 'Hộp đèn logo Zappa lục giác', imgs: ['room-logo-luc-giac.webp'] },
+    stand1: { short: 'Kệ bảng giá', kicker: 'Để bàn', name: 'Kệ mica bảng giá Zappa', imgs: ['room-ke-mica-1.webp'], board: 'bang-gia' },
+    stand2: { short: 'Bảng giá để bàn', kicker: 'Để bàn', name: 'Kệ mica bảng giá PPF Zappa', imgs: ['room-ke-mica-2.webp'], board: 'bang-gia' },
+    gauge: { short: 'Máy test lực', kicker: 'Dụng cụ kiểm tra', name: 'Máy test lực đẩy – kéo điện tử', imgs: ['room-luc-ke.webp'] },
+    covers: { short: 'Bọc ghế, vô lăng', kicker: 'Phụ kiện thi công', name: 'Bộ bọc ghế và vô lăng Zappa', imgs: ['room-boc-ghe.webp'] },
+    flag: { short: 'Cờ cánh buồm', kicker: 'Mặt tiền', name: 'Cờ cánh buồm Zappa', imgs: ['room-co.webp'], tall: true },
+    led: { short: 'Đèn LED', kicker: 'Trần nhà', name: 'Đèn LED lục giác tổ ong', imgs: ['room-den-led.webp'],
+      desc: 'Hệ đèn LED lục giác ghép tổ ong gắn trần, ánh sáng trắng đều khắp phòng giúp soi rõ bề mặt sơn khi thi công và khi khách xem xe.' },
   },
 };
 /* Thời lượng màn xe kéo bảng (1 = khoảng 2,7 giây; 0.7 = nhanh hơn) */

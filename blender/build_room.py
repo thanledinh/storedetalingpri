@@ -265,6 +265,17 @@ for z in SHIRT_Z:
 CAP_Z, CAP_SHELF_Y, CAP_W, CAP_H = -2.3, 1.45, .5, .465
 hw.box(.24, .03, .62, (W / 2 - .12, CAP_SHELF_Y, CAP_Z), M["top"])
 hw.build("bake_hw", COL["BAKE"])
+# đồ mới (ảnh gốc nhỏ ~217 px, đã cắt sát hình): cỡ theo tỉ lệ ảnh — khớp web/room.js
+BADGE_H, BADGE_Z = .9, -5.5
+BADGE_W = BADGE_H * 175 / 198
+MICA_H = .38
+STAND1_W, STAND2_W = MICA_H * 181 / 222, MICA_H * 716 / 884
+GAUGE_H = .32
+GAUGE_W = GAUGE_H * 149 / 166
+COVERS_W, COVERS_Z = .86, -5.3
+COVERS_H = COVERS_W * 167 / 184
+FLAG_H, FLAG_X, FLAG_Z = 2.4, 3.25, .75
+FLAG_W = FLAG_H * 70 / 235
 P = [
     ("standee_1", "room-standee-1.webp", STAND_W, STAND_H, (-STAND_X, .07 + STAND_H / 2, STAND_Z), STAND_A, 0, False),
     ("standee_2", "room-standee-2.webp", STAND_W, STAND_H, (STAND_X, .07 + STAND_H / 2, STAND_Z), -STAND_A, 0, False),
@@ -278,6 +289,13 @@ P = [
     ("shirt_front", "room-ao-truoc.webp", SHIRT_W, SHIRT_H, (SHIRT_X, SHIRT_Y, SHIRT_Z[0]), -math.pi / 2, 0, False),
     ("shirt_back", "room-ao-sau.webp", SHIRT_W, SHIRT_H, (SHIRT_X, SHIRT_Y, SHIRT_Z[1]), -math.pi / 2, 0, False),
     ("cap", "room-mu.webp", CAP_W, CAP_H, (W / 2 - .13, CAP_SHELF_Y + .015 + CAP_H / 2, CAP_Z), -math.pi / 2, 0, False),
+    ("badge", "room-logo-luc-giac.webp", BADGE_W, BADGE_H, (-W / 2 + .03, 1.95, BADGE_Z), math.pi / 2, 1.0, False),   # hộp đèn logo lục giác, tường trái gần góc trong
+    ("stand_1", "room-ke-mica-1.webp", STAND1_W, MICA_H, (-2.2, 1.03 + MICA_H / 2, -D + .30), 0, 0, False),   # kệ trái: 2 kệ mica bảng giá + máy test lực
+    ("gauge", "room-luc-ke.webp", GAUGE_W, GAUGE_H, (-1.78, 1.03 + GAUGE_H / 2, -D + .32), 0, 0, False),
+    ("stand_2", "room-ke-mica-2.webp", STAND2_W, MICA_H, (-1.35, 1.03 + MICA_H / 2, -D + .30), 0, 0, False),
+    ("covers", "room-boc-ghe.webp", COVERS_W, COVERS_H, (W / 2 - .04, 1.75, COVERS_Z), -math.pi / 2, 0, False),   # bọc ghế + vô lăng, tường phải gần góc trong
+    ("flag_l", "room-co.webp", FLAG_W, FLAG_H, (-FLAG_X, FLAG_H / 2, FLAG_Z), STAND_A, 0, False),   # cờ cánh buồm cạnh 2 standee
+    ("flag_r", "room-co.webp", FLAG_W, FLAG_H, (FLAG_X, FLAG_H / 2, FLAG_Z), -STAND_A, 0, False),
 ]
 for name, img, w, h, c, ry, emit, flip in P:
     uv = ((1, 0), (0, 0), (0, 1), (1, 1)) if flip else ((0, 0), (1, 0), (1, 1), (0, 1))

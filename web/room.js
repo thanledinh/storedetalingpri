@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const W = 7, D = 6.5;                       // phòng: rộng × sâu (mét) — khớp với Blender
+const W = 7, D = 6.5, H = 3.2;              // phòng: rộng × sâu × cao (mét) — khớp với Blender
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const easeIO = t => (t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
@@ -35,6 +35,9 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   manager.onError = url => { if (!dead) loadingEl.textContent = 'Không tải được ' + url.split('/').pop() + '. Tải lại trang để thử lại.'; };
   // iPhone có thể tắt WebGL của phòng (thiếu bộ nhớ, rời Safari): báo ra ngoài để dựng lại
   canvas.addEventListener('webglcontextlost', () => { if (!dead && onLost) onLost(); }, { signal });
+  // chấm đang ẩn vẫn giữ chỗ cũ, có khi nằm ngoài khung: trình duyệt cũ (không có overflow: clip) có thể cuộn lệch khung
+  // phòng khi mở khung chi tiết — giữ khung đứng yên
+  root.addEventListener('scroll', () => { root.scrollLeft = root.scrollTop = 0; }, { signal });
   const loader = new THREE.TextureLoader(manager);
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const tex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; };
@@ -125,9 +128,26 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   for (const [img, z, label] of [['room-ao-truoc.webp', -4.2, true], ['room-ao-sau.webp', -3.3, false]])
     product({ kind: 'shirt', img, w: .74, h: .95, pos: [W / 2 - .04, 1.8, z], ry: -Math.PI / 2, zone: 'in', label });
   product({ kind: 'cap', img: 'room-mu.webp', w: .5, h: .465, pos: [W / 2 - .13, 1.45 + .015 + .465 / 2, -2.3], ry: -Math.PI / 2, zone: 'in', label: true });
+  // đồ mới — cỡ theo tỉ lệ ảnh, khớp blender/build_room.py: hộp đèn logo lục giác (tường trái, gần góc trong), kệ trái
+  // thêm 2 kệ mica bảng giá + máy test lực cạnh bình tạo bọt, bọc ghế + vô lăng (tường phải, gần góc trong), cờ cánh
+  // buồm cạnh 2 standee ngoài cửa
+  const MICA_H = .38, GAUGE_H = .32, COVERS_W = .86;
+  product({ kind: 'badge', img: 'room-logo-luc-giac.webp', w: .9 * 175 / 198, h: .9, pos: [-W / 2 + .03, 1.95, -5.5], ry: Math.PI / 2, zone: 'in', label: true });
+  product({ kind: 'stand1', img: 'room-ke-mica-1.webp', w: MICA_H * 181 / 222, h: MICA_H, pos: [-2.2, 1.03 + MICA_H / 2, -D + .3], zone: 'in', label: true });
+  product({ kind: 'gauge', img: 'room-luc-ke.webp', w: GAUGE_H * 149 / 166, h: GAUGE_H, pos: [-1.78, 1.03 + GAUGE_H / 2, -D + .32], zone: 'in', label: true,
+    dot: [0, 0] });   // chấm giữa máy, thấp hơn chấm hai kệ mica bên cạnh cho nhãn tên khỏi đè nhau
+  product({ kind: 'stand2', img: 'room-ke-mica-2.webp', w: MICA_H * 716 / 884, h: MICA_H, pos: [-1.35, 1.03 + MICA_H / 2, -D + .3], zone: 'in', label: true });
+  product({ kind: 'covers', img: 'room-boc-ghe.webp', w: COVERS_W, h: COVERS_W * 167 / 184, pos: [W / 2 - .04, 1.75, -5.3], ry: -Math.PI / 2, zone: 'in', label: true });
+  for (const s of [-1, 1])
+    product({ kind: 'flag', img: 'room-co.webp', w: 2.4 * 70 / 235, h: 2.4, pos: [s * 3.25, 1.2, .75], ry: -s * .1, zone: 'out', label: s < 0 });
   // biển hiệu ZAPPA trên mặt tiền (đã có trong showroom.glb): phủ tấm chạm vô hình để bấm được
   product({ kind: 'logo', hit: true, w: 3, h: 3 * 449 / 1600, pos: [0, 3.52, .17], zone: 'out', label: true });
-  // sàn bóng (quà tặng): tấm chạm vô hình phủ cả sàn, chấm đặt trên thảm vàng bên trái bục (x -1,2; z -3,4); sàn quá
+  // đèn LED lục giác trên trần (trong GLB): tấm chạm vô hình phủ cả trần, chấm ở phía sau lệch phải (x 1,3; z −5,6) cho
+  // khỏi nằm dưới nút Mặt tiền / Bên trong; bấm thì bay tới góc ngước nhìn trần đặt sẵn
+  const led = product({ kind: 'led', hit: true, w: W, h: D, pos: [0, H - .02, -D / 2], zone: 'in', label: true, dot: [1.3 / W, -2.35 / D],
+    view: { pos: V(0, 1.5, -1), look: V(0, 3.2, -3.9) } });
+  led.mesh.rotation.x = Math.PI / 2;
+  // sàn bóng (quà tặng, sàn nhựa ghép xám + xanh): tấm chạm vô hình phủ cả sàn, chấm đặt trên khu xanh bên trái bục (x -1,2; z -3,4); sàn quá
   // rộng nên bấm vào thì bay tới một góc nhìn chéo xuống sàn đặt sẵn
   const floor = product({ kind: 'floor', hit: true, w: W, h: D, pos: [0, .003, -D / 2], zone: 'in', label: true, dot: [-1.2 / W, .15 / D],
     view: { pos: V(0, 2.5, -.3), look: V(0, -.4, -4.2) } });
