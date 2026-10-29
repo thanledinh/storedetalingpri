@@ -510,7 +510,13 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
   <section class="board" id="quy-trinh" data-stop="Quy trình dán PPF" aria-label="Quy trình dán PPF">
     <div class="scroller" tabindex="-1"><div class="inner">
-      <img class="poster" src="assets/poster-quy-trinh.webp" width="1125" height="2000" alt="Quy trình dán PPF 5 bước: rửa xe chi tiết; xử lý bề mặt; đánh bóng hiệu chỉnh bề mặt sơn; dán PPF; phủ Ceramic bảo vệ lớp PPF. Tính năng: tự phục hồi vết xước, giảm trầy xước, kháng bụi, chống tia UV, ngăn ngả màu sơn, tạo độ bóng sâu.">
+      <img class="poster" src="assets/poster-quy-trinh.webp" width="1125" height="2000" alt="Quy trình dán PPF, bước 1 đến 3: rửa xe chi tiết; xử lý bề mặt (loại bỏ nhựa cây, phân chim…); đánh bóng hiệu chỉnh bề mặt sơn.">
+    </div></div>
+  </section>
+
+  <section class="board" id="quy-trinh-2" data-stop="Quy trình dán PPF (tiếp)" aria-label="Quy trình dán PPF, bước 4 và 5">
+    <div class="scroller" tabindex="-1"><div class="inner">
+      <img class="poster" src="assets/poster-quy-trinh-2.webp" width="1125" height="2000" alt="Quy trình dán PPF, bước 4 và 5: dán PPF bảo vệ tối ưu bề mặt; phủ Ceramic bảo vệ và tăng cường lớp PPF. Tính năng và ưu điểm: tự phục hồi vết xước, giảm thiểu trầy xước, kháng bụi, chống tia UV, ngăn ngả màu sơn, tạo độ bóng sâu.">
     </div></div>
   </section>
 
@@ -616,16 +622,16 @@ const ein = t => t * t * t;
    ══════════════════════════════════════════ */
 const DATA = {
   // PPF Zappa — giá theo cây (list = niêm yết, sale = khuyến mãi, off = % giảm)
-  // pkgs = giá trọn gói theo cỡ xe; tech = thông số kỹ thuật (đang không hiện, giữ để tra cứu)
+  // pkgs = giá trọn gói theo cỡ xe; tech = thông số kỹ thuật (poster chỉ in urethane; recover, gloss giữ để tra cứu)
   ppf: [
     { name: '1368', img: 'ppf-1368-cut.png', mil: 7.5, warranty: 5, fade: 2, list: 9600000, sale: 8160000, off: 15,
-      tech: { urethane: '75%', recover: '5s', gloss: '93%' },
+      tech: { urethane: '80%', recover: '5s', gloss: '93%' },
       pkgs: [['Medium', 23000000, 18900000], ['Large', 25000000, 20900000], ['X-Large', 27000000, 22900000]] },
     { name: '1378', img: 'ppf-1378-cut.png', mil: 8.5, warranty: 5, fade: 2, list: 12800000, sale: 10880000, off: 15,
-      tech: { urethane: '80%', recover: '4,5s', gloss: '96%' },
+      tech: { urethane: '85%', recover: '4,5s', gloss: '96%' },
       pkgs: [['Medium', 30000000, 25000000], ['Large', 33000000, 27000000], ['X-Large', 35000000, 28900000]] },
     { name: '1388', img: 'ppf-1388-cut.png', mil: 9.5, warranty: 8, fade: 2, list: 16800000, sale: 14280000, off: 15,
-      tech: { urethane: '85%', recover: '4s', gloss: '98%' },
+      tech: { urethane: '90%', recover: '4s', gloss: '98%' },
       pkgs: [['Medium', 38000000, 35000000], ['Large', 40000000, 37000000], ['X-Large', 42000000, 38900000]] },
     { name: '1388 PRO', img: 'ppf-1388pro-cut.png', mil: 10.5, warranty: 8, fade: 2, list: 19900000, sale: 15920000, off: 20,
       tech: { urethane: '90%', recover: '3,5s', gloss: '98%' },
@@ -634,7 +640,7 @@ const DATA = {
       tech: { urethane: '95%', recover: '3s', gloss: '98%' },
       pkgs: [['Medium', 86000000, 75000000], ['Large', 93000000, 80000000], ['X-Large', 99000000, 85000000]] },
     { name: '1398 PRO', img: 'ppf-1398pro-cut.png', mil: 13.5, warranty: 10, fade: 2, list: 33900000, sale: 25425000, off: 25,
-      tech: { urethane: '95%', recover: '3s', gloss: '98%' },
+      tech: { urethane: '98%', recover: '3s', gloss: '98%' },
       pkgs: [['Medium', 96000000, 86000000], ['Large', 102000000, 93000000], ['X-Large', 110000000, 99000000]] },
   ],
   // Phòng trưng bày 3D — tên & mô tả TẠM, cần cập nhật theo thông tin chính thức
@@ -667,7 +673,7 @@ const TOW_SPEED = 1;
 /* ───────── dựng các trang ───────── */
 const slug = name => 'ppf-' + name.toLowerCase().replace(/\s+/g, '');
 // mô tả cho ảnh poster (trình đọc màn hình, máy tìm kiếm) lấy từ DATA.ppf
-const posterAlt = d => `Bảng giá PPF Zappa ${d.name}: giá niêm yết ${vnd(d.list)}, giảm ${d.off}% còn ${vnd(d.sale)}; độ dày ${d.mil} mil, bảo hành bong tróc ${d.warranty} năm, ngả màu ${d.fade} năm; `
+const posterAlt = d => `Bảng giá PPF Zappa ${d.name}: giá niêm yết ${vnd(d.list)}, giảm ${d.off}% còn ${vnd(d.sale)}; độ dày ${d.mil} mil, thành phần urethane ${d.tech.urethane}, bảo hành bong tróc ${d.warranty} năm, ngả màu ${d.fade} năm; `
   + d.pkgs.map(([k, list, sale]) => `gói ${k} ${vnd(list)} còn ${vnd(sale)}`).join(', ') + '.';
 const poster = (d, extra = '') => `<img class="poster" src="assets/poster-${slug(d.name)}.webp" width="1125" height="2000" alt="${posterAlt(d)}"${extra}>`;
 
