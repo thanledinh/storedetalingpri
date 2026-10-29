@@ -245,6 +245,11 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .clip-title{font-size:min(7cqi,40px)}
 .clip{position:relative;margin:4cqi -1cqi 0;aspect-ratio:9/16;border-radius:2cqi;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(214,180,96,.55)}
 .clip video,.reel-slide video{display:block;width:100%;height:100%;object-fit:cover}
+/* nút ▶ khi trình duyệt chặn video tự phát (trình duyệt trong Zalo, Facebook…; iPhone ở chế độ nguồn điện thấp) */
+.clip-play{position:absolute;inset:0;z-index:2;margin:auto;width:76px;height:76px;padding:0;border-radius:50%;border:1px solid rgba(214,180,96,.8);
+  background:rgba(8,8,9,.6);color:#f6dd96;display:none;place-items:center;cursor:pointer}
+.clip-play svg{width:34px;height:34px;margin-left:5px;fill:currentColor}
+.blocked>.clip-play{display:grid}
 .reel,.reel-dots{display:none}
 @media (orientation:landscape){       /* màn ngang: tiêu đề một dòng, chừa tối đa chiều cao cho video */
   .clip{display:none}
@@ -257,7 +262,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
     overscroll-behavior-x:contain;scrollbar-width:none}
   .reel-track::-webkit-scrollbar{display:none}
   .reel-track::before,.reel-track::after{content:"";flex:0 0 calc(9% - 1.6cqi)}   /* chừa chỗ cho clip đầu / cuối cũng vào giữa được */
-  .reel-slide{flex:0 0 82%;aspect-ratio:16/9;scroll-snap-align:center;scroll-snap-stop:always;border-radius:2cqi;overflow:hidden;background:#000;
+  .reel-slide{position:relative;flex:0 0 82%;aspect-ratio:16/9;scroll-snap-align:center;scroll-snap-stop:always;border-radius:2cqi;overflow:hidden;background:#000;
     box-shadow:0 0 0 1px rgba(214,180,96,.55);opacity:.38;transform:scale(.92);transition:opacity .45s,transform .45s;cursor:pointer}
   .reel-slide.on{opacity:1;transform:none;cursor:auto}
   .reel-nav{position:absolute;top:50%;width:max(34px,4.2cqi);aspect-ratio:1;translate:0 -50%;padding:0;border-radius:50%;display:grid;place-items:center;
@@ -1106,13 +1111,35 @@ const Clip = (() => {
   const slides = $$('.reel-slide', track), vids = slides.map(s => $('video', s)), bars = $$('button', dots);
   let active = false, at = -1, steer = -1, raf = 0, posters = false;
 
+  // Trình duyệt trong app (Zalo, Facebook…) và iPhone ở chế độ nguồn điện thấp chặn video tự phát, kể cả không tiếng:
+  // chỉ cho phát ngay sau một lần chạm. Nên (1) lần chạm đầu tiên ở bất cứ đâu (thường là nút START) "mở khoá" từng video
+  // (gọi phát rồi dừng ngay trong lúc chạm — từ đó trình duyệt cho video đó tự phát), (2) vẫn bị chặn thì hiện nút ▶
+  const all = [doc, ...vids];
+  const play = v => v.play()
+    .then(() => v.parentElement.classList.remove('blocked'))
+    .catch(err => { if (err && err.name === 'NotAllowedError') v.parentElement.classList.add('blocked'); });
+  all.forEach(v => {
+    v.muted = v.defaultMuted = true;
+    v.setAttribute('webkit-playsinline', '');
+    v.insertAdjacentHTML('afterend', '<button type="button" class="clip-play" aria-label="Phát video"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>');
+    v.nextElementSibling.addEventListener('click', e => { e.stopPropagation(); play(v); });
+    v.addEventListener('playing', () => v.parentElement.classList.remove('blocked'));
+  });
+  const GESTURES = ['touchend', 'pointerup', 'click', 'keydown'];
+  function unlock() {
+    GESTURES.forEach(ev => removeEventListener(ev, unlock, true));
+    all.forEach(v => { v.play().catch(() => {}); v.pause(); });
+    if (active) show();
+  }
+  GESTURES.forEach(ev => addEventListener(ev, unlock, { capture: true, passive: true }));
+
   const centerOf = i => slides[i].offsetLeft + slides[i].offsetWidth / 2 - track.clientWidth / 2;
   const want = i => { const v = vids[i]; if (!v.src) { v.preload = 'auto'; v.src = file(i) + '.mp4'; } };
   function playAt() {
     if (!active || portrait.matches || at < 0) return;
     [at, (at + 1) % REEL, (at + REEL - 1) % REEL].forEach(want);
     vids[at].currentTime = 0;
-    if (!reduce) vids[at].play().catch(() => {});
+    if (!reduce) play(vids[at]);
   }
   // clip i thành clip đang xem: sáng lên và chạy, các clip khác dừng
   function pick(i) {
@@ -1162,7 +1189,7 @@ const Clip = (() => {
     if (portrait.matches) {
       vids.forEach(v => v.pause());
       if (!doc.src) { doc.poster = 'assets/le-ky-ket-doc.jpg'; doc.src = 'assets/le-ky-ket-doc.mp4'; }
-      if (!reduce) doc.play().catch(() => {});
+      if (!reduce) play(doc);
       return;
     }
     doc.pause();
