@@ -815,11 +815,11 @@ const Music = (() => {
   document.addEventListener('visibilitychange', () => { if (document.hidden) a.pause(); else if (on) a.play().catch(() => {}); });
   return { set, get on() { return on; } };
 })();
-/* ───────── tiếng nổ máy lúc bấm START: assets/no-may.mp3 (đề → nổ → rú ga, khớp kim vòng tua của ignite(); tạo bằng
-   audio/no-may.py). Tải và giải mã sẵn bằng Web Audio để bấm là kêu ngay (thẻ <audio> trên iPhone chỉ tải lúc bấm nên
-   kêu trễ); trình duyệt không có Web Audio thì phát bằng thẻ <audio> ───────── */
+/* ───────── tiếng nổ máy lúc bấm START: assets/no-may.mp3 (ghi âm xe thật: đề → nổ → rú ga, khớp kim vòng tua của
+   ignite(); ghép bằng audio/no-may.py). Tải và giải mã sẵn bằng Web Audio để bấm là kêu ngay (thẻ <audio> trên iPhone
+   chỉ tải lúc bấm nên kêu trễ); trình duyệt không có Web Audio thì phát bằng thẻ <audio> ───────── */
 const Engine = (() => {
-  const SRC = 'assets/no-may.mp3', VOL = .8;
+  const SRC = 'assets/no-may.mp3', VOL = 1;
   let ctx = null, buf = null, src = null, el = null;
   try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
   if (ctx) fetch(SRC).then(r => r.arrayBuffer())
