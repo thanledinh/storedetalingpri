@@ -142,29 +142,45 @@ one_plane("bake_wall_left", D, H, (-W / 2, H / 2, -D / 2), M["wall"], COL["BAKE"
 one_plane("bake_wall_right", D, H, (W / 2, H / 2, -D / 2), M["wall"], COL["BAKE"], ry=-math.pi / 2)
 one_plane("bake_ceiling", W, D, (0, H, -D / 2), M["ceil"], COL["BAKE"], face="down")
 
-# đèn LED lục giác (dải phát sáng rộng 4 cm, ngay dưới trần)
+# một bộ đèn LED tổ ong trên ô xe giữa phòng: khung chữ nhật, bên trong lưới lục giác (3 cột, cột hai bên bị khung cắt
+# đôi) — dải phát sáng rộng 4,5 cm ngay dưới trần. Khớp tấm chạm 'led' trong web/room.js
+LED_X, LED_Z0, LED_Z1 = 1.15, -5.6, -1.0       # nửa bề ngang; mép trong, mép ngoài (z)
 led = Builder()
-R, tube = .55, .045
-sx, sz = R * 1.5, math.sqrt(3) * R
+R, tube = .5, .045
 yl = H - .012
-c = 0
-while c * sx <= W:
-    r = 0
-    while r * sz <= D + sz:
-        x = -W / 2 + .35 + c * sx
-        z = -.35 - (r * sz + (sz / 2 if c % 2 else 0))
-        if -W / 2 + R * .8 < x < W / 2 - R * .8 and -D + R * .8 < z < -R * .6:
-            k_out, k_in = R - .03, R - .03 - tube
-            for i in range(6):
-                a0, a1 = math.pi / 3 * i, math.pi / 3 * (i + 1)
-                p = [(x + k_out * math.cos(a0), yl, z + k_out * math.sin(a0)), (x + k_out * math.cos(a1), yl, z + k_out * math.sin(a1)),
-                     (x + k_in * math.cos(a1), yl, z + k_in * math.sin(a1)), (x + k_in * math.cos(a0), yl, z + k_in * math.sin(a0))]
-                led.quad([B(*q) for q in reversed(p)], ((0, 0), (1, 0), (1, 1), (0, 1)), M["led"])
-        r += 1
-    c += 1
-# viền chữ nhật bao quanh
-for (w_, d_, cx_, cz_) in ((W - .5, tube, 0, -.25), (W - .5, tube, 0, -D + .25), (tube, D - .5, -W / 2 + .25, -D / 2), (tube, D - .5, W / 2 - .25, -D / 2)):
-    led.plane(w_, d_, (cx_, yl, cz_), M["led"], face="down")
+
+def strip(x0, z0, x1, z1, w=tube, ext=.012):
+    dx, dz = x1 - x0, z1 - z0; L = math.hypot(dx, dz); ux, uz = dx / L, dz / L; nx_, nz_ = -uz * w / 2, ux * w / 2
+    x0, z0, x1, z1 = x0 - ux * ext, z0 - uz * ext, x1 + ux * ext, z1 + uz * ext
+    p = [(x0 + nx_, yl, z0 + nz_), (x1 + nx_, yl, z1 + nz_), (x1 - nx_, yl, z1 - nz_), (x0 - nx_, yl, z0 - nz_)]
+    led.quad([B(*q) for q in p], ((0, 0), (1, 0), (1, 1), (0, 1)), M["led"])
+
+def clip(x0, z0, x1, z1):                      # cắt đoạn thẳng theo khung (Liang–Barsky)
+    t0, t1, dx, dz = 0.0, 1.0, x1 - x0, z1 - z0
+    for p, q in ((-dx, x0 + LED_X), (dx, LED_X - x0), (-dz, z0 - LED_Z0), (dz, LED_Z1 - z0)):
+        if p == 0:
+            if q < 0: return None
+            continue
+        t = q / p
+        if p < 0: t0 = max(t0, t)
+        else: t1 = min(t1, t)
+        if t0 > t1: return None
+    return x0 + t0 * dx, z0 + t0 * dz, x0 + t1 * dx, z0 + t1 * dz
+
+edges = set()
+zc = (LED_Z0 + LED_Z1) / 2
+for c in range(-2, 3):
+    for r in range(-5, 6):
+        x = c * 1.5 * R
+        z = zc + (r + (.5 if c % 2 else 0)) * math.sqrt(3) * R
+        pts = [(round(x + R * math.cos(math.pi / 3 * i), 4), round(z + R * math.sin(math.pi / 3 * i), 4)) for i in range(6)]
+        for i in range(6):
+            edges.add(tuple(sorted((pts[i], pts[(i + 1) % 6]))))
+for (x0, z0), (x1, z1) in edges:
+    s = clip(x0, z0, x1, z1)
+    if s and math.hypot(s[2] - s[0], s[3] - s[1]) > .02: strip(*s)
+for x0, z0, x1, z1 in ((-LED_X, LED_Z0, LED_X, LED_Z0), (-LED_X, LED_Z1, LED_X, LED_Z1), (-LED_X, LED_Z0, -LED_X, LED_Z1), (LED_X, LED_Z0, LED_X, LED_Z1)):
+    strip(x0, z0, x1, z1, w=.055, ext=.03)
 led.build("emit_led", COL["EMIT"])
 
 # quầy kệ
@@ -274,7 +290,7 @@ GAUGE_H = .32
 GAUGE_W = GAUGE_H * 149 / 166
 COVERS_W, COVERS_Z = .86, -5.3
 COVERS_H = COVERS_W * 167 / 184
-FLAG_H, FLAG_X, FLAG_Z = 2.4, 3.25, .75
+FLAG_H, FLAG_X, FLAG_Z = 2.0, 3.2, .75
 FLAG_W = FLAG_H * 70 / 235
 P = [
     ("standee_1", "room-standee-1.webp", STAND_W, STAND_H, (-STAND_X, .07 + STAND_H / 2, STAND_Z), STAND_A, 0, False),
