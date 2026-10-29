@@ -121,6 +121,11 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   product({ kind: 'cap', img: 'room-mu.webp', w: .5, h: .465, pos: [W / 2 - .13, 1.45 + .015 + .465 / 2, -2.3], ry: -Math.PI / 2, zone: 'in', label: true });
   // biển hiệu ZAPPA trên mặt tiền (đã có trong showroom.glb): phủ tấm chạm vô hình để bấm được
   product({ kind: 'logo', hit: true, w: 3, h: 3 * 449 / 1600, pos: [0, 3.52, .17], zone: 'out', label: true });
+  // sàn bóng (quà tặng): tấm chạm vô hình phủ cả sàn, chấm đặt trên thảm vàng bên trái bục (x -1,2; z -3,4); sàn quá
+  // rộng nên bấm vào thì bay tới một góc nhìn chéo xuống sàn đặt sẵn
+  const floor = product({ kind: 'floor', hit: true, w: W, h: D, pos: [0, .003, -D / 2], zone: 'in', label: true, dot: [-1.2 / W, .15 / D],
+    view: { pos: V(0, 2.5, -.3), look: V(0, -.4, -4.2) } });
+  floor.mesh.rotation.x = -Math.PI / 2;
   const rows = [['1398 PRO', -2.15, .84], ['1398', -2.15, .52], ['1388 PRO', -2.15, .2], ['1388', 2.15, .84], ['1378', 2.15, .52], ['1368', 2.15, .2]];
   for (const [name, x, y] of rows) {
     const d = ppf.find(p => p.name === name);
@@ -166,14 +171,17 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   function focus(it) {
     if (it.zone !== (st === stations.out ? 'out' : 'in')) { st = stations[it.zone]; viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === it.zone)); }
     focused = it;
-    const c = it.mesh.getWorldPosition(V(0, 0, 0));
-    const n = V(0, 0, 1).applyQuaternion(it.mesh.getWorldQuaternion(new THREE.Quaternion()));
-    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-    const dist = Math.max(it.h * 1.2 / (.52 * 2 * tan), it.w * 1.15 / (camera.aspect * 2 * tan), .55);
-    const pos = c.clone().add(n.multiplyScalar(dist));
-    pos.x = THREE.MathUtils.clamp(pos.x, -W / 2 + .3, W / 2 - .3);
-    const look = c.clone().add(V(0, -.46 * dist * tan, 0));     // đẩy sản phẩm lên nửa trên, chừa chỗ cho bảng chi tiết
-    fly(pos, look, 1150);
+    if (it.view) fly(it.view.pos.clone(), it.view.look.clone(), 1150);
+    else {
+      const c = it.mesh.getWorldPosition(V(0, 0, 0));
+      const n = V(0, 0, 1).applyQuaternion(it.mesh.getWorldQuaternion(new THREE.Quaternion()));
+      const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      const dist = Math.max(it.h * 1.2 / (.52 * 2 * tan), it.w * 1.15 / (camera.aspect * 2 * tan), .55);
+      const pos = c.clone().add(n.multiplyScalar(dist));
+      pos.x = THREE.MathUtils.clamp(pos.x, -W / 2 + .3, W / 2 - .3);
+      const look = c.clone().add(V(0, -.46 * dist * tan, 0));     // đẩy sản phẩm lên nửa trên, chừa chỗ cho bảng chi tiết
+      fly(pos, look, 1150);
+    }
     showPanel(it);
     root.classList.add('focused');
   }
@@ -199,7 +207,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
         ${toBoard(p) || `<a class="rp-go" href="assets/${p.imgs[0]}" target="_blank" rel="noopener">Xem ảnh lớn</a>`}</div></div>`;
     } else {
       const p = products[it.kind];
-      html = `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>
+      html = `${p.imgs.length ? `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>` : ''}
         <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}${toBoard(p)}`;
     }
     panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>`;
@@ -230,7 +238,9 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       const r = canvas.getBoundingClientRect();
       ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
       ray.setFromCamera(ndc, camera);
-      const hit = ray.intersectObjects(items.map(i => i.mesh))[0];
+      // tấm chạm vô hình (biển hiệu, sàn) chỉ tính ở đúng góc nhìn của nó: đứng ngoài chạm vào sàn qua cửa vẫn là bước vào
+      const here = st === stations.out ? 'out' : 'in';
+      const hit = ray.intersectObjects(items.filter(i => !i.hit || i.zone === here).map(i => i.mesh))[0];
       if (hit) focus(hit.object.userData.item);
       else if (st === stations.out) goStation('in');           // chạm vào cửa/mặt tiền thì bước vào
     }
