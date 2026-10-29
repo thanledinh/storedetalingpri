@@ -131,7 +131,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
     const name = it.kind === 'film' ? 'PPF ' + it.film.name : products[it.kind].short;
     b.innerHTML = `<i></i><span>${name}</span>`;
     b.setAttribute('aria-label', 'Xem ' + name);
-    b.addEventListener('click', e => { e.stopPropagation(); focus(it); });
+    b.hotItem = it;
+    // chạm / bấm chuột: xử lý ở pointerup bên dưới (chạm rồi kéo thì là xoay phòng, không mở); click ở đây chỉ còn
+    // cho bàn phím, trình đọc màn hình (detail = 0)
+    b.addEventListener('click', e => { e.stopPropagation(); if (e.detail === 0) focus(it); });
     hotsEl.appendChild(b); return b;
   });
   let labelTimer = 0;
@@ -233,9 +236,12 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   /* ── cử chỉ: kéo để nhìn quanh, chạm để chọn, vuốt lên để thoát ── */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   let down = null;
+  // chấm sản phẩm không chặn kéo: ngón tay đặt trúng chấm rồi kéo vẫn xoay phòng như kéo trên khung; chỉ chạm nhẹ rồi
+  // nhấc (không di) mới mở sản phẩm của chấm đó — chấm nhiều mà dễ đặt trúng
   root.addEventListener('pointerdown', e => {
-    if (e.target.closest('.hot, .room-ui, .rp-x, .rp-go, .rp-tall')) return;
-    down = { x: e.clientX, y: e.clientY, yaw: tYaw, pitch: tPitch, t: performance.now() };
+    if (e.target.closest('.room-ui, .rp-x, .rp-go, .rp-tall')) return;
+    const hot = e.target.closest('.hot');
+    down = { x: e.clientX, y: e.clientY, yaw: tYaw, pitch: tPitch, t: performance.now(), hot: hot && hot.hotItem };
   }, { signal });
   root.addEventListener('pointermove', e => {
     if (!down || focused || tween) return;
@@ -247,7 +253,9 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
     if (!down) return;
     const dx = e.clientX - down.x, dy = e.clientY - down.y; const d0 = down; down = null;
     if (focused) { if (dy < -45 && Math.abs(dy) > Math.abs(dx)) unfocus(); return; }
-    if (Math.hypot(dx, dy) < 8 && performance.now() - d0.t < 500 && e.target === canvas) {
+    const tap = Math.hypot(dx, dy) < 8 && performance.now() - d0.t < 500;
+    if (tap && d0.hot) return focus(d0.hot);
+    if (tap && e.target === canvas) {
       const r = canvas.getBoundingClientRect();
       ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
       ray.setFromCamera(ndc, camera);
@@ -265,7 +273,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   // pointerup, không dùng click
   root.addEventListener('touchstart', e => {
     e.stopPropagation();
-    if (e.target === canvas) e.preventDefault();
+    if (e.target === canvas || e.target.closest('.hot')) e.preventDefault();
   }, { passive: false, signal });
   viewBtns.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); goStation(b.dataset.view); }, { signal }));
 
