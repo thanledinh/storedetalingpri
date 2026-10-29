@@ -177,6 +177,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .xe-stage.at-start .xe-hint .a,.xe-stage.at-end .xe-hint .b{display:block}
 @keyframes xeNudge{0%,100%{transform:translateY(0) rotate(45deg);opacity:.5}50%{transform:translateY(6px) rotate(45deg);opacity:1}}
 .xe-stage.failed::before{content:"Không tải được mô hình xe 3D — tải lại trang để thử lại";position:absolute;left:16px;right:16px;top:45%;text-align:center;color:var(--muted);font-size:13px}
+.xe-stage.failed::after{content:attr(data-err);position:absolute;left:16px;right:16px;top:calc(45% + 26px);text-align:center;color:var(--muted);font-size:11px;opacity:.75}
 .xe-stage.failed .xe-hint .a,.xe-stage.failed .xe-canvas{display:none}
 
 /* tiêu đề trang cho trình đọc màn hình (không hiện ra) */
@@ -1451,13 +1452,18 @@ if (deep) {
   skip(deep.b.i);
   showCard(deep, hashId, false);
 }
-// tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ)
+// tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ).
+// Hỏng thì trang xe ghi lý do (dòng chữ nhỏ dưới câu báo lỗi) để chụp màn hình gửi lại
+const carFailed = why => { const s = $('.xe-stage'); s.classList.add('failed'); s.dataset.err = 'Lý do: ' + why; };
 const startBtn = $('#start');
 intro.classList.add('loading'); startBtn.disabled = true;
 import('./car-stage.js')
-  .then(m => m.createCarStage($('.xe-canvas'), { onProgress: p => Preload.set('car', Math.min(p, .97)) }))
+  .then(m => m.createCarStage($('.xe-canvas'), {
+    onProgress: p => Preload.set('car', Math.min(p, .97)),
+    onLost: () => carFailed('trình duyệt đã tắt WebGL (thiếu bộ nhớ?)'),
+  }))
   .then(car => CarStage.ready(car))
-  .catch(err => { console.warn('Không dựng được trang xe 3D:', err); $('.xe-stage').classList.add('failed'); })
+  .catch(err => { console.warn('Không dựng được trang xe 3D:', err); carFailed(err && err.message || String(err)); })
   .finally(() => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); });
 
 /* màn tải: thanh vàng chạy theo phần đã tải (cảnh xe 60% · ảnh mọi trang 30% · font 10%), xong hết mới mờ đi cho vào.

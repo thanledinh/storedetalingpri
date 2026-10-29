@@ -10,14 +10,17 @@ import { createPpfScene, SEGMENT } from './ppf/v3/ppf-scene.js';
 
 const clamp01 = (t) => Math.min(1, Math.max(0, t));
 
-/** onProgress(0..1): phần đã tải (theo số file: xe, ảnh môi trường, khuôn phim, bộ giải nén), để màn tải hiện phần trăm */
-export async function createCarStage(canvas, { onProgress } = {}) {
+/** onProgress(0..1): phần đã tải (theo số file: xe, ảnh môi trường, khuôn phim, bộ giải nén), để màn tải hiện phần trăm.
+    onLost(): trình duyệt tắt WebGL của cảnh (iPhone làm vậy khi thiếu bộ nhớ) — trang báo lỗi thay vì để khung trống */
+export async function createCarStage(canvas, { onProgress, onLost } = {}) {
   const manager = THREE.DefaultLoadingManager, before = manager.onProgress;
   manager.onProgress = (url, loaded, total) => onProgress && onProgress(loaded / total);
+  canvas.addEventListener('webglcontextlost', () => onLost && onLost(), { once: true });
   let ppf = null;
   try {
     ppf = createPpfScene({ canvas });
-    await ppf.ready;
+    // mất WebGL lúc đang dựng thì ready không bao giờ xong: quá 30 giây coi như lỗi, nút START vẫn mở
+    await Promise.race([ppf.ready, new Promise((_, fail) => setTimeout(() => fail(new Error('dựng cảnh quá 30 giây')), 30000))]);
   } catch (err) {
     ppf?.dispose();                                       // (index.html then shows the stage's failure message)
     throw err;
