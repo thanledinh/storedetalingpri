@@ -19,7 +19,8 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
 
   /* ── renderer, camera ── */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  const PR = Math.min(window.devicePixelRatio || 1, 1.75), PR_CLOSE = Math.min(window.devicePixelRatio || 1, 2.5);   // áp sát bảng: nét hơn
+  renderer.setPixelRatio(PR);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NoToneMapping;          // ánh sáng đã bake sẵn trong ảnh
   renderer.setClearColor(0x050506);
@@ -112,7 +113,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   product({ kind: 'hood', img: 'room-hood.jpg', w: .95, h: 1.27, pos: [2.15, 2.05, -D + .02], zone: 'in', label: true });
   product({ kind: 'tank', img: 'room-tank-2.webp', w: .56, h: .63, pos: [-2.75, 1.03 + .315, -D + .32], zone: 'in', label: true });
   product({ kind: 'pump', img: 'room-pump.webp', w: .27, h: .39, pos: [1.6, 1.03 + .195, -D + .32], zone: 'in', label: true });
-  product({ kind: 'price', img: 'room-price.webp', w: .9, h: 1.27, pos: [-2.15, 2.05, -D + .02], zone: 'in', label: true });   // bảng giá sau bình tạo bọt
+  product({ kind: 'price', img: 'room-price.webp', w: .9, h: 1.27, pos: [-2.15, 2.05, -D + .02], zone: 'in', label: true, close: true });   // bảng giá sau bình tạo bọt: bấm thì áp sát để đọc
   product({ kind: 'demo', img: 'room-may-ban-soi.webp', w: .8, h: .58, pos: [0, .63 + .29, -3.8], zone: 'in', label: true });   // bục giữa
   product({ kind: 'impact', img: 'room-may-tac-dong.webp', w: .65, h: .44, pos: [2.62, 1.03 + .22, -D + .32], zone: 'in', label: true });
   // tường phải: 2 áo treo (mặt trước, mặt sau) + mũ trên kệ nhỏ
@@ -168,10 +169,27 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === name));
     setTimeout(flashLabels, reduce ? 0 : 1500);
   }
+  // áp sát tấm bảng (it.close, như bảng giá treo tường): máy đứng thẳng trước bảng, cả tấm bảng vừa khít phần khung
+  // còn thấy phía trên khung chi tiết (thu gọn một dòng) — khỏi kéo; ảnh vẽ nét hơn trong lúc này
+  let closeUp = false;
+  function frameClose(it) {
+    const c = it.mesh.getWorldPosition(V(0, 0, 0));
+    const n = V(0, 0, 1).applyQuaternion(it.mesh.getWorldQuaternion(new THREE.Quaternion()));
+    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+    const cover = Math.min(panel.offsetHeight / root.clientHeight, .5);       // phần đáy khung bị khung chi tiết che
+    const dist = Math.max(it.h * 1.05 / ((1 - cover) * 2 * tan), it.w * 1.05 / (camera.aspect * 2 * tan));
+    const pos = c.clone().add(n.clone().multiplyScalar(dist));
+    pos.y -= cover * dist * tan;                                              // bảng nằm giữa phần còn thấy
+    return [pos, pos.clone().sub(n)];
+  }
   function focus(it) {
     if (it.zone !== (st === stations.out ? 'out' : 'in')) { st = stations[it.zone]; viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === it.zone)); }
     focused = it;
-    if (it.view) fly(it.view.pos.clone(), it.view.look.clone(), 1150);
+    showPanel(it);
+    if (it.close) {
+      closeUp = true; renderer.setPixelRatio(PR_CLOSE); resize();
+      fly(...frameClose(it), 1150);
+    } else if (it.view) fly(it.view.pos.clone(), it.view.look.clone(), 1150);
     else {
       const c = it.mesh.getWorldPosition(V(0, 0, 0));
       const n = V(0, 0, 1).applyQuaternion(it.mesh.getWorldQuaternion(new THREE.Quaternion()));
@@ -182,11 +200,11 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       const look = c.clone().add(V(0, -.46 * dist * tan, 0));     // đẩy sản phẩm lên nửa trên, chừa chỗ cho bảng chi tiết
       fly(pos, look, 1150);
     }
-    showPanel(it);
     root.classList.add('focused');
   }
   function unfocus(silent) {
     focused = null; panel.classList.remove('open'); root.classList.remove('focused');
+    if (closeUp) { closeUp = false; renderer.setPixelRatio(PR); resize(); }
     if (!silent) fly(st.pos.clone(), st.pos.clone().add(dirOf(yaw, pitch).multiplyScalar(5)), 950);
   }
 
@@ -194,7 +212,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   const toBoard = p => (p.board ? `<button type="button" class="rp-go" data-board="${p.board}">Xem bảng giá</button>` : '');
   function showPanel(it) {
     let html;
-    if (it.kind === 'film') {
+    if (it.close) {        // áp sát bảng: khung chi tiết thu gọn một dòng để cả tấm bảng hiện trọn phía trên
+      const p = products[it.kind];
+      html = `<div class="rp-line"><div><p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3></div>${toBoard(p)}</div>`;
+    } else if (it.kind === 'film') {
       const d = it.film;
       html = `<div class="rp-imgs one film"><img src="assets/${d.img}" alt="Hộp phim PPF Zappa ${d.name}"></div>
         <p class="rp-kicker">PPF Zappa Series · ${d.mil} mil · Bảo hành ${d.warranty} năm</p><h3 class="rp-name">PPF Zappa ${d.name}</h3>
@@ -210,7 +231,9 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       html = `${p.imgs.length ? `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>` : ''}
         <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}${toBoard(p)}`;
     }
-    panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>`;
+    const hint = it.close ? '' : '<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>';
+    panel.classList.toggle('compact', !!it.close);
+    panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}${hint}`;
     panel.querySelector('.rp-x').addEventListener('click', e => { e.stopPropagation(); unfocus(); });
     const go = panel.querySelector('.rp-go[data-board]');
     if (go) go.addEventListener('click', e => { e.stopPropagation(); goToBoard(go.dataset.board); });
@@ -265,6 +288,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     mirrorRT.setSize(gw, gh);
     gloss.material.uniforms.uTexel.value.set(1 / gw, 1 / gh);
     renderer.getDrawingBufferSize(gloss.material.uniforms.uRes.value);
+    if (closeUp && focused && !tween) [view.pos, view.look] = frameClose(focused);   // xoay màn khi đang áp sát bảng
   }
   new ResizeObserver(resize).observe(root); resize();
 
