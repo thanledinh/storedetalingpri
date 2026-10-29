@@ -184,9 +184,8 @@ ring = bpy.context.active_object; ring.name = "emit_ring"; ring.data.materials.a
 for cl in ring.users_collection: cl.objects.unlink(ring)
 COL["EMIT"].objects.link(ring)
 
-# bảng treo tường (tự phát sáng như hộp đèn)
+# bảng treo tường (tự phát sáng như hộp đèn); bảng giá bên trái là sản phẩm bấm được (xem P bên dưới)
 one_plane("emit_board", 2.5, 1.46, (0, 2.15, -D + .015), mat_image("m_board", ASSET + "room-board.jpg", emit=1.6), COL["EMIT"])
-one_plane("emit_price", .9, 1.25, (-2.15, 2.05, -D + .015), mat_image("m_price", ASSET + "room-price.jpg", emit=1.4), COL["EMIT"])
 
 # ── mặt tiền ──
 fb = Builder()
@@ -255,6 +254,16 @@ for s in (-1, 1):
     hw.box(STAND_W + .06, .07, .22, (x - nx * .03, .035, z - nz * .03), M["metal"], ry)
     hw.box(STAND_W + .02, .03, .03, (x, .07 + STAND_H + .01, z), M["metal"], ry)
     hw.box(.02, STAND_H, .02, (x - nx * .07, .07 + STAND_H / 2, z - nz * .07), M["ink"], ry)
+# tường phải: thanh treo 2 áo (móc ngay trên cổ áo) và kệ nhỏ để mũ
+SHIRT_X, SHIRT_Y, SHIRT_W, SHIRT_H, SHIRT_Z = W / 2 - .04, 1.8, .74, .95, (-4.2, -3.3)
+rail_y = SHIRT_Y + SHIRT_H / 2 + .05
+hw.box(.025, .025, 1.8, (W / 2 - .06, rail_y, sum(SHIRT_Z) / 2), M["metal"])
+for z in (sum(SHIRT_Z) / 2 - .88, sum(SHIRT_Z) / 2 + .88):
+    hw.box(.06, .025, .025, (W / 2 - .03, rail_y, z), M["metal"])
+for z in SHIRT_Z:
+    hw.box(.01, .05, .01, (W / 2 - .06, rail_y - .03, z), M["metal"])
+CAP_Z, CAP_SHELF_Y, CAP_W, CAP_H = -2.3, 1.45, .5, .465
+hw.box(.24, .03, .62, (W / 2 - .12, CAP_SHELF_Y, CAP_Z), M["top"])
 hw.build("bake_hw", COL["BAKE"])
 P = [
     ("standee_1", "room-standee-1.webp", STAND_W, STAND_H, (-STAND_X, .07 + STAND_H / 2, STAND_Z), STAND_A, 0, False),
@@ -263,7 +272,12 @@ P = [
     ("hood", "room-hood.jpg", .95, 1.27, (2.15, 2.05, -D + .02), 0, 1.0, False),
     ("tank", "room-tank-2.webp", .56, .63, (-2.75, 1.03 + .315, -D + .32), 0, 0, False),
     ("pump", "room-pump.webp", .27, .39, (1.6, 1.03 + .195, -D + .32), 0, 0, False),
-    ("demo", "room-demo-1.webp", 1.05, .54, (0, .63 + .27, -3.8), 0, 0, False),
+    ("price", "room-price.webp", .9, 1.27, (-2.15, 2.05, -D + .02), 0, 1.0, False),        # bảng giá PPF Zappa sau bình tạo bọt
+    ("demo", "room-may-ban-soi.webp", .8, .58, (0, .63 + .29, -3.8), 0, 0, False),          # máy bắn sỏi trên bục giữa
+    ("impact", "room-may-tac-dong.webp", .65, .44, (2.62, 1.03 + .22, -D + .32), 0, 0, False),  # máy kiểm tra tác động trên kệ phải
+    ("shirt_front", "room-ao-truoc.webp", SHIRT_W, SHIRT_H, (SHIRT_X, SHIRT_Y, SHIRT_Z[0]), -math.pi / 2, 0, False),
+    ("shirt_back", "room-ao-sau.webp", SHIRT_W, SHIRT_H, (SHIRT_X, SHIRT_Y, SHIRT_Z[1]), -math.pi / 2, 0, False),
+    ("cap", "room-mu.webp", CAP_W, CAP_H, (W / 2 - .13, CAP_SHELF_Y + .015 + CAP_H / 2, CAP_Z), -math.pi / 2, 0, False),
 ]
 for name, img, w, h, c, ry, emit, flip in P:
     uv = ((1, 0), (0, 0), (0, 1), (1, 1)) if flip else ((0, 0), (1, 0), (1, 1), (0, 1))

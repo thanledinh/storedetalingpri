@@ -46,14 +46,52 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       const mat = new THREE.MeshBasicMaterial({ map, transparent: m.transparent, alphaTest: m.alphaTest, toneMapped: false, side: m.side });
       if (!map) mat.color.copy(glow ? m.emissive : m.color);
       o.material = mat;
+      if (o.name === 'bake_floor' || o.name === 'bake_ground') hideInMirror.push(o);
     });
     scene.add(gltf.scene);
   });
 
+  /* ── sàn bóng: vẽ lại cả cảnh lật qua mặt sàn (y = 0) từ đúng góc máy, rồi phủ mờ ảnh đó lên sàn đã bake (nhoè một
+     chút, nhìn càng xiên càng bóng). Lúc vẽ ảnh lật thì ẩn sàn và mặt đường (cùng nằm ở y = 0, sẽ che hết). Mọi vật
+     liệu trong phòng đều hai mặt nên lật ảnh không làm mất mặt nào ── */
+  const mirrorRT = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType });
+  const mirrorCam = new THREE.PerspectiveCamera(); mirrorCam.matrixWorldAutoUpdate = false;
+  const FLIP_Y = new THREE.Matrix4().makeScale(1, -1, 1);
+  const hideInMirror = [];
+  const gloss = add(new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.ShaderMaterial({
+    uniforms: { tMirror: { value: mirrorRT.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uTexel: { value: new THREE.Vector2() } },
+    vertexShader: `varying vec3 vView;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0); vView = cameraPosition - wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }`,
+    fragmentShader: `uniform sampler2D tMirror; uniform vec2 uRes, uTexel; varying vec3 vView;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / uRes;
+        vec3 c = vec3(0.0);
+        for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++)
+          c += texture2D(tMirror, uv + vec2(float(i), float(j)) * 1.5 * uTexel).rgb;
+        float k = 1.0 - abs(normalize(vView).y);
+        gl_FragColor = vec4(c / 9.0, mix(.15, .42, k));
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false,
+  })));
+  gloss.rotation.x = -Math.PI / 2; gloss.position.set(0, .002, -D / 2);
+  gloss.onBeforeRender = (r, s, cam) => {
+    mirrorCam.projectionMatrix.copy(cam.projectionMatrix); mirrorCam.projectionMatrixInverse.copy(cam.projectionMatrixInverse);
+    mirrorCam.matrixWorld.multiplyMatrices(FLIP_Y, cam.matrixWorld);
+    mirrorCam.matrixWorldInverse.multiplyMatrices(cam.matrixWorldInverse, FLIP_Y);
+    gloss.visible = false; hideInMirror.forEach(o => { o.visible = false; });
+    const prev = r.getRenderTarget();
+    r.setRenderTarget(mirrorRT); r.render(s, mirrorCam); r.setRenderTarget(prev);
+    gloss.visible = true; hideInMirror.forEach(o => { o.visible = true; });
+  };
   /* ── sản phẩm (bấm được) ── */
   const items = [];
   const product = (o) => {
-    const face = new THREE.MeshBasicMaterial({ map: tex('assets/' + o.img), transparent: true, alphaTest: .04, toneMapped: false, side: o.depth ? THREE.FrontSide : THREE.DoubleSide });
+    const face = o.hit ? new THREE.MeshBasicMaterial({ visible: false })      // tấm chạm vô hình phủ lên vật đã có trong GLB
+      : new THREE.MeshBasicMaterial({ map: tex('assets/' + o.img), transparent: true, alphaTest: .04, toneMapped: false, side: o.depth ? THREE.FrontSide : THREE.DoubleSide });
     let m;
     if (o.depth) {        // hộp đèn hai mặt: trước & sau in hình, các cạnh tối
       const edge = new THREE.MeshBasicMaterial({ color: 0x0e0f0f });
@@ -74,20 +112,27 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   product({ kind: 'hood', img: 'room-hood.jpg', w: .95, h: 1.27, pos: [2.15, 2.05, -D + .02], zone: 'in', label: true });
   product({ kind: 'tank', img: 'room-tank-2.webp', w: .56, h: .63, pos: [-2.75, 1.03 + .315, -D + .32], zone: 'in', label: true });
   product({ kind: 'pump', img: 'room-pump.webp', w: .27, h: .39, pos: [1.6, 1.03 + .195, -D + .32], zone: 'in', label: true });
-  product({ kind: 'demo', img: 'room-demo-1.webp', w: 1.05, h: .54, pos: [0, .63 + .27, -3.8], zone: 'in', label: true });
+  product({ kind: 'price', img: 'room-price.webp', w: .9, h: 1.27, pos: [-2.15, 2.05, -D + .02], zone: 'in', label: true });   // bảng giá sau bình tạo bọt
+  product({ kind: 'demo', img: 'room-may-ban-soi.webp', w: .8, h: .58, pos: [0, .63 + .29, -3.8], zone: 'in', label: true });   // bục giữa
+  product({ kind: 'impact', img: 'room-may-tac-dong.webp', w: .65, h: .44, pos: [2.62, 1.03 + .22, -D + .32], zone: 'in', label: true });
+  // tường phải: 2 áo treo (mặt trước, mặt sau) + mũ trên kệ nhỏ
+  for (const [img, z, label] of [['room-ao-truoc.webp', -4.2, true], ['room-ao-sau.webp', -3.3, false]])
+    product({ kind: 'shirt', img, w: .74, h: .95, pos: [W / 2 - .04, 1.8, z], ry: -Math.PI / 2, zone: 'in', label });
+  product({ kind: 'cap', img: 'room-mu.webp', w: .5, h: .465, pos: [W / 2 - .13, 1.45 + .015 + .465 / 2, -2.3], ry: -Math.PI / 2, zone: 'in', label: true });
+  // biển hiệu ZAPPA trên mặt tiền (đã có trong showroom.glb): phủ tấm chạm vô hình để bấm được
+  product({ kind: 'logo', hit: true, w: 3, h: 3 * 449 / 1600, pos: [0, 3.52, .17], zone: 'out', label: true });
   const rows = [['1398 PRO', -2.15, .84], ['1398', -2.15, .52], ['1388 PRO', -2.15, .2], ['1388', 2.15, .84], ['1378', 2.15, .52], ['1368', 2.15, .2]];
   for (const [name, x, y] of rows) {
     const d = ppf.find(p => p.name === name);
-    product({ kind: 'film', film: d, img: d.img, w: 1.95, h: .31, pos: [x, y, -D + .605], zone: 'in' });
+    product({ kind: 'film', film: d, img: d.img, w: 1.95, h: .31, pos: [x, y, -D + .605], zone: 'in', label: true, dot: [-.4, 0] });   // chấm ở đầu trái cuộn phim
   }
 
-  /* ── điểm chạm nổi trên sản phẩm ── */
-  // cuộn phim trên kệ không gắn chấm (chạm thẳng vào cuộn phim là được) để đỡ rối
+  /* ── điểm chạm nổi trên sản phẩm (mặc định giữa mép trên; dot = [x, y] theo tỉ lệ bề ngang / chiều cao) ── */
   const hots = items.map(it => {
     if (!it.label) return null;
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'hot';
-    const name = products[it.kind].short;
+    const name = it.kind === 'film' ? 'PPF ' + it.film.name : products[it.kind].short;
     b.innerHTML = `<i></i><span>${name}</span>`;
     b.setAttribute('aria-label', 'Xem ' + name);
     b.addEventListener('click', e => { e.stopPropagation(); focus(it); });
@@ -138,6 +183,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   }
 
   const desc = p => (p.desc ? `<p class="rp-desc">${p.desc}</p>` : '');   // sản phẩm không có mô tả thì thôi
+  const toBoard = p => (p.board ? `<button type="button" class="rp-go" data-board="${p.board}">Xem bảng giá</button>` : '');
   function showPanel(it) {
     let html;
     if (it.kind === 'film') {
@@ -150,11 +196,11 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       const p = products[it.kind];
       html = `<div class="rp-row"><a class="rp-tall" href="assets/${p.imgs[0]}" target="_blank" rel="noopener"><img src="assets/${p.imgs[0]}" alt="${p.name}"></a>
         <div><p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}
-        <a class="rp-go" href="assets/${p.imgs[0]}" target="_blank" rel="noopener">Xem ảnh lớn</a></div></div>`;
+        ${toBoard(p) || `<a class="rp-go" href="assets/${p.imgs[0]}" target="_blank" rel="noopener">Xem ảnh lớn</a>`}</div></div>`;
     } else {
       const p = products[it.kind];
       html = `<div class="rp-imgs${p.imgs.length > 1 ? '' : ' one'}">${p.imgs.map(s => `<img src="assets/${s}" alt="${p.name}">`).join('')}</div>
-        <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}`;
+        <p class="rp-kicker">${p.kicker}</p><h3 class="rp-name">${p.name}</h3>${desc(p)}${toBoard(p)}`;
     }
     panel.innerHTML = `<button type="button" class="rp-x" aria-label="Thoát">×</button>${html}<p class="rp-hint"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Vuốt lên để thoát</p>`;
     panel.querySelector('.rp-x').addEventListener('click', e => { e.stopPropagation(); unfocus(); });
@@ -205,6 +251,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.fov = camera.aspect < .8 ? 70 : 56; camera.updateProjectionMatrix();
+    const pr = renderer.getPixelRatio(), gw = Math.round(w * pr / 2), gh = Math.round(h * pr / 2);   // ảnh phản chiếu nửa độ phân giải
+    mirrorRT.setSize(gw, gh);
+    gloss.material.uniforms.uTexel.value.set(1 / gw, 1 / gh);
+    renderer.getDrawingBufferSize(gloss.material.uniforms.uRes.value);
   }
   new ResizeObserver(resize).observe(root); resize();
 
@@ -227,7 +277,8 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     camera.updateMatrixWorld();
     items.forEach((it, i) => {
       const b = hots[i]; if (!b) return;
-      it.mesh.getWorldPosition(tmp); tmp.y += it.h * .5;
+      const [fx, fy] = it.dot || [0, .5];
+      it.mesh.localToWorld(tmp.set(fx * it.w, fy * it.h, 0));
       const inFront = tmp.clone().applyMatrix4(camera.matrixWorldInverse).z < 0;
       tmp.project(camera);
       const here = st === stations.out ? 'out' : 'in';

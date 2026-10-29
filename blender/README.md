@@ -8,7 +8,9 @@ Phòng trên web (`web/assets/showroom.glb`) được dựng và bake ánh sáng
 4. `python blender/denoise.py` — khử nhiễu ra `bake_dn/`
 5. `python blender/bmcp.py run blender/export.py` — xuất `web/assets/showroom.glb`
 
-Sản phẩm (bảng vẫy, standee, băng rôn, poster capo, bình phun, máy demo, cuộn phim) chỉ có trong Blender để tính bóng đổ; web tự đặt lại chúng trong `web/room.js` để bấm được. Đổi vị trí sản phẩm thì sửa cả hai nơi. Tay đỡ bảng vẫy và đế standee nằm trong `bake_hw` (xuất ra GLB).
+Sản phẩm (bảng vẫy, standee, bạt trải capo, poster capo, bảng giá treo tường, bình phun, máy bắn sỏi trên bục, máy kiểm tra tác động trên kệ phải, 2 áo + mũ ở tường phải, cuộn phim) chỉ có trong Blender để tính bóng đổ; web tự đặt lại chúng trong `web/room.js` để bấm được. Đổi vị trí sản phẩm thì sửa cả hai nơi. Tay đỡ bảng vẫy, đế standee, thanh treo áo và kệ mũ nằm trong `bake_hw` (xuất ra GLB). Biển hiệu ZAPPA nằm trong GLB; web phủ một tấm chạm vô hình lên để bấm được.
+
+Sàn bóng không bake: `web/room.js` vẽ lại cảnh lật qua mặt sàn rồi phủ mờ lên sàn (độ bóng: `mix(.15, .42, k)` trong shader `gloss`).
 
 Biển hiệu trên mặt tiền là logo chữ ZAPPA Paint Protection Film: `tex/sign-zappa.png` (1600×449, phần ngoài viền tô đen) dán lên một tấm bo góc đúng theo viền logo, nên không cần ảnh trong suốt.
 
