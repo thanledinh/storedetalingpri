@@ -222,6 +222,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
 /* ── trang bảng giá = ảnh poster gốc (1125 × 2000); máy tính: 6 dòng PPF xếp 3 × 2 ── */
 .poster{display:block;width:min(100% - 20px, 600px);height:auto;margin:0 auto;border-radius:18px}
+.page > .poster + .poster{margin-top:28px}   /* một trang có 2 ảnh (quy trình): cách nhau như hai trang nối nhau */
 .poster-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;width:min(100% - 40px, 1240px);margin:0 auto}
 .poster-grid .poster{width:100%}
 
@@ -510,12 +511,8 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 
   <section class="board" id="quy-trinh" data-stop="Quy trình dán PPF" aria-label="Quy trình dán PPF">
     <div class="scroller" tabindex="-1"><div class="inner">
+      <!-- poster quy trình chia 2 ảnh (bước 1–3; bước 4–5 + tính năng), vẫn là một trang -->
       <img class="poster" src="assets/poster-quy-trinh.webp" width="1125" height="2000" alt="Quy trình dán PPF, bước 1 đến 3: rửa xe chi tiết; xử lý bề mặt (loại bỏ nhựa cây, phân chim…); đánh bóng hiệu chỉnh bề mặt sơn.">
-    </div></div>
-  </section>
-
-  <section class="board" id="quy-trinh-2" data-stop="Quy trình dán PPF (tiếp)" aria-label="Quy trình dán PPF, bước 4 và 5">
-    <div class="scroller" tabindex="-1"><div class="inner">
       <img class="poster" src="assets/poster-quy-trinh-2.webp" width="1125" height="2000" alt="Quy trình dán PPF, bước 4 và 5: dán PPF bảo vệ tối ưu bề mặt; phủ Ceramic bảo vệ và tăng cường lớp PPF. Tính năng và ưu điểm: tự phục hồi vết xước, giảm thiểu trầy xước, kháng bụi, chống tia UV, ngăn ngả màu sơn, tạo độ bóng sâu.">
     </div></div>
   </section>
