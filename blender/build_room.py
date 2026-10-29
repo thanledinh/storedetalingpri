@@ -142,11 +142,11 @@ one_plane("bake_wall_left", D, H, (-W / 2, H / 2, -D / 2), M["wall"], COL["BAKE"
 one_plane("bake_wall_right", D, H, (W / 2, H / 2, -D / 2), M["wall"], COL["BAKE"], ry=-math.pi / 2)
 one_plane("bake_ceiling", W, D, (0, H, -D / 2), M["ceil"], COL["BAKE"], face="down")
 
-# một bộ đèn LED tổ ong trên ô xe giữa phòng: khung chữ nhật, bên trong lưới lục giác (3 cột, cột hai bên bị khung cắt
-# đôi) — dải phát sáng rộng 4,5 cm ngay dưới trần. Khớp tấm chạm 'led' trong web/room.js
-LED_X, LED_Z0, LED_Z1 = 1.15, -5.6, -1.0       # nửa bề ngang; mép trong, mép ngoài (z)
+# đèn LED tổ ong phủ kín trần: một mạng lục giác liền nhau (các ô chung cạnh) trong khung chữ nhật cách tường 25 cm —
+# dải phát sáng rộng 4,5 cm ngay dưới trần. Khớp tấm chạm 'led' trong web/room.js
+LED_X, LED_Z0, LED_Z1 = W / 2 - .25, -D + .25, -.25       # nửa bề ngang; mép trong, mép ngoài (z)
 led = Builder()
-R, tube = .5, .045
+R, tube = .55, .045
 yl = H - .012
 
 def strip(x0, z0, x1, z1, w=tube, ext=.012):
@@ -169,8 +169,8 @@ def clip(x0, z0, x1, z1):                      # cắt đoạn thẳng theo khun
 
 edges = set()
 zc = (LED_Z0 + LED_Z1) / 2
-for c in range(-2, 3):
-    for r in range(-5, 6):
+for c in range(-5, 6):
+    for r in range(-8, 9):
         x = c * 1.5 * R
         z = zc + (r + (.5 if c % 2 else 0)) * math.sqrt(3) * R
         pts = [(round(x + R * math.cos(math.pi / 3 * i), 4), round(z + R * math.sin(math.pi / 3 * i), 4)) for i in range(6)]

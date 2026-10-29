@@ -105,12 +105,12 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
     product({ kind: 'flag', img: 'room-co.webp', w: 2 * 70 / 235, h: 2, pos: [s * 3.2, 1, .75], ry: -s * .1, zone: 'out', label: s < 0 });
   // biển hiệu ZAPPA trên mặt tiền (đã có trong showroom.glb): phủ tấm chạm vô hình để bấm được
   product({ kind: 'logo', hit: true, w: 3, h: 3 * 449 / 1600, pos: [0, 3.52, .17], zone: 'out', label: true });
-  // bộ đèn LED tổ ong trên trần (trong GLB, khung x ±1,15; z −5,6 → −1, khớp build_room.py): tấm chạm vô hình phủ đúng
-  // khung đèn, chấm ở góc trong bên phải cho khỏi nằm dưới nút Mặt tiền / Bên trong; bấm thì bay tới góc ngước nhìn dọc
-  // bộ đèn từ phía cửa
-  const LED_W = 2.3, LED_D = 4.6, LED_Z = -3.3;
+  // đèn LED tổ ong phủ kín trần (trong GLB, khung cách tường 25 cm, khớp build_room.py): tấm chạm vô hình phủ đúng khung,
+  // chấm ở phía trong lệch phải (x 1,3; z −5,6) cho khỏi nằm dưới nút Mặt tiền / Bên trong; bấm thì bay tới góc ngước
+  // nhìn trần từ phía cửa
+  const LED_W = W - .5, LED_D = D - .5, LED_Z = -D / 2;
   const led = product({ kind: 'led', hit: true, w: LED_W, h: LED_D, pos: [0, H - .02, LED_Z], zone: 'in', label: true,
-    dot: [1 / LED_W, -2 / LED_D], view: { pos: V(0, 1.3, -.1), look: V(0, 3.4, -4.6) } });
+    dot: [1.3 / LED_W, (-5.6 - LED_Z) / LED_D], view: { pos: V(0, 1.3, -.1), look: V(0, 3.4, -4.6) } });
   led.mesh.rotation.x = Math.PI / 2;
   // sàn bóng (quà tặng, sàn nhựa ghép xám, ô viền xanh quanh bục): tấm chạm vô hình phủ cả sàn, chấm bên trái bục (x -1,2; z -3,4); sàn quá
   // rộng nên bấm vào thì bay tới một góc nhìn chéo xuống sàn đặt sẵn
