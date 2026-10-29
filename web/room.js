@@ -9,8 +9,11 @@ const W = 7, D = 6.5;                       // phòng: rộng × sâu (mét) —
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const easeIO = t => (t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
-export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
+export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   const canvas = root.querySelector('canvas');
+  // mọi sự kiện gắn qua signal này để dispose() gỡ một lần; dead: đã giải phóng (ảnh tải xong muộn thì thôi)
+  const ac = new AbortController(), signal = ac.signal;
+  let dead = false;
   const hotsEl = root.querySelector('.room-hots');
   const panel = root.querySelector('.room-panel');
   const loadingEl = root.querySelector('.room-loading');
@@ -28,8 +31,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 80);
 
   const manager = new THREE.LoadingManager();
-  manager.onLoad = () => { loadingEl.hidden = true; };
-  manager.onError = url => { loadingEl.textContent = 'Không tải được ' + url.split('/').pop() + '. Tải lại trang để thử lại.'; };
+  manager.onLoad = () => { if (!dead) loadingEl.hidden = true; };
+  manager.onError = url => { if (!dead) loadingEl.textContent = 'Không tải được ' + url.split('/').pop() + '. Tải lại trang để thử lại.'; };
+  // iPhone có thể tắt WebGL của phòng (thiếu bộ nhớ, rời Safari): báo ra ngoài để dựng lại
+  canvas.addEventListener('webglcontextlost', () => { if (!dead && onLost) onLost(); }, { signal });
   const loader = new THREE.TextureLoader(manager);
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const tex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; };
@@ -246,13 +251,13 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
   root.addEventListener('pointerdown', e => {
     if (e.target.closest('.hot, .room-ui, .rp-x, .rp-go, .rp-tall')) return;
     down = { x: e.clientX, y: e.clientY, yaw: tYaw, pitch: tPitch, t: performance.now() };
-  });
+  }, { signal });
   root.addEventListener('pointermove', e => {
     if (!down || focused || tween) return;
     tYaw = THREE.MathUtils.clamp(down.yaw - (e.clientX - down.x) * .005, st.yaw - st.yawMax, st.yaw + st.yawMax);
     tPitch = THREE.MathUtils.clamp(down.pitch + (e.clientY - down.y) * .004, st.pitch - st.pitchMax, st.pitch + st.pitchMax);
     tip.classList.add('gone');
-  });
+  }, { signal });
   addEventListener('pointerup', e => {
     if (!down) return;
     const dx = e.clientX - down.x, dy = e.clientY - down.y; const d0 = down; down = null;
@@ -267,17 +272,17 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
       if (hit) focus(hit.object.userData.item);
       else if (st === stations.out) goStation('in');           // chạm vào cửa/mặt tiền thì bước vào
     }
-  });
-  root.addEventListener('wheel', e => { if (focused) { e.preventDefault(); e.stopPropagation(); if (e.deltaY < 0) unfocus(); } }, { passive: false });
-  for (const ev of ['touchmove', 'touchend']) root.addEventListener(ev, e => e.stopPropagation(), { passive: true });
+  }, { signal });
+  root.addEventListener('wheel', e => { if (focused) { e.preventDefault(); e.stopPropagation(); if (e.deltaY < 0) unfocus(); } }, { passive: false, signal });
+  for (const ev of ['touchmove', 'touchend']) root.addEventListener(ev, e => e.stopPropagation(), { passive: true, signal });
   // kéo trên khung phòng chỉ để nhìn quanh: chặn mặc định của trình duyệt ngay từ touchstart, kẻo iPhone hiểu vuốt ngang
   // (nhất là bắt đầu sát mép màn) là cử chỉ quay lại / tới trang và thoát khỏi web. Chạm chọn sản phẩm vẫn chạy vì dùng
   // pointerup, không dùng click
   root.addEventListener('touchstart', e => {
     e.stopPropagation();
     if (e.target === canvas) e.preventDefault();
-  }, { passive: false });
-  viewBtns.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); goStation(b.dataset.view); }));
+  }, { passive: false, signal });
+  viewBtns.forEach(b => b.addEventListener('click', e => { e.stopPropagation(); goStation(b.dataset.view); }, { signal }));
 
   /* ── kích thước ── */
   function resize() {
@@ -290,7 +295,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
     renderer.getDrawingBufferSize(gloss.material.uniforms.uRes.value);
     if (closeUp && focused && !tween) [view.pos, view.look] = frameClose(focused);   // xoay màn khi đang áp sát bảng
   }
-  new ResizeObserver(resize).observe(root); resize();
+  const ro = new ResizeObserver(resize); ro.observe(root); resize();
 
   /* ── vòng vẽ ── */
   const tmp = new THREE.Vector3();
@@ -331,6 +336,24 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce }) {
         if (focused) unfocus(true);
         hots.forEach(b => b && b.classList.remove('show'));    // rời phòng: tắt chấm, không để lọt sang trang khác
       }
+    },
+    // trả hết bộ nhớ đồ hoạ (điện thoại yếu: rời phòng là giải phóng). Khung phòng về như lúc chưa dựng; canvas đã tắt
+    // WebGL không dùng lại được, nơi gọi thay canvas mới trước khi mount lại
+    dispose() {
+      dead = true; active = false;
+      ac.abort(); ro.disconnect(); clearTimeout(labelTimer);
+      hots.forEach(b => b && b.remove());
+      panel.className = 'room-panel'; panel.innerHTML = '';
+      root.classList.remove('focused', 'labels'); tip.classList.remove('gone');
+      viewBtns.forEach(b => b.classList.toggle('on', b.dataset.view === 'out'));
+      loadingEl.textContent = 'Đang dựng phòng trưng bày…'; loadingEl.hidden = false;
+      scene.traverse(o => {
+        if (!o.isMesh) return;
+        o.geometry.dispose();
+        for (const m of [].concat(o.material)) { if (m.map) m.map.dispose(); m.dispose(); }
+      });
+      mirrorRT.dispose();
+      renderer.dispose(); renderer.forceContextLoss();
     },
   };
 }

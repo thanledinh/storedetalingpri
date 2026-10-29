@@ -588,7 +588,15 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const root = document.documentElement;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vnd = n => n.toLocaleString('vi-VN');
+// điện thoại yếu bộ nhớ đồ hoạ (iPhone/iPad, Android ít RAM) — cùng điều kiện với `lite` trong ppf/studio.js;
+// ?lite=1 / ?lite=0 để ép bật / tắt khi thử
+const LITE_3D = (() => {
+  const q = new URLSearchParams(location.search).get('lite');
+  if (q) return q === '1';
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return ios || (matchMedia('(hover: none), (pointer: coarse)').matches && (navigator.deviceMemory || 8) <= 4);
+})();
+const vnd =n => n.toLocaleString('vi-VN');
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp01 = t => Math.max(0, Math.min(1, t));
@@ -1055,7 +1063,7 @@ function activate(b) {
 const XE = boards.find(b => b.el.id === 'xe');
 const CarStage = (() => {
   const stageEl = $('.xe-stage', XE.el);
-  let api = null, active = false;
+  let api = null, active = false, parked = false;
   const progress = () => { const max = XE.sc.scrollHeight - XE.sc.clientHeight; return max > 0 ? XE.sc.scrollTop / max : 0; };
   function sync() {
     const p = progress();
@@ -1075,6 +1083,9 @@ const CarStage = (() => {
       try { api.dispose(); } catch (err) { console.warn(err); }
       api = null;
     },
+    // điện thoại yếu: tạm bỏ xe khi mở phòng 3D (park), dựng lại khi rời phòng (unpark)
+    park() { if (api) { this.drop(); parked = true; } },
+    unpark() { if (parked) { parked = false; rebuildCar(); } },
   };
 })();
 
@@ -1171,19 +1182,27 @@ const Clip = (() => {
   return { toggle };
 })();
 
-/* phòng trưng bày 3D: chỉ tải Three.js + room.js khi mở tới trang này */
+/* phòng trưng bày 3D: chỉ tải Three.js + room.js khi mở tới trang này.
+   Điện thoại yếu bộ nhớ đồ hoạ (LITE_3D): chỉ giữ một cảnh 3D một lúc — vào phòng thì tạm bỏ xe 3D, rời phòng thì giải
+   phóng phòng và dựng lại xe (ngầm, trong lúc xem trang khác). Trình duyệt tắt WebGL của phòng thì dựng lại phòng */
 const Room = (() => {
   let api = null, loading = null, want = false;
+  function release() {
+    if (api) { api.dispose(); api = null; }
+    const old = $('#room canvas'); old.replaceWith(old.cloneNode(false));   // canvas đã tắt WebGL không xin lại được
+  }
+  function onLost() { release(); if (want) setTimeout(() => toggle(true), 600); }
   function toggle(on) {
     want = on;
+    if (on && LITE_3D) CarStage.park();
+    if (!on && LITE_3D) { if (api) release(); CarStage.unpark(); return; }
     if (api) return api.setActive(on);
     if (!on || loading) return;
     loading = import('./room.js').then(m => {
-      api = m.mount($('#room'), {
-        products: DATA.room, ppf: DATA.ppf, vnd, reduce,
-        goToBoard: openBoard,
-      });
-      api.setActive(want);
+      loading = null;
+      if (!want) return;                                  // rời trang trước khi tải xong
+      api = m.mount($('#room'), { products: DATA.room, ppf: DATA.ppf, vnd, reduce, goToBoard: openBoard, onLost });
+      api.setActive(true);
     }).catch(err => {
       console.error(err);
       $('#room .room-loading').textContent = 'Không tải được phòng 3D. Kiểm tra kết nối mạng rồi tải lại trang.';
@@ -1464,7 +1483,7 @@ if (deep) {
 // ghi lý do (dòng chữ nhỏ dưới câu báo lỗi) để chụp màn hình gửi lại
 const xeStage = $('.xe-stage');
 const carFailed = why => { xeStage.classList.remove('reloading'); xeStage.classList.add('failed'); xeStage.dataset.err = 'Lý do: ' + why; };
-let carBuilds = 0, carWaiting = false;
+let carBuilds = 0, carLosses = 0, carWaiting = false;
 function buildCar() {
   const id = ++carBuilds;                   // chỉ lần dựng mới nhất được đổi trạng thái trang (lần cũ có thể treo tới 30 giây)
   return import('./car-stage.js')
@@ -1472,19 +1491,21 @@ function buildCar() {
     .then(car => {
       if (id !== carBuilds) return car.dispose();
       xeStage.classList.remove('failed', 'reloading'); CarStage.ready(car);
+      if (LITE_3D && boards[cur] && boards[cur].el.id === 'phong-3d') CarStage.park();   // dựng xong lúc đang ở phòng 3D
     })
     .catch(err => { if (id === carBuilds) { console.warn('Không dựng được trang xe 3D:', err); carFailed(err && err.message || String(err)); } })
     .finally(carSettled);
 }
 function carLost() {
   CarStage.drop();
-  if (carBuilds >= 3) return carFailed('trình duyệt đã tắt WebGL (thiếu bộ nhớ?)');
+  if (++carLosses > 3) return carFailed('trình duyệt đã tắt WebGL (thiếu bộ nhớ?)');
   xeStage.classList.add('reloading');
   if (document.hidden) carWaiting = true;
   else setTimeout(rebuildCar, 600);
 }
 function rebuildCar() {
   carWaiting = false;
+  xeStage.classList.add('reloading');
   const old = $('.xe-canvas'), fresh = old.cloneNode(false);     // canvas đã mất WebGL không xin lại được: thay canvas mới
   old.replaceWith(fresh);
   buildCar();
