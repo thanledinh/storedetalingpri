@@ -815,8 +815,33 @@ const Music = (() => {
   document.addEventListener('visibilitychange', () => { if (document.hidden) a.pause(); else if (on) a.play().catch(() => {}); });
   return { set, get on() { return on; } };
 })();
+/* ───────── tiếng nổ máy lúc bấm START: assets/no-may.mp3 (đề → nổ → rú ga, khớp kim vòng tua của ignite(); tạo bằng
+   audio/no-may.py). Tải và giải mã sẵn bằng Web Audio để bấm là kêu ngay (thẻ <audio> trên iPhone chỉ tải lúc bấm nên
+   kêu trễ); trình duyệt không có Web Audio thì phát bằng thẻ <audio> ───────── */
+const Engine = (() => {
+  const SRC = 'assets/no-may.mp3', VOL = .8;
+  let ctx = null, buf = null, src = null, el = null;
+  try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+  if (ctx) fetch(SRC).then(r => r.arrayBuffer())
+    .then(d => new Promise((ok, no) => ctx.decodeAudioData(d, ok, no)))
+    .then(b => { buf = b; }).catch(() => {});
+  return {
+    start() {
+      // iPhone gạt nút im lặng thì Web Audio câm, còn nhạc nền (thẻ <audio>) vẫn kêu: cho tiếng máy kêu như nhạc nền
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch {}
+      if (ctx && buf) {
+        ctx.resume();
+        const g = ctx.createGain(); g.gain.value = VOL; g.connect(ctx.destination);
+        src = ctx.createBufferSource(); src.buffer = buf; src.connect(g); src.start();
+      } else {
+        el = new Audio(SRC); el.volume = VOL; el.play().catch(() => {});
+      }
+    },
+    stop() { try { if (src) src.stop(); } catch {} if (el) el.pause(); },
+  };
+})();
 const soundBtn = $('#sound');
-function setSound(v) { const ok = Music.set(v); soundBtn.setAttribute('aria-pressed', String(!!ok && v)); }
+function setSound(v) { const ok = Music.set(v); if (!v) Engine.stop(); soundBtn.setAttribute('aria-pressed', String(!!ok && v)); }
 soundBtn.addEventListener('click', () => setSound(!Music.on));
 
 /* ───────── con đường (canvas) ───────── */
@@ -1470,6 +1495,7 @@ async function ignite() {
   started = true;
   intro.classList.add('pressed');
   hint.textContent = 'Đang khởi động…';
+  Engine.start();
   setSound(true);
   if (reduce) { setTacho(.9); Road.engine(true); activate(boards[0]); hideIntro(); return; }
   await tween(0, .45, 340, eio, setTacho);
