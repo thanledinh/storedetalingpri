@@ -177,6 +177,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .xe-stage.at-start .xe-hint .a,.xe-stage.at-end .xe-hint .b{display:block}
 @keyframes xeNudge{0%,100%{transform:translateY(0) rotate(45deg);opacity:.5}50%{transform:translateY(6px) rotate(45deg);opacity:1}}
 .xe-stage.failed::before{content:"Không tải được mô hình xe 3D — tải lại trang để thử lại";position:absolute;left:16px;right:16px;top:45%;text-align:center;color:var(--muted);font-size:13px}
+.xe-stage.reloading::before{content:"Đang tải lại mô hình xe 3D…";position:absolute;left:16px;right:16px;top:45%;text-align:center;color:var(--muted);font-size:13px;z-index:1}
 .xe-stage.failed::after{content:attr(data-err);position:absolute;left:16px;right:16px;top:calc(45% + 26px);text-align:center;color:var(--muted);font-size:11px;opacity:.75}
 .xe-stage.failed .xe-hint .a,.xe-stage.failed .xe-canvas{display:none}
 
@@ -1069,6 +1070,11 @@ const CarStage = (() => {
   return {
     ready(a) { api = a; sync(); if (active) api.setActive(true); },
     toggle(on) { active = on; if (api) api.setActive(on); },
+    drop() {                                                    // cảnh đã mất WebGL: bỏ, chờ dựng lại
+      if (!api) return;
+      try { api.dispose(); } catch (err) { console.warn(err); }
+      api = null;
+    },
   };
 })();
 
@@ -1453,18 +1459,41 @@ if (deep) {
   showCard(deep, hashId, false);
 }
 // tải trang xe dán PPF ngay khi mở web; nút START khoá tới khi xong (màn tải phía trên che trong lúc chờ).
-// Hỏng thì trang xe ghi lý do (dòng chữ nhỏ dưới câu báo lỗi) để chụp màn hình gửi lại
-const carFailed = why => { const s = $('.xe-stage'); s.classList.add('failed'); s.dataset.err = 'Lý do: ' + why; };
+// iPhone hay tắt WebGL của cảnh (thiếu bộ nhớ, hoặc lúc rời Safari rồi quay lại): xe biến mất mà trang vẫn chạy. Khi đó
+// dựng lại xe trên một canvas mới (đang ẩn tab thì chờ quay lại), tối đa 3 lần mỗi lần mở trang. Hỏng hẳn thì trang xe
+// ghi lý do (dòng chữ nhỏ dưới câu báo lỗi) để chụp màn hình gửi lại
+const xeStage = $('.xe-stage');
+const carFailed = why => { xeStage.classList.remove('reloading'); xeStage.classList.add('failed'); xeStage.dataset.err = 'Lý do: ' + why; };
+let carBuilds = 0, carWaiting = false;
+function buildCar() {
+  const id = ++carBuilds;                   // chỉ lần dựng mới nhất được đổi trạng thái trang (lần cũ có thể treo tới 30 giây)
+  return import('./car-stage.js')
+    .then(m => m.createCarStage($('.xe-canvas'), { onProgress: p => Preload.set('car', Math.min(p, .97)), onLost: carLost }))
+    .then(car => {
+      if (id !== carBuilds) return car.dispose();
+      xeStage.classList.remove('failed', 'reloading'); CarStage.ready(car);
+    })
+    .catch(err => { if (id === carBuilds) { console.warn('Không dựng được trang xe 3D:', err); carFailed(err && err.message || String(err)); } })
+    .finally(carSettled);
+}
+function carLost() {
+  CarStage.drop();
+  if (carBuilds >= 3) return carFailed('trình duyệt đã tắt WebGL (thiếu bộ nhớ?)');
+  xeStage.classList.add('reloading');
+  if (document.hidden) carWaiting = true;
+  else setTimeout(rebuildCar, 600);
+}
+function rebuildCar() {
+  carWaiting = false;
+  const old = $('.xe-canvas'), fresh = old.cloneNode(false);     // canvas đã mất WebGL không xin lại được: thay canvas mới
+  old.replaceWith(fresh);
+  buildCar();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && carWaiting) rebuildCar(); });
 const startBtn = $('#start');
+const carSettled = () => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); };
 intro.classList.add('loading'); startBtn.disabled = true;
-import('./car-stage.js')
-  .then(m => m.createCarStage($('.xe-canvas'), {
-    onProgress: p => Preload.set('car', Math.min(p, .97)),
-    onLost: () => carFailed('trình duyệt đã tắt WebGL (thiếu bộ nhớ?)'),
-  }))
-  .then(car => CarStage.ready(car))
-  .catch(err => { console.warn('Không dựng được trang xe 3D:', err); carFailed(err && err.message || String(err)); })
-  .finally(() => { intro.classList.remove('loading'); startBtn.disabled = false; Preload.set('car', 1); });
+buildCar();
 
 /* màn tải: thanh vàng chạy theo phần đã tải (cảnh xe 60% · ảnh mọi trang 30% · font 10%), xong hết mới mờ đi cho vào.
    Ảnh để tải chậm (lazy) cũng tải luôn để lúc chuyển trang không còn ảnh hiện dần. Kẹt quá 40 giây thì vẫn cho vào. */

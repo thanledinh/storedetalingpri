@@ -15,13 +15,16 @@ const clamp01 = (t) => Math.min(1, Math.max(0, t));
 export async function createCarStage(canvas, { onProgress, onLost } = {}) {
   const manager = THREE.DefaultLoadingManager, before = manager.onProgress;
   manager.onProgress = (url, loaded, total) => onProgress && onProgress(loaded / total);
-  canvas.addEventListener('webglcontextlost', () => onLost && onLost(), { once: true });
+  // (chính dispose() cũng tắt WebGL để trả bộ nhớ: lúc đó không báo)
+  let disposed = false;
+  canvas.addEventListener('webglcontextlost', () => { if (!disposed && onLost) onLost(); }, { once: true });
   let ppf = null;
   try {
     ppf = createPpfScene({ canvas });
     // mất WebGL lúc đang dựng thì ready không bao giờ xong: quá 30 giây coi như lỗi, nút START vẫn mở
     await Promise.race([ppf.ready, new Promise((_, fail) => setTimeout(() => fail(new Error('dựng cảnh quá 30 giây')), 30000))]);
   } catch (err) {
+    disposed = true;
     ppf?.dispose();                                       // (index.html then shows the stage's failure message)
     throw err;
   } finally {
@@ -69,6 +72,7 @@ export async function createCarStage(canvas, { onProgress, onLost } = {}) {
       else cancelAnimationFrame(raf);
     },
     dispose() {
+      disposed = true;
       cancelAnimationFrame(raf);
       removeEventListener('resize', onResize);
       ppf.dispose();

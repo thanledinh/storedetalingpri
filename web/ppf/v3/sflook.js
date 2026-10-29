@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+import { lite } from '../studio.js';
 
 /**
  * The page's look: the car as Sketchfab's viewer shows it, rebuilt from the model's public viewer settings
@@ -85,7 +86,7 @@ export function addSfLights(scene, at, layer = 1) {
   SF.lights.forEach((from) => place(new THREE.DirectionalLight(0xffffff, SF.lightIntensity), from, 20));
   const sun = new THREE.DirectionalLight(new THREE.Color().setRGB(...SF.sun.color), SF.sun.intensity);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.setScalar(lite ? 1024 : 2048);
   Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 30 });
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.015;
@@ -309,7 +310,8 @@ void main() {
  * ?grain=0 turns the grain off (for comparing pictures), ?aa=0 the FXAA.
  */
 export function createSfPost(renderer) {
-  const hdr = new THREE.WebGLRenderTarget(16, 16, { type: THREE.HalfFloatType, samples: 4, depthTexture: new THREE.DepthTexture(16, 16) });
+  // (lite: no MSAA, the biggest buffer of all at 4 half-float samples a pixel; FXAA smooths the edges instead)
+  const hdr = new THREE.WebGLRenderTarget(16, 16, { type: THREE.HalfFloatType, samples: lite ? 0 : 4, depthTexture: new THREE.DepthTexture(16, 16) });
   const ldr = new THREE.WebGLRenderTarget(16, 16, { depthBuffer: false });
   const ao = createSfAO();
   const t = SF.tone, b = SF.balance;
@@ -358,7 +360,7 @@ export function createSfPost(renderer) {
       ldr.setSize(w, h);
       ldrAA.setSize(w, h);
       fxaa.material.uniforms.resolution.value.set(1 / w, 1 / h);
-      aa.on = !aaOff && pixelRatio < 1.5;
+      aa.on = !aaOff && (lite || pixelRatio < 1.5);
       grade.material.uniforms.uTex.value.set(w, h);
       finish.material.uniforms.uTex.value.set(w, h);
       finish.material.uniforms.uPr.value = Math.min(1.5, pixelRatio);

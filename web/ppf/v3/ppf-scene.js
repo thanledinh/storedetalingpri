@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { asset, hdrLoader, isTouch } from '../studio.js';
+import { asset, hdrLoader, isTouch, lite } from '../studio.js';
 import { loadCar, createUniforms } from '../car.js';
 import { createKit } from './kit.js';
 import { SF, patchShading, sfScope, addSfLights, createSfPost, bakeGroundAO } from './sflook.js';
@@ -43,7 +43,8 @@ export function createPpfScene({ canvas, shift = 0 }) {
   }
   // resolution: the screen's own up to 1.75x, within a budget of pixels, lowered a step at a time on a device that
   // can't keep up (govern)
-  const DPR_MAX = 1.75, PIXELS_MAX = 4.2e6;
+  // (lite, studio.js: 1.25x and 1.6 MP at most)
+  const DPR_MAX = lite ? 1.25 : 1.75, PIXELS_MAX = lite ? 1.6e6 : 4.2e6;
   let dpr = 1, dprCap = DPR_MAX, dprFloor = 1;
   if (!patched) {
     patchShading();
@@ -108,7 +109,7 @@ export function createPpfScene({ canvas, shift = 0 }) {
       o.castShadow = !o.material.transparent;
       o.receiveShadow = true;
     });
-    groundAO(bakeGroundAO(renderer, c.root));
+    groundAO(bakeGroundAO(renderer, c.root, lite ? { size: 256, rays: 48, steps: 20 } : undefined));
     scene.add(kit.rig, kit.pieces);
     sfScope(scene);                                    // (a material added or cloned after this needs it again)
     buildTimeline();
