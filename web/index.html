@@ -821,7 +821,8 @@ function setTacho(k) { // k = nghìn vòng/phút
   rpmEl.textContent = k.toFixed(1);
 }
 
-/* ───────── nhạc nền: assets/nhac-nen.mp3, phát lặp. Bật khi bấm START (trình duyệt chỉ cho phát tiếng
+/* ───────── nhạc nền: assets/nhac-nen.mp3, phát lặp (đã cắt đoạn hiệu ứng mở đầu của bản gốc — tích tắc, tiếng vút, cú
+   dập: file mở bằng 3 giây im lặng cho tiếng nổ máy vang một mình, rồi nhạc chính lên dần). Bật khi bấm START (trình duyệt chỉ cho phát tiếng
    sau một lần chạm), nút loa góc trên để tắt/bật; ẩn tab thì tạm dừng ───────── */
 const Music = (() => {
   const a = new Audio('assets/nhac-nen.mp3');
