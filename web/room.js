@@ -55,10 +55,47 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
       const mat = new THREE.MeshBasicMaterial({ map, transparent: m.transparent, alphaTest: m.alphaTest, toneMapped: false, side: m.side });
       if (!map) mat.color.copy(glow ? m.emissive : m.color);
       o.material = mat;
+      if (o.name === 'bake_floor' || o.name === 'bake_ground') hideInMirror.push(o);
     });
     scene.add(gltf.scene);
   });
 
+  /* ── sàn bóng: vẽ lại cả cảnh lật qua mặt sàn (y = 0) từ đúng góc máy, rồi phủ mờ ảnh đó lên sàn đã bake (nhoè một
+     chút, nhìn càng xiên càng bóng). Lúc vẽ ảnh lật thì ẩn sàn và mặt đường (cùng nằm ở y = 0, sẽ che hết). Mọi vật
+     liệu trong phòng đều hai mặt nên lật ảnh không làm mất mặt nào ── */
+  const mirrorRT = new THREE.WebGLRenderTarget(2, 2, { type: THREE.HalfFloatType });
+  const mirrorCam = new THREE.PerspectiveCamera(); mirrorCam.matrixWorldAutoUpdate = false;
+  const FLIP_Y = new THREE.Matrix4().makeScale(1, -1, 1);
+  const hideInMirror = [];
+  const gloss = add(new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.ShaderMaterial({
+    uniforms: { tMirror: { value: mirrorRT.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uTexel: { value: new THREE.Vector2() } },
+    vertexShader: `varying vec3 vView;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0); vView = cameraPosition - wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }`,
+    fragmentShader: `uniform sampler2D tMirror; uniform vec2 uRes, uTexel; varying vec3 vView;
+      void main() {
+        vec2 uv = gl_FragCoord.xy / uRes;
+        vec3 c = vec3(0.0);
+        for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++)
+          c += texture2D(tMirror, uv + vec2(float(i), float(j)) * 1.5 * uTexel).rgb;
+        float k = 1.0 - abs(normalize(vView).y);
+        gl_FragColor = vec4(c / 9.0, mix(.15, .42, k));
+        #include <colorspace_fragment>
+      }`,
+    transparent: true, depthWrite: false,
+  })));
+  gloss.rotation.x = -Math.PI / 2; gloss.position.set(0, .002, -D / 2);
+  gloss.onBeforeRender = (r, s, cam) => {
+    mirrorCam.projectionMatrix.copy(cam.projectionMatrix); mirrorCam.projectionMatrixInverse.copy(cam.projectionMatrixInverse);
+    mirrorCam.matrixWorld.multiplyMatrices(FLIP_Y, cam.matrixWorld);
+    mirrorCam.matrixWorldInverse.multiplyMatrices(cam.matrixWorldInverse, FLIP_Y);
+    gloss.visible = false; hideInMirror.forEach(o => { o.visible = false; });
+    const prev = r.getRenderTarget();
+    r.setRenderTarget(mirrorRT); r.render(s, mirrorCam); r.setRenderTarget(prev);
+    gloss.visible = true; hideInMirror.forEach(o => { o.visible = true; });
+  };
   /* ── sản phẩm (bấm được) ── */
   const items = [];
   const product = (o) => {
@@ -112,7 +149,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
   const led = product({ kind: 'led', hit: true, w: LED_W, h: LED_D, pos: [0, H - .02, LED_Z], zone: 'in', label: true,
     dot: [1.3 / LED_W, (-5.6 - LED_Z) / LED_D], view: { pos: V(0, 1.3, -.1), look: V(0, 3.4, -4.6) } });
   led.mesh.rotation.x = Math.PI / 2;
-  // sàn bóng (quà tặng, sàn nhựa ghép xám, ô viền xanh quanh bục): tấm chạm vô hình phủ cả sàn, chấm bên trái bục (x -1,2; z -3,4); sàn quá
+  // sàn bóng (quà tặng): tấm chạm vô hình phủ cả sàn, chấm đặt trên thảm vàng bên trái bục (x -1,2; z -3,4); sàn quá
   // rộng nên bấm vào thì bay tới một góc nhìn chéo xuống sàn đặt sẵn
   const floor = product({ kind: 'floor', hit: true, w: W, h: D, pos: [0, .003, -D / 2], zone: 'in', label: true, dot: [-1.2 / W, .15 / D],
     view: { pos: V(0, 2.5, -.3), look: V(0, -.4, -4.2) } });
@@ -282,6 +319,10 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
     const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.fov = camera.aspect < .8 ? 70 : 56; camera.updateProjectionMatrix();
+    const pr = renderer.getPixelRatio(), gw = Math.round(w * pr / 2), gh = Math.round(h * pr / 2);   // ảnh phản chiếu nửa độ phân giải
+    mirrorRT.setSize(gw, gh);
+    gloss.material.uniforms.uTexel.value.set(1 / gw, 1 / gh);
+    renderer.getDrawingBufferSize(gloss.material.uniforms.uRes.value);
     if (closeUp && focused && !tween) [view.pos, view.look] = frameClose(focused);   // xoay màn khi đang áp sát bảng
   }
   const ro = new ResizeObserver(resize); ro.observe(root); resize();
@@ -341,6 +382,7 @@ export function mount(root, { products, ppf, vnd, goToBoard, reduce, onLost }) {
         o.geometry.dispose();
         for (const m of [].concat(o.material)) { if (m.map) m.map.dispose(); m.dispose(); }
       });
+      mirrorRT.dispose();
       renderer.dispose(); renderer.forceContextLoss();
     },
   };
