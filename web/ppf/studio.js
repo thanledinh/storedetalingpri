@@ -47,9 +47,10 @@ float hexEdge(vec2 p) {
 
 export const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
 export const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-// (storedetalingpri) a light frame for phones short of graphics memory: iOS Safari drops the WebGL context of a scene
-// this heavy (the car vanishes, the page lives on), as may an Android phone with little RAM. Lower resolution, no MSAA
-// (FXAA instead), a smaller shadow map and a lighter ground bake. ?lite=1 / ?lite=0 forces it on / off.
+// (storedetalingpri) a light frame for Android phones with little RAM, which may drop the WebGL context of a scene this
+// heavy (the car vanishes, the page lives on): lower resolution, no MSAA (FXAA instead), a smaller shadow map and a
+// lighter ground bake. Not on iPhone: it looked soft there, and the owner prefers sharp (the page rebuilds the car if
+// iOS drops it anyway). ?lite=1 / ?lite=0 forces it on / off.
 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const liteParam = new URLSearchParams(location.search).get('lite');
-export const lite = liteParam ? liteParam === '1' : isIOS || (isTouch && (navigator.deviceMemory || 8) <= 4);
+export const lite = liteParam ? liteParam === '1' : !isIOS && isTouch && (navigator.deviceMemory || 8) <= 4;
