@@ -11,6 +11,10 @@ Trang bảng giá đại lý Store Detailing 2026 (PPF Zappa, PPF màu, cách â
 - Phòng trưng bày 3D: `web/room.js` + `blender/` (xem `blender/README.md`). Trên iPhone / điện thoại ít RAM (`LITE_3D` trong `web/index.html`) chỉ giữ một cảnh 3D một lúc: vào phòng thì tạm bỏ xe 3D, rời phòng thì giải phóng phòng (`dispose()`) và dựng lại xe.
 - Chặng: các trang nối nhau cuộn bình thường, chỉ giữa các chặng mới có xe kéo bảng. Trang mở đầu mỗi chặng nằm trong hằng `CHAPTER_HEADS` (trong `web/index.html`); trang theo sau tự nối vào chặng đó lúc tải.
 
+## Tên miền và xem trước khi gửi link
+
+Trang chạy ở https://daily.zappa.vn/. Khi gửi link (Zalo, Facebook, Messenger…) hiện ảnh `web/assets/og-zappa.jpg` (1200 × 630) cùng tiêu đề, mô tả trong các thẻ `og:` đầu `web/index.html` — các đường dẫn ở đó phải đầy đủ `https://daily.zappa.vn/…`. Đổi ảnh thì giữ tên file hoặc sửa cả `og:image`. Biểu tượng trang: `assets/favicon.svg`, `assets/apple-touch-icon.png` (180 × 180). Zalo / Facebook lưu bản xem trước một thời gian: link đã gửi trước đó có thể vẫn hiện bản cũ.
+
 ## Chạy bằng Docker
 
 ```bash
