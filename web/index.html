@@ -844,8 +844,8 @@ const Music = (() => {
   document.addEventListener('visibilitychange', () => { if (document.hidden) a.pause(); else if (on) a.play().catch(() => {}); });
   return { set, get on() { return on; } };
 })();
-/* ───────── tiếng nổ máy lúc bấm START: assets/no-may.mp3 (ghi âm xe thật: đề → nổ → rú ga, khớp kim vòng tua của
-   ignite(); ghép bằng audio/no-may.py). Tải và giải mã sẵn bằng Web Audio để bấm là kêu ngay (thẻ <audio> trên iPhone
+/* ───────── tiếng nẹt bô lúc bấm START: assets/no-may.mp3 (ghi âm xe thật: bấm là rú ga luôn, rồi nẹt lần hai lúc màn
+   hình lao đi — khớp kim vòng tua của ignite(); ghép bằng audio/no-may.py). Tải và giải mã sẵn bằng Web Audio để bấm là kêu ngay (thẻ <audio> trên iPhone
    chỉ tải lúc bấm nên kêu trễ); trình duyệt không có Web Audio thì phát bằng thẻ <audio> ───────── */
 const Engine = (() => {
   const SRC = 'assets/no-may.mp3', VOL = 1;
@@ -1539,9 +1539,8 @@ async function ignite() {
   Engine.start();
   setSound(true);
   if (reduce) { setTacho(.9); Road.engine(true); activate(boards[0]); hideIntro(); return; }
-  await tween(0, .45, 340, eio, setTacho);
-  root.classList.add('shake'); Road.engine(true); intro.classList.add('lit');
-  await tween(.45, 3.8, 380, eout, setTacho);
+  root.classList.add('shake'); Road.engine(true); intro.classList.add('lit');     // bấm là nẹt bô luôn, không có nhịp đề máy
+  await tween(0, 3.8, 380, eout, setTacho);
   await tween(3.8, .9, 700, eio, setTacho);
   root.classList.remove('shake');
   hint.textContent = 'Sẵn sàng';
