@@ -258,7 +258,7 @@ html.ready .route{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .fit .grow{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
 
 /* ── phòng trưng bày 3D ── */
-/* ── video lễ ký kết: điện thoại (màn dọc) xem bản dọc; máy tính (màn ngang) xem 9 clip ngang xếp thành dải lướt ngang ── */
+/* ── video lễ ký kết: điện thoại (màn dọc) xem bản dọc; máy tính (màn ngang) xem 12 clip ngang xếp thành dải lướt ngang ── */
 .board.fit .clip-sheet{max-width:1120px}
 .clip-title{font-size:min(7cqi,40px)}
 .clip{position:relative;margin:4cqi -1cqi 0;aspect-ratio:9/16;border-radius:2cqi;overflow:hidden;background:#000;box-shadow:0 0 0 1px rgba(214,180,96,.55)}
@@ -1154,7 +1154,7 @@ const CarStage = (() => {
      (hết clip cuối quay về clip đầu); lướt ngang, bấm mũi tên, phím ← →, bấm clip ló bên cạnh hay vạch bên dưới để đổi clip.
      Chỉ tải clip đang xem và hai clip kề nó.
    File gốc không có tiếng (rãnh âm thanh câm) nên video chạy không tiếng, không có nút loa */
-const REEL = 9;                                     // assets/le-ky-ket-ngang-1…9.mp4 (+ .jpg ảnh chờ)
+const REEL = 12;                                    // assets/le-ky-ket-ngang-1…12.mp4 (+ .jpg ảnh chờ)
 const Clip = (() => {
   const doc = $('#clip video'), track = $('#reel .reel-track'), dots = $('#le-ky-ket .reel-dots');
   const portrait = matchMedia('(orientation: portrait)');
