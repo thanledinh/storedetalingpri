@@ -13,7 +13,7 @@ Trang bảng giá đại lý Store Detailing 2026 (PPF Zappa, PPF màu, cách â
 
 ## Tên miền và xem trước khi gửi link
 
-Trang chạy ở https://daily.zappa.vn/. Khi gửi link (Zalo, Facebook, Messenger…) hiện ảnh `web/assets/og-zappa.jpg` (1200 × 630) cùng tiêu đề, mô tả trong các thẻ `og:` đầu `web/index.html` — các đường dẫn ở đó phải đầy đủ `https://daily.zappa.vn/…`. Mở bằng link `*.sslip.io` thì nginx (`nginx.conf`, `sub_filter`) đổi các đường dẫn đó thành chính link sslip, nên gửi link sslip không bị đẩy sang daily.zappa.vn. Đổi ảnh thì giữ tên file hoặc sửa cả `og:image`. Biểu tượng trang: `assets/favicon.svg`, `assets/apple-touch-icon.png` (180 × 180). Zalo / Facebook lưu bản xem trước một thời gian: link đã gửi trước đó có thể vẫn hiện bản cũ.
+Trang chạy ở https://daily.zappa.vn/. Khi gửi link (Zalo, Facebook, Messenger…) hiện ảnh `web/assets/og-zappa.jpg` (1200 × 630) cùng tiêu đề, mô tả trong các thẻ `og:` đầu `web/index.html` — các đường dẫn ở đó phải đầy đủ `https://daily.zappa.vn/…`. Mở bằng link `*.sslip.io` thì nginx (`nginx.conf`, `sub_filter`) đổi các đường dẫn đó thành chính link sslip, nên gửi link sslip không bị đẩy sang daily.zappa.vn. Đổi ảnh thì giữ tên file hoặc sửa cả `og:image`. Biểu tượng trang: `assets/favicon.svg`, `assets/apple-touch-icon.png` (180 × 180). Zalo / Facebook lưu bản xem trước một thời gian: link đã gửi trước đó có thể vẫn hiện bản cũ. `web/robots.txt` cho mọi máy đọc trang (kể cả `facebookexternalhit`). daily.zappa.vn đi qua Cloudflare: nếu Facebook báo mã 403 thì do Cloudflare chặn máy đọc của Facebook (Bot Fight Mode / chặn bot AI), tắt trong mục Security của Cloudflare.
 
 ## Chạy bằng Docker
 
